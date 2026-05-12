@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Driver Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map { height: 500px; width: 100%; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <h1>Driver Dashboard</h1>
+    <div id="map"></div>
+
+    <h2>Driver Details</h2>
+    <table id="drivers-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>License Number</th>
+                <th>Vehicle</th>
+                <th>Phone</th>
+                <th>Active</th>
+                <th>Last Update</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const map = L.map('map').setView([26.0667, 50.5577], 12); // Center on Bahrain
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        const driverMarkers = {};
+
+        function updateDrivers() {
+            fetch("/api/drivers/status/")  // Make sure this URL is correct
+                .then(response => response.json())
+                .then(drivers => {
+                    const tbody = document.querySelector("#drivers-table tbody");
+                    tbody.innerHTML = "";
+
+                    drivers.forEach(driver => {
+                        // Update table
+                        const tr = document.createElement("tr");
+                        tr.innerHTML = `
+                            <td>${driver.name}</td>
+                            <td>${driver.license_number || ""}</td>
+                            <td>${driver.assigned_vehicle || ""}</td>
+                            <td>${driver.phone || ""}</td>
+                            <td>${driver.active ? "Yes" : "No"}</td>
+                            <td>${driver.timestamp || ""}</td>
+                        `;
+                        tbody.appendChild(tr);
+
+                        // Update map marker
+                        if(driver.latitude && driver.longitude) {
+                            if(driverMarkers[driver.id]) {
+                                driverMarkers[driver.id].setLatLng([driver.latitude, driver.longitude]);
+                            } else {
+                                driverMarkers[driver.id] = L.marker([driver.latitude, driver.longitude])
+                                    .addTo(map)
+                                    .bindPopup(`<b>${driver.name}</b><br>${driver.assigned_vehicle || ""}<br>Active: ${driver.active ? "Yes" : "No"}`);
+                            }
+                        }
+                    });
+                });
+        }
+
+        // Initial load
+        updateDrivers();
+        // Refresh every 5 seconds
+        setInterval(updateDrivers, 5000);
+    </script>
+</body>
+</html>

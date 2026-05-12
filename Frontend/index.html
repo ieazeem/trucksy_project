@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🚚 TRUCKSY Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      background-color: #0d0d0d;
+      color: #e0e0e0;
+      font-family: "Segoe UI", sans-serif;
+    }
+    .neon-title {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #39ff14;
+      text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14;
+    }
+    .card {
+      background: #1a1a1a;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+      margin-bottom: 20px;
+    }
+    .table { color: #e0e0e0; }
+    .clickable-row { cursor: pointer; }
+    #map { height: 400px; border-radius: 12px; }
+  </style>
+</head>
+<body>
+<div class="container py-4">
+  <h1 class="neon-title mb-4">🚚 TRUCKSY Dashboard</h1>
+
+  <!-- Map -->
+  <div class="card p-3 mb-4">
+    <h4 class="mb-3">Driver Locations</h4>
+    <div id="map"></div>
+  </div>
+
+  <!-- Drivers -->
+  <div class="card p-3">
+    <h4>Drivers</h4>
+    <table class="table table-dark table-striped" id="drivers-table">
+      <thead>
+        <tr><th>ID</th><th>Name</th><th>Phone</th><th>Truck ID</th><th>Active</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Loads -->
+  <div class="card p-3">
+    <h4>Loads</h4>
+    <table class="table table-dark table-striped" id="loads-table">
+      <thead>
+        <tr><th>ID</th><th>Pickup</th><th>Drop</th><th>Weight</th><th>Status</th><th>Driver</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Sensors -->
+  <div class="card p-3">
+    <h4>Sensors</h4>
+    <table class="table table-dark table-striped" id="sensors-table">
+      <thead>
+        <tr><th>ID</th><th>Driver</th><th>Weight</th><th>Timestamp</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+  const NGROK_URL = "https://b8ef56673cd5.ngrok-free.app"; // Replace with your ngrok URL
+  const map = L.map('map').setView([26.2285, 50.5860], 9);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  let markers = {};
+
+  async function fetchData() {
+    try {
+      // Fetch all drivers for map
+      const locationsRes = await fetch(`${NGROK_URL}/api/drivers/status/all/`);
+      const locations = await locationsRes.json();
+
+      locations.forEach(loc => {
+        if (loc.latitude && loc.longitude) {
+          const key = loc.id;
+          if (markers[key]) map.removeLayer(markers[key]);
+          markers[key] = L.marker([loc.latitude, loc.longitude])
+            .addTo(map)
+            .bindPopup(`Driver ${loc.license_number} @ ${new Date(loc.timestamp).toLocaleTimeString()}`);
+        }
+      });
+
+      // Fetch drivers table
+      const driversRes = await fetch(`${NGROK_URL}/api/drivers/`);
+      const drivers = await driversRes.json();
+      renderDriversTable(drivers);
+
+      // Fetch Loads
+      const loadsRes = await fetch(`${NGROK_URL}/api/loads/`);
+      const loads = await loadsRes.json();
+      renderTable("loads-table", loads);
+
+      // Fetch Sensors
+      const sensorsRes = await fetch(`${NGROK_URL}/api/sensors/`);
+      const sensors = await sensorsRes.json();
+      renderTable("sensors-table", sensors);
+
+    } catch (err) {
+      console.error("Error fetching data:", err);
+    }
+  }
+
+  function renderTable(tableId, data) {
+    const tbody = document.querySelector(`#${tableId} tbody`);
+    tbody.innerHTML = "";
+    data.forEach(item => {
+      const row = "<tr>" + Object.values(item).map(val => `<td>${val}</td>`).join("") + "</tr>";
+      tbody.innerHTML += row;
+    });
+  }
+
+  function renderDriversTable(drivers) {
+    const tbody = document.querySelector(`#drivers-table tbody`);
+    tbody.innerHTML = "";
+    drivers.forEach(driver => {
+      const row = document.createElement("tr");
+      row.classList.add("clickable-row");
+      row.innerHTML = `
+        <td>${driver.id}</td>
+        <td>${driver.name}</td>
+        <td>${driver.phone}</td>
+        <td>${driver.truck_id}</td>
+        <td>${driver.active}</td>
+      `;
+      row.addEventListener("click", () => {
+        window.location.href = `${NGROK_URL}/dashboard/driver/${driver.id}/`;
+      });
+      tbody.appendChild(row);
+    });
+  }
+
+  // Initial fetch + refresh every 10 seconds
+  fetchData();
+  setInterval(fetchData, 10000);
+</script>
+</body>
+</html>
