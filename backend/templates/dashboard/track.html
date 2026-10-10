@@ -75,7 +75,8 @@
 
     const at = Object.fromEntries(d.events.map((e) => [e.status, e.at]));
     const order = STEPS.map((x) => x[0]);
-    const cur = d.status === "cancelled" ? -1 : order.indexOf(d.status);
+    // Delivered = every step done (nothing "in progress" any more).
+    const cur = d.status === "cancelled" ? -1 : d.status === "delivered" ? order.length : order.indexOf(d.status);
     document.getElementById("steps").innerHTML = d.status === "cancelled"
       ? `<li class="now"><span class="dot"></span><span>This delivery was cancelled. Please contact us.</span><span></span></li>`
       : STEPS.map(([k, label], i) => `<li class="${i < cur ? "done" : i === cur ? "now" : ""}"><span class="dot"></span>
