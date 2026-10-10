@@ -14,6 +14,10 @@ Trucking dispatch platform for Bahrain and the GCC, in three parts:
 
 ---
 
+## Try the dashboard without installing anything
+
+Open **`demo/trucksy-dashboard-demo.html`** in any browser by double-clicking it. It's the real dashboard running against an in-browser demo server with Bahrain sample data, and the trucks move by themselves. Rebuild it after changing the dashboard with `python demo/build_demo.py`.
+
 ## Run it on your laptop (10 minutes)
 
 You need **Python 3.12+** and **Node 20+**.

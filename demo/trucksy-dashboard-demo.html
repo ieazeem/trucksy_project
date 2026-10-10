@@ -1,0 +1,2077 @@
+<title>Trucksy Dispatch Demo</title>
+<style>
+/* required styles */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+/* Prevents IE11 from highlighting tiles in blue */
+.leaflet-tile::selection {
+	background: transparent;
+}
+/* Safari renders non-retina tile on retina better with this, but Chrome is worse */
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+/* hack that prevents hw layers "stretching" when loading new tiles */
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */
+/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	/* See: https://bugs.chromium.org/p/chromium/issues/detail?id=600120 */
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	/* Fallback for FF which doesn't support pinch-zoom */
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	behavior: url(#default#VML);
+	display: inline-block;
+	position: absolute;
+	}
+
+
+/* control positioning */
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+/* zoom and fade animations */
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+/* cursors */
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+
+/* visual tweaks */
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+/* general typography */
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+/* general toolbar styles */
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+/* zoom control */
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+/* layers control */
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	background-image: url(images/layers.png);
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-image: url(images/layers-2x.png);
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+/* Default icon URLs */
+.leaflet-default-icon-path { /* used only in path-guessing heuristic, see L.Icon.Default */
+	background-image: url(images/marker-icon.png);
+	}
+
+
+/* attribution and scale controls */
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+/* popup */
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+/* div icon */
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+/* Tooltip */
+/* Base styles for the element that has a tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/* Printing */
+
+@media print {
+	/* Prevent printers from removing background-images of controls. */
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+
+/* Trucksy dispatch console — same look as trucksy website: dark grey, black, emerald green
+   (the green of the trucks' underglow). Green = moving / brand action. */
+
+:root {
+  --ink: #ffffff;          /* text */
+  --ink-2: #c9cdd2;        /* secondary text */
+  --ink-3: #8f969e;        /* tertiary text */
+  --concrete: #262626;     /* page background (website --bg-dark) */
+  --paper: #333333;        /* panels (website --bg-medium) */
+  --field: #404040;        /* inputs (website --bg-light) */
+  --line: #3d3d3d;         /* dividers */
+  --edge: #1a1a1a;         /* panel borders (website --border) */
+  --sign: #1a1a1a;         /* rail + signboard */
+  --sign-deep: #000000;
+  --sign-tint: rgba(125, 211, 252, .14);
+  --sky: #7dd3fc;          /* assigned / heading to pickup */
+  --amber: #34d399;        /* brand green: moving, primary highlights */
+  --amber-tint: rgba(52, 211, 153, .14);
+  --amber-ink: #34d399;
+  --go: #e5e7eb;           /* delivered (done = calm) */
+  --go-tint: rgba(255, 255, 255, .09);
+  --wait: #fbbf24;         /* waiting for a driver */
+  --wait-tint: rgba(251, 191, 36, .14);
+  --stop: #f87171;
+  --stop-tint: rgba(248, 113, 113, .14);
+  --asphalt: #111111;
+  --glow: 0 0 0 1px #34d399, 0 0 16px rgba(52, 211, 153, .45);
+
+  --display: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --text: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --r-sign: 12px;
+  --r-panel: 10px;
+  --r-chip: 999px;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: var(--text);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--ink);
+  background: var(--concrete);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--amber); }
+:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- shell ---------- */
+.shell { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; background: linear-gradient(90deg, var(--sign) 220px, transparent 220px); }
+.rail {
+  background: var(--sign); border-right: 1px solid #000;
+  color: #fff;
+  display: flex; flex-direction: column;
+  padding: 18px 14px;
+  position: sticky; top: 0; height: 100vh;
+}
+.brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 22px; }
+.brand-mark {
+  width: 38px; height: 38px; border-radius: 8px; background: #000; color: var(--amber);
+  display: grid; place-items: center; box-shadow: inset 0 0 0 1px var(--amber), 0 0 12px rgba(52,211,153,.35);
+}
+.brand-name { font-family: var(--display); font-weight: 800; font-size: 24px; letter-spacing: .05em; text-transform: uppercase; }
+.nav { display: flex; flex-direction: column; gap: 2px; }
+.nav button {
+  all: unset; cursor: pointer; display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 6px; font-weight: 500; color: var(--ink-2);
+}
+.nav button:hover { background: rgba(255,255,255,.08); color: #fff; }
+.nav button[aria-current="page"] { background: var(--amber-tint); color: var(--amber); font-weight: 600; box-shadow: inset 3px 0 0 var(--amber); }
+.nav button:focus-visible { outline: 3px solid var(--amber); }
+.nav svg { width: 20px; height: 20px; flex: none; }
+.rail-foot { margin-top: auto; padding: 12px 8px 0; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-3); }
+.rail-foot strong { display: block; color: #fff; font-weight: 600; font-size: 14px; }
+.rail-foot a { color: #fff; }
+
+.main { padding: 22px 28px 40px; min-width: 0; }
+.topbar { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+.topbar h1 { font-family: var(--display); font-weight: 800; font-size: 34px; line-height: 1; margin: 0; }
+.clock { color: var(--ink-2); font-size: 14px; }
+.topbar .spacer { flex: 1; }
+.live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--go); margin-right: 6px; vertical-align: 1px; }
+.live-dot.stale { background: var(--stop); }
+
+/* ---------- buttons & inputs ---------- */
+.btn {
+  border: 0; cursor: pointer; border-radius: 6px; padding: 9px 16px; font-weight: 600;
+  background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 1px #4a4a4a;
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none; white-space: nowrap;
+}
+.btn:hover { box-shadow: inset 0 0 0 1px var(--amber); color: var(--amber); }
+.btn-primary { background: linear-gradient(90deg, #1a1a1a, #000); color: #fff; box-shadow: inset 0 0 0 1px #000, 0 0 8px rgba(0,0,0,.35); }
+.btn-primary:hover { color: #fff; box-shadow: var(--glow); }
+.btn-danger { color: var(--stop); }
+.btn-sm { padding: 5px 10px; font-size: 13px; }
+.btn svg { width: 18px; height: 18px; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.field input, .field select, .field textarea, .search {
+  border: 1px solid var(--edge); background: var(--field); color: var(--ink); border-radius: 6px; padding: 9px 11px; width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus, .search:focus { border-color: transparent; outline: 2px solid var(--amber); }
+.field .hint { font-size: 12px; color: var(--ink-3); }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid .full { grid-column: 1 / -1; }
+.form-error { color: var(--stop); font-size: 14px; min-height: 1.2em; margin: 8px 0 0; }
+
+/* ---------- signboard KPIs ---------- */
+.signboard {
+  background: var(--sign); color: #fff; border-radius: var(--r-sign); padding: 6px;
+  margin-bottom: 18px; box-shadow: 0 0 0 1px #000, 0 10px 30px rgba(0,0,0,.35);
+}
+.signboard-inner {
+  border: 1px solid rgba(52,211,153,.55); box-shadow: inset 0 0 18px rgba(52,211,153,.08); border-radius: 8px; display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+.kpi { padding: 14px 18px 12px; }
+.kpi + .kpi { border-left: 1px solid #2e2e2e; }
+.kpi-value { font-family: var(--display); font-weight: 800; letter-spacing: -.01em; font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; }
+.kpi-value small { font-size: 22px; font-weight: 600; opacity: .8; margin-left: 4px; }
+.kpi-label { font-size: 14px; color: var(--ink-2); margin-top: 6px; }
+.kpi.is-amber .kpi-value { color: var(--amber); text-shadow: 0 0 18px rgba(52,211,153,.45); }
+
+/* ---------- panels ---------- */
+.grid-main { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr); gap: 18px; margin-bottom: 18px; }
+.grid-two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+.panel { background: var(--paper); border-radius: var(--r-panel); border: 1px solid var(--edge); min-width: 0; box-shadow: 0 4px 10px rgba(0,0,0,.3); }
+.panel-head { display: flex; align-items: baseline; gap: 10px; padding: 14px 18px 10px; }
+.panel-head h2 { font-family: var(--display); font-weight: 600; font-size: 21px; margin: 0; }
+.panel-head .meta { color: var(--ink-3); font-size: 13px; }
+.panel-head .spacer { flex: 1; }
+.panel-body { padding: 0 18px 16px; }
+
+#map { height: 470px; border-radius: 0 0 var(--r-panel) var(--r-panel); }
+.map-panel { overflow: hidden; display: flex; flex-direction: column; }
+.map-panel #map { flex: 1 0 auto; }
+
+/* ---------- the road strip (signature element) ---------- */
+.trip-list { max-height: 470px; overflow: auto; }
+.trip { padding: 12px 18px 14px; border-top: 1px solid var(--line); cursor: pointer; }
+.trip:hover { background: #3a3a3a; }
+.trip-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.trip-ref { font-weight: 700; }
+.trip-cust { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.road {
+  position: relative; height: 22px; border-radius: 4px; background: var(--asphalt);
+  margin: 4px 0 6px;
+}
+.road::before { /* lane marking */
+  content: ""; position: absolute; left: 10px; right: 10px; top: 50%; height: 2px; margin-top: -1px;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.55) 0 10px, transparent 10px 18px);
+}
+.road-done { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px 0 0 4px; background: rgba(52,211,153,.28); box-shadow: inset 0 -2px 0 rgba(52,211,153,.8); }
+.road-stop { position: absolute; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #fff; }
+.road-truck {
+  position: absolute; top: 50%; transform: translate(-50%, -50%);
+  background: var(--amber); color: #000; border-radius: 4px; padding: 1px 6px;
+  font-family: var(--display); font-weight: 700; font-size: 13px; line-height: 18px; white-space: nowrap;
+  box-shadow: 0 0 0 2px var(--asphalt), 0 0 12px rgba(52,211,153,.7);
+  transition: left .6s ease;
+}
+.road-ends { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--ink-2); }
+.road-ends span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 48%; }
+.road-ends span:last-child { text-align: right; }
+
+/* ---------- status chips ---------- */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px; border-radius: var(--r-chip);
+  padding: 2px 10px; font-size: 13px; font-weight: 600; white-space: nowrap;
+  background: rgba(255,255,255,.06); color: var(--ink-2);
+}
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.st-pending { background: var(--wait-tint); color: var(--wait); }
+.st-assigned, .st-to_pickup, .st-available { background: var(--sign-tint); color: var(--sky); }
+.st-loaded, .st-in_transit, .st-on_job { background: var(--amber-tint); color: var(--amber-ink); }
+.st-delivered { background: var(--go-tint); color: var(--go); }
+.st-cancelled { background: var(--stop-tint); color: var(--stop); }
+.st-offline { background: rgba(255,255,255,.06); color: var(--ink-3); }
+.st-break { background: rgba(196,181,253,.14); color: #c4b5fd; }
+
+/* ---------- chart ---------- */
+.bars { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; align-items: end; height: 190px; padding-top: 10px; }
+.bar-col { display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+.bar { width: 100%; max-width: 46px; background: rgba(52,211,153,.45); border-radius: 4px 4px 0 0; min-height: 3px; position: relative; }
+.bar.today { background: var(--amber); box-shadow: 0 0 16px rgba(52,211,153,.55); }
+.bar-n { font-family: var(--display); font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; }
+.bar-day { font-size: 12px; color: var(--ink-3); }
+.chart-foot { display: flex; gap: 22px; padding-top: 12px; margin-top: 10px; border-top: 1px solid var(--line); color: var(--ink-2); font-size: 14px; }
+.chart-foot b { color: var(--amber); font-family: var(--display); font-size: 20px; margin-right: 4px; }
+
+/* ---------- activity log ---------- */
+.log { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow: auto; }
+.log li { display: grid; grid-template-columns: 54px 1fr; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.log li:first-child { border-top: 0; }
+.log time { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.log .who { color: var(--ink-2); }
+
+/* ---------- tables ---------- */
+.toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.seg { display: inline-flex; background: var(--paper); border: 1px solid var(--edge); border-radius: 6px; padding: 3px; flex-wrap: wrap; }
+.seg button { all: unset; cursor: pointer; padding: 6px 12px; border-radius: 4px; font-weight: 500; font-size: 14px; color: var(--ink-2); }
+.seg button[aria-pressed="true"] { background: #000; color: var(--amber); box-shadow: inset 0 0 0 1px var(--amber); }
+.seg button:focus-visible { outline: 3px solid var(--amber); }
+.search { max-width: 280px; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-weight: 600; color: var(--ink-2); font-size: 13px; padding: 10px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+td { padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr.clickable { cursor: pointer; }
+tbody tr.clickable:hover { background: #3a3a3a; }
+td .sub { color: var(--ink-3); font-size: 13px; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.plate {
+  display: inline-block; border: 1px solid var(--amber); border-radius: 4px; padding: 0 6px; color: var(--amber);
+  font-family: var(--display); font-weight: 700; letter-spacing: .06em; background: #000; line-height: 20px; font-size: 13px;
+}
+.warn { color: var(--stop); font-weight: 600; }
+.empty { padding: 36px 18px; text-align: center; color: var(--ink-2); }
+
+.date-range { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-2); }
+.date-range input { border: 1px solid var(--edge); background: var(--field); color: var(--ink); border-radius: 6px; padding: 6px 8px; }
+.hist-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--edge); border: 1px solid var(--edge); border-radius: 6px; overflow: hidden; margin: 12px 0; }
+.hist-stats div { background: var(--paper); padding: 10px 12px; }
+.hist-stats b { display: block; font-family: var(--display); font-size: 24px; line-height: 1.1; }
+.hist-stats span { font-size: 12px; color: var(--ink-2); }
+.hist-form { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+.hist-form .field { flex: 1; min-width: 130px; }
+.quick { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+
+/* ---------- drawer ---------- */
+.drawer-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.55); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 1150; }
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(520px, 100vw); background: var(--paper);
+  transform: translateX(100%); transition: transform .25s ease; z-index: 1200; display: flex; flex-direction: column;
+  box-shadow: -12px 0 40px rgba(0,0,0,.5); border-left: 1px solid #000; visibility: hidden;
+}
+.drawer-open .drawer { visibility: visible; }
+.drawer-open .drawer { transform: none; }
+.drawer-open .drawer-backdrop { opacity: 1; pointer-events: auto; }
+.drawer-head { padding: 18px 22px 12px; border-bottom: 1px solid var(--line); display: flex; gap: 12px; align-items: flex-start; }
+.drawer-head h2 { font-family: var(--display); font-size: 28px; margin: 0; line-height: 1.05; }
+.drawer-head .spacer { flex: 1; }
+.drawer-body { padding: 16px 22px 28px; overflow: auto; }
+.drawer-body h3 { font-family: var(--display); font-weight: 600; font-size: 19px; margin: 22px 0 8px; }
+#drawer-map { height: 220px; border-radius: 6px; margin: 10px 0 4px; border: 1px solid var(--line); }
+.dl { display: grid; grid-template-columns: 130px 1fr; gap: 6px 12px; font-size: 14px; margin: 0; }
+.dl dt { color: var(--ink-2); }
+.dl dd { margin: 0; }
+.timeline { list-style: none; margin: 0; padding: 0 0 0 18px; border-left: 2px solid var(--line); }
+.timeline li { position: relative; padding: 0 0 12px 10px; font-size: 14px; }
+.timeline li::before { content: ""; position: absolute; left: -25px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px var(--paper); }
+.timeline time { color: var(--ink-3); font-size: 13px; display: block; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.assign-row { display: flex; gap: 8px; }
+.assign-row select { flex: 1; border: 1px solid var(--edge); border-radius: 6px; padding: 8px 10px; background: var(--field); color: var(--ink); }
+
+/* ---------- dialogs ---------- */
+dialog { border: 1px solid #000; border-radius: 12px; padding: 0; width: min(620px, calc(100vw - 32px)); box-shadow: 0 24px 60px rgba(0,0,0,.6); background: var(--paper); color: var(--ink); }
+dialog::backdrop { background: rgba(0,0,0,.6); }
+dialog form { padding: 22px 24px; }
+dialog h2 { font-family: var(--display); font-size: 26px; margin: 0 0 16px; }
+.dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+
+.toast {
+  position: fixed; bottom: 22px; left: 50%; transform: translate(-50%, 20px); opacity: 0;
+  background: #000; color: #fff; padding: 10px 18px; border-radius: 6px; font-weight: 500; box-shadow: var(--glow);
+  transition: all .2s; z-index: 2000; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- map markers ---------- */
+.truck-pin {
+  background: var(--amber); color: #000; border: 2px solid #000; border-radius: 5px;
+  font-family: var(--display); font-weight: 700; font-size: 13px; line-height: 18px; padding: 0 5px;
+  white-space: nowrap; box-shadow: 0 0 12px rgba(52,211,153,.6); transform: translate(-50%, -50%); display: inline-block;
+}
+.truck-pin.idle { background: #000; color: var(--amber); border-color: var(--amber); box-shadow: none; }
+.truck-pin.offline { background: #333; color: var(--ink-3); border-color: #555; box-shadow: none; }
+.leaflet-div-icon.pin-wrap { background: none; border: 0; }
+.place-pin { width: 14px; height: 14px; border-radius: 50%; border: 3px solid #111; box-shadow: 0 0 0 2px var(--sky); background: var(--sky); }
+.place-pin.drop { background: var(--amber); box-shadow: 0 0 0 2px var(--amber), 0 0 10px rgba(52,211,153,.7); }
+.leaflet-container { font-family: var(--text); background: #1b1b1b; }
+.leaflet-bar a, .leaflet-bar a:hover { background: #333; color: #fff; border-bottom-color: #1a1a1a; }
+.leaflet-bar { border: 1px solid #000 !important; }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #333; color: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.5); }
+.leaflet-container a { color: var(--amber); }
+.leaflet-control-attribution { background: rgba(0,0,0,.6) !important; color: #aaa; }
+.leaflet-control-attribution a { color: #ccc !important; }
+.leaflet-tooltip { background: #111; color: #fff; border-color: #000; }
+.leaflet-popup-content { font-size: 14px; margin: 10px 14px; }
+
+/* ---------- views ---------- */
+.view[hidden] { display: none; }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1180px) {
+  .signboard-inner { grid-template-columns: repeat(3, 1fr); }
+  .kpi:nth-child(4) { border-left: 0; }
+  .kpi:nth-child(n+4) { border-top: 1px solid rgba(255,255,255,.28); }
+  .grid-main { grid-template-columns: 1fr; }
+}
+@media (max-width: 820px) {
+  .shell { grid-template-columns: 1fr; background: none; }
+  .rail { position: fixed; bottom: 0; top: auto; left: 0; right: 0; height: auto; flex-direction: row; padding: 6px; z-index: 1100; }
+  .brand, .rail-foot { display: none; }
+  .nav { flex-direction: row; flex: 1; justify-content: space-around; }
+  .nav button { flex-direction: column; gap: 2px; font-size: 12px; padding: 6px 8px; }
+  .main { padding: 16px 16px 90px; }
+  .topbar h1 { font-size: 28px; }
+  .signboard-inner { grid-template-columns: 1fr 1fr; }
+  .kpi { border-left: 0 !important; }
+  .kpi:nth-child(n+3) { border-top: 1px solid rgba(255,255,255,.28); }
+  .kpi-value { font-size: 36px; }
+  .grid-two { grid-template-columns: 1fr; }
+  #map { height: 340px; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+
+.demo-bar { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 1500; max-width: min(760px, calc(100vw - 32px));
+  background: #000; color: #e5e7eb; border: 1px solid #34d399; border-radius: 10px; padding: 9px 14px; font-size: 13px;
+  box-shadow: 0 0 18px rgba(52,211,153,.35); }
+.demo-bar strong { color: #34d399; margin-right: 4px; }
+.demo-bar { padding-right: 40px; }
+.demo-close { position: absolute; top: 4px; right: 6px; width: 28px; height: 28px; border: 0; border-radius: 6px; background: transparent; color: #c9cdd2; font-size: 20px; cursor: pointer; }
+.demo-close:hover { color: #34d399; }
+#map, #drawer-map { background: #141618 !important; }
+@media (max-width: 820px) { .demo-bar { bottom: 78px; } }
+
+</style>
+
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h11v10H2z"/><path d="M13 9h4.5L21 12.5V16h-8z"/><circle cx="6.5" cy="17.5" r="1.8" fill="#000"/><circle cx="17" cy="17.5" r="1.8" fill="#000"/></svg></div>
+      <span class="brand-name">Trucksy</span>
+    </div>
+    <nav class="nav" aria-label="Main">
+      <button data-view="overview" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <span>Live map</span>
+      </button>
+      <button data-view="loads">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>
+        <span>Loads</span>
+      </button>
+      <button data-view="drivers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+        <span>Drivers</span>
+      </button>
+      <button data-view="fleet">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h11v10H2z"/><path d="M13 9h4.5L21 12.5V16h-8z"/><circle cx="6.5" cy="17.5" r="1.8" fill="#000"/><circle cx="17" cy="17.5" r="1.8" fill="#000"/></svg>
+        <span>Fleet</span>
+      </button>
+    </nav>
+    <div class="rail-foot">
+      <strong>Ops Manager</strong>
+      Dispatcher · <a href="/admin/">Admin</a>
+      <form method="post" action="#" style="margin-top:8px"><button class="btn btn-sm" type="submit">Sign out</button></form>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <h1 id="page-title">Live map</h1>
+      <span class="clock"><span class="live-dot" id="live-dot"></span><span id="clock">—</span></span>
+      <span class="spacer"></span>
+      <button class="btn btn-primary" id="btn-new-load" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        New load
+      </button>
+    </header>
+
+    <!-- OVERVIEW -->
+    <section class="view" id="view-overview">
+      <div class="signboard" aria-label="Today at a glance">
+        <div class="signboard-inner">
+          <div class="kpi"><div class="kpi-value" id="k-live">–</div><div class="kpi-label">Trucks live now</div></div>
+          <div class="kpi is-amber"><div class="kpi-value" id="k-active">–</div><div class="kpi-label">Loads on the road</div></div>
+          <div class="kpi"><div class="kpi-value" id="k-pending">–</div><div class="kpi-label">Waiting for a driver</div></div>
+          <div class="kpi"><div class="kpi-value" id="k-delivered">–</div><div class="kpi-label">Delivered today</div></div>
+          <div class="kpi"><div class="kpi-value" id="k-revenue">–</div><div class="kpi-label">Revenue today</div></div>
+        </div>
+      </div>
+
+      <div class="grid-main">
+        <div class="panel map-panel">
+          <div class="panel-head"><h2>Fleet map</h2><span class="meta" id="map-meta"></span></div>
+          <div id="map" role="region" aria-label="Map of trucks"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>On the road</h2><span class="meta" id="trip-count"></span></div>
+          <div class="trip-list" id="trip-list"></div>
+        </div>
+      </div>
+
+      <div class="grid-two">
+        <div class="panel">
+          <div class="panel-head"><h2>Deliveries, last 7 days</h2><span class="spacer"></span><a class="btn btn-sm" id="dl-week" href="/api/reports/operations.xlsx" download>Download weekly report</a></div>
+          <div class="panel-body">
+            <div class="bars" id="bars"></div>
+            <div class="chart-foot" id="chart-foot"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Activity</h2><span class="meta">Latest job updates</span></div>
+          <div class="panel-body"><ul class="log" id="log"></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOADS -->
+    <section class="view" id="view-loads" hidden>
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Filter loads" id="load-filter">
+          <button data-f="" aria-pressed="true">All</button>
+          <button data-f="pending" aria-pressed="false">Waiting</button>
+          <button data-f="active" aria-pressed="false">On the road</button>
+          <button data-f="delivered" aria-pressed="false">Delivered</button>
+          <button data-f="cancelled" aria-pressed="false">Cancelled</button>
+        </div>
+        <label class="sr-only" for="load-search">Search loads</label>
+        <input class="search" id="load-search" type="search" placeholder="Search reference, customer, place">
+        <div class="date-range" role="group" aria-label="Pickup date range">
+          <label for="load-from">From</label><input type="date" id="load-from">
+          <label for="load-to">to</label><input type="date" id="load-to">
+        </div>
+        <span class="spacer" style="flex:1"></span>
+        <a class="btn" id="dl-loads" href="/api/reports/loads.xlsx" download>Download Excel</a>
+      </div>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Load</th><th>Route</th><th>Driver</th><th>Status</th><th class="num">Weight</th><th class="num">Price (BHD)</th><th>Pickup</th></tr></thead>
+        <tbody id="loads-body"></tbody>
+      </table></div></div>
+    </section>
+
+    <!-- DRIVERS -->
+    <section class="view" id="view-drivers" hidden>
+      <div class="toolbar"><span class="spacer" style="flex:1"></span><a class="btn" href="/api/reports/drivers.xlsx" download>Download driver list</a><button class="btn" id="btn-new-driver" type="button">Add driver</button></div>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Driver</th><th>Phone (app login)</th><th>Truck</th><th>Status</th><th>Last signal</th><th>Licence expiry</th><th></th></tr></thead>
+        <tbody id="drivers-body"></tbody>
+      </table></div></div>
+    </section>
+
+    <!-- FLEET -->
+    <section class="view" id="view-fleet" hidden>
+      <div class="toolbar"><span class="spacer" style="flex:1"></span><button class="btn" id="btn-new-truck" type="button">Add truck</button></div>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Plate</th><th>Type</th><th>Make &amp; model</th><th class="num">Capacity</th><th>Driver</th><th>Registration</th><th>Insurance</th></tr></thead>
+        <tbody id="trucks-body"></tbody>
+      </table></div></div>
+    </section>
+  </main>
+</div>
+
+<!-- Load drawer -->
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+<aside class="drawer" id="drawer" aria-label="Load details" aria-hidden="true">
+  <div class="drawer-head">
+    <div>
+      <h2 id="d-title">—</h2>
+      <div id="d-sub" class="clock"></div>
+    </div>
+    <span class="spacer"></span>
+    <button class="btn btn-sm" id="drawer-close" type="button">Close</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+
+<!-- New load -->
+<dialog id="dlg-load">
+  <form method="dialog" id="form-load">
+    <h2>New load</h2>
+    <div class="form-grid">
+      <div class="field full"><label for="f-customer">Customer</label><input id="f-customer" name="customer_name" required placeholder="Company or person"></div>
+      <div class="field"><label for="f-cphone">Customer phone</label><input id="f-cphone" name="customer_phone" placeholder="+973 1700 0000"></div>
+      <div class="field"><label for="f-cargo">Cargo</label><input id="f-cargo" name="cargo_description" placeholder="e.g. 20 pallets of water"></div>
+      <div class="field full"><label for="f-pick">Pickup address</label><input id="f-pick" name="pickup_address" required list="places"></div>
+      <div class="field full"><label for="f-drop">Drop-off address</label><input id="f-drop" name="dropoff_address" required list="places"></div>
+      <div class="field"><label for="f-weight">Weight (kg)</label><input id="f-weight" name="weight_kg" type="number" min="0" value="0"></div>
+      <div class="field"><label for="f-price">Price (BHD)</label><input id="f-price" name="price" type="number" min="0" step="0.001" value="0"></div>
+      <div class="field"><label for="f-when">Pickup time</label><input id="f-when" name="scheduled_pickup" type="datetime-local"></div>
+      <div class="field"><label for="f-driver">Driver</label><select id="f-driver" name="driver_id"><option value="">Assign later</option></select></div>
+      <div class="field full"><label for="f-notes">Instructions for the driver</label><textarea id="f-notes" name="notes" rows="2" placeholder="Gate number, contact on site, loading bay…"></textarea></div>
+    </div>
+    <p class="form-error" id="err-load" role="alert"></p>
+    <div class="dialog-actions"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn btn-primary" id="submit-load" value="default">Create load</button></div>
+  </form>
+</dialog>
+
+<!-- New driver -->
+<dialog id="dlg-driver">
+  <form method="dialog" id="form-driver">
+    <h2>Add driver</h2>
+    <div class="form-grid">
+      <div class="field full"><label for="g-name">Full name</label><input id="g-name" name="full_name" required></div>
+      <div class="field"><label for="g-phone">Mobile number</label><input id="g-phone" name="phone" required placeholder="3xxxxxxx"><span class="hint">The driver signs into the app with this number.</span></div>
+      <div class="field"><label for="g-pin">App PIN</label><input id="g-pin" name="pin" required inputmode="numeric" minlength="4" maxlength="12"><span class="hint">4–12 digits. Share it privately.</span></div>
+      <div class="field"><label for="g-cpr">CPR number</label><input id="g-cpr" name="cpr"></div>
+      <div class="field"><label for="g-lic">Licence number</label><input id="g-lic" name="license_number"></div>
+      <div class="field"><label for="g-licexp">Licence expiry</label><input id="g-licexp" name="license_expiry" type="date"></div>
+      <div class="field"><label for="g-truck">Truck</label><select id="g-truck" name="truck_id"><option value="">No truck yet</option></select></div>
+    </div>
+    <p class="form-error" id="err-driver" role="alert"></p>
+    <div class="dialog-actions"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn btn-primary" value="default">Add driver</button></div>
+  </form>
+</dialog>
+
+<!-- New truck -->
+<dialog id="dlg-truck">
+  <form method="dialog" id="form-truck">
+    <h2>Add truck</h2>
+    <div class="form-grid">
+      <div class="field"><label for="h-plate">Plate number</label><input id="h-plate" name="plate_number" required></div>
+      <div class="field"><label for="h-kind">Type</label><select id="h-kind" name="kind">
+        <option value="pickup">Pickup (1 ton)</option><option value="box" selected>Box truck (3–7 ton)</option>
+        <option value="flatbed">Flatbed</option><option value="reefer">Refrigerated (reefer)</option>
+        <option value="trailer">Trailer / Semi</option><option value="tanker">Tanker</option></select></div>
+      <div class="field"><label for="h-make">Make</label><input id="h-make" name="make" placeholder="Isuzu"></div>
+      <div class="field"><label for="h-model">Model</label><input id="h-model" name="model" placeholder="NPR"></div>
+      <div class="field"><label for="h-year">Year</label><input id="h-year" name="year" type="number" min="1980" max="2100"></div>
+      <div class="field"><label for="h-cap">Capacity (kg)</label><input id="h-cap" name="capacity_kg" type="number" min="0" value="3000"></div>
+      <div class="field"><label for="h-reg">Registration expiry</label><input id="h-reg" name="registration_expiry" type="date"></div>
+      <div class="field"><label for="h-ins">Insurance expiry</label><input id="h-ins" name="insurance_expiry" type="date"></div>
+    </div>
+    <p class="form-error" id="err-truck" role="alert"></p>
+    <div class="dialog-actions"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn btn-primary" value="default">Add truck</button></div>
+  </form>
+</dialog>
+
+<datalist id="places">
+  <option value="Khalifa Bin Salman Port, Hidd"><option value="Bahrain Logistics Zone, Hidd"><option value="Mina Salman Port">
+  <option value="Sitra Industrial Area"><option value="Salmabad Industrial Area"><option value="BIA Cargo Village, Muharraq">
+  <option value="Manama Central Market"><option value="Seef District, Manama"><option value="Riffa Views"><option value="Isa Town Industrial">
+  <option value="Hamad Town Roundabout 1"><option value="King Fahd Causeway Customs"><option value="Juffair, Manama"><option value="Tubli Warehouses">
+  <option value="Askar Industrial Zone">
+</datalist>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+
+
+<div class="demo-bar" role="note">
+  <strong>Demo</strong> — sample Bahrain data running in your browser. Trucks move by themselves; try <em>New load</em>,
+  assign a waiting load to Rashid, or open <em>Drivers → Route history</em>. Reload to start over.
+  <button type="button" class="demo-close" aria-label="Hide demo notice" onclick="this.parentElement.hidden=true">×</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>window.TRUCKSY_LAND = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[51.302,24.506],[51.099,24.471],[50.994,24.504],[50.928,24.547],[50.812,24.745],[50.859,24.765],[50.871,24.801],[50.854,24.834],[50.858,24.904],[50.796,24.986],[50.81,25.061],[50.771,25.114],[50.77,25.301],[50.75,25.422],[50.77,25.489],[50.757,25.504],[50.799,25.53],[50.825,25.464],[50.849,25.466],[50.818,25.529],[50.836,25.554],[50.828,25.597],[50.794,25.6],[50.816,25.622],[50.854,25.616],[50.838,25.634],[50.846,25.653],[50.849,25.64],[50.88,25.632],[50.86,25.585],[50.868,25.542],[50.914,25.506],[50.919,25.597],[50.939,25.614],[50.954,25.594],[50.969,25.601],[50.963,25.615],[50.987,25.643],[50.973,25.653],[50.965,25.633],[50.928,25.624],[50.902,25.649],[50.892,25.709],[50.917,25.739],[50.907,25.777],[50.931,25.808],[50.959,25.787],[50.956,25.765],[50.983,25.777],[50.987,25.818],[50.956,25.833],[50.996,25.919],[50.989,25.982],[51.005,25.96],[51.024,25.969],[51.043,26.034],[51.034,26.044],[51.077,26.06],[51.083,26.078],[51.096,26.068],[51.148,26.083],[51.187,26.147],[51.224,26.14],[51.265,26.157],[51.361,26.101],[51.358,26.053],[51.399,26.011],[51.401,25.97],[51.418,25.957],[51.45,25.948],[51.488,25.959],[51.538,25.932],[51.55,25.943],[51.538,25.932],[51.55,25.94],[51.561,25.919],[51.633,25.924],[51.59,25.909],[51.586,25.894],[51.622,25.904],[51.619,25.911],[51.636,25.904],[51.601,25.892],[51.563,25.891],[51.584,25.862],[51.647,25.903],[51.662,25.899],[51.653,25.91],[51.662,25.899],[51.583,25.861],[51.597,25.777],[51.588,25.791],[51.559,25.77],[51.572,25.773],[51.562,25.743],[51.538,25.75],[51.57,25.726],[51.587,25.736],[51.593,25.709],[51.57,25.672],[51.547,25.681],[51.563,25.686],[51.555,25.706],[51.505,25.693],[51.541,25.685],[51.532,25.671],[51.556,25.66],[51.554,25.638],[51.538,25.616],[51.494,25.602],[51.497,25.539],[51.474,25.514],[51.492,25.475],[51.537,25.478],[51.506,25.471],[51.544,25.45],[51.515,25.456],[51.535,25.442],[51.539,25.411],[51.53,25.426],[51.531,25.411],[51.509,25.418],[51.537,25.409],[51.525,25.393],[51.542,25.385],[51.526,25.379],[51.532,25.365],[51.504,25.37],[51.534,25.362],[51.522,25.336],[51.542,25.325],[51.52,25.299],[51.538,25.292],[51.558,25.309],[51.552,25.287],[51.578,25.3],[51.587,25.283],[51.609,25.302],[51.631,25.253],[51.618,25.258],[51.6,25.241],[51.626,25.205],[51.611,25.17],[51.612,25.021],[51.626,25.022],[51.616,25.038],[51.627,25.023],[51.621,25.042],[51.654,25.033],[51.609,25.012],[51.592,25.034],[51.599,24.997],[51.659,25.024],[51.589,24.976],[51.582,24.964],[51.602,24.968],[51.573,24.913],[51.489,24.833],[51.487,24.789],[51.481,24.811],[51.472,24.789],[51.486,24.787],[51.465,24.784],[51.474,24.774],[51.482,24.783],[51.482,24.763],[51.434,24.68],[51.435,24.657],[51.396,24.635],[51.398,24.654],[51.369,24.58],[51.335,24.558],[51.331,24.599],[51.343,24.595],[51.343,24.614],[51.344,24.603],[51.359,24.62],[51.344,24.657],[51.306,24.635],[51.288,24.676],[51.281,24.646],[51.276,24.655],[51.221,24.643],[51.216,24.619],[51.278,24.609],[51.284,24.619],[51.285,24.6],[51.317,24.599],[51.3,24.571],[51.302,24.506]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[50.312,26.189],[50.313,26.191],[50.334,26.183],[50.312,26.189]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[50.412,26.191],[50.424,26.12],[50.384,26.124],[50.378,26.149],[50.397,26.171],[50.373,26.181],[50.405,26.173],[50.373,26.186],[50.405,26.174],[50.397,26.196],[50.412,26.191]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[50.59,26.194],[50.595,26.177],[50.581,26.176],[50.59,26.194]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[50.661,26.245],[50.68,26.235],[50.665,26.226],[50.706,26.229],[50.714,26.178],[50.697,26.22],[50.684,26.22],[50.69,26.188],[50.674,26.201],[50.665,26.185],[50.655,26.223],[50.628,26.221],[50.65,26.234],[50.627,26.245],[50.634,26.262],[50.612,26.241],[50.577,26.295],[50.61,26.28],[50.621,26.295],[50.636,26.287],[50.614,26.31],[50.632,26.33],[50.635,26.314],[50.646,26.315],[50.637,26.322],[50.653,26.33],[50.639,26.289],[50.67,26.294],[50.658,26.274],[50.673,26.253],[50.661,26.245]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[50.459,26.242],[50.44,26.236],[50.483,26.265],[50.459,26.242]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[50.815,25.647],[50.815,25.632],[50.791,25.628],[50.78,25.657],[50.815,25.647]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[50.807,25.662],[50.8,25.674],[50.814,25.688],[50.823,25.679],[50.807,25.662]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[50.63,26.133],[50.638,26.109],[50.618,26.101],[50.629,26.099],[50.619,26.061],[50.632,26.04],[50.605,25.912],[50.617,25.912],[50.605,25.878],[50.615,25.866],[50.604,25.867],[50.594,25.848],[50.607,25.847],[50.569,25.809],[50.569,25.791],[50.521,25.9],[50.522,25.89],[50.454,25.964],[50.486,26.046],[50.478,26.098],[50.448,26.134],[50.451,26.172],[50.433,26.17],[50.454,26.181],[50.44,26.214],[50.455,26.222],[50.44,26.217],[50.44,26.229],[50.476,26.242],[50.455,26.222],[50.505,26.236],[50.501,26.253],[50.487,26.249],[50.499,26.263],[50.517,26.241],[50.506,26.236],[50.551,26.251],[50.563,26.233],[50.584,26.244],[50.582,26.259],[50.604,26.248],[50.599,26.223],[50.626,26.218],[50.622,26.197],[50.561,26.195],[50.627,26.118],[50.598,26.17],[50.611,26.187],[50.632,26.178],[50.628,26.145],[50.672,26.157],[50.63,26.133]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[50.787,25.678],[50.758,25.667],[50.776,25.638],[50.755,25.586],[50.777,25.572],[50.74,25.59],[50.739,25.692],[50.8,25.734],[50.781,25.698],[50.797,25.686],[50.787,25.678]]]}},{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[34.96,29.358],[36.073,29.183],[36.505,29.5],[36.754,29.868],[37.499,29.999],[37.666,30.333],[37.997,30.501],[37.001,31.5],[37.809,31.706],[37.837,31.696],[37.871,31.722],[39.006,32.001],[39.301,32.231],[40.003,32.061],[41.436,31.365],[42.978,30.728],[42.976,30.48],[44.722,29.198],[46.426,29.061],[46.553,29.1],[47.465,29],[47.585,28.836],[47.605,28.657],[47.707,28.544],[47.705,28.524],[47.893,28.527],[48.025,28.514],[48.1,28.529],[48.43,28.536],[48.502,28.495],[48.5,28.439],[48.53,28.419],[48.512,28.409],[48.507,28.39],[48.476,28.387],[48.483,28.398],[48.469,28.382],[48.501,28.383],[48.511,28.391],[48.517,28.41],[48.541,28.411],[48.515,28.331],[48.541,28.281],[48.636,28.195],[48.61,28.162],[48.61,28.113],[48.635,28.106],[48.616,28.107],[48.657,28.052],[48.647,28.026],[48.665,28.035],[48.693,28.016],[48.793,27.999],[48.772,27.977],[48.748,27.972],[48.788,27.999],[48.747,27.979],[48.748,27.953],[48.795,27.903],[48.824,27.901],[48.825,27.867],[48.89,27.819],[48.874,27.78],[48.888,27.769],[48.894,27.782],[48.891,27.767],[48.844,27.722],[48.861,27.766],[48.842,27.764],[48.87,27.792],[48.842,27.813],[48.837,27.763],[48.806,27.751],[48.83,27.789],[48.83,27.829],[48.811,27.819],[48.784,27.713],[48.803,27.711],[48.816,27.743],[48.826,27.682],[48.844,27.707],[48.856,27.69],[48.847,27.659],[48.881,27.673],[48.878,27.64],[48.867,27.653],[48.85,27.642],[48.874,27.607],[48.85,27.628],[48.849,27.603],[48.877,27.596],[48.897,27.63],[48.916,27.625],[48.897,27.589],[48.904,27.565],[48.926,27.576],[48.92,27.595],[48.904,27.578],[48.909,27.591],[48.969,27.622],[49.01,27.601],[49.04,27.561],[49.132,27.538],[49.183,27.544],[49.186,27.563],[49.186,27.545],[49.203,27.559],[49.218,27.535],[49.254,27.526],[49.278,27.484],[49.307,27.47],[49.312,27.425],[49.297,27.427],[49.295,27.461],[49.273,27.432],[49.257,27.447],[49.236,27.428],[49.216,27.447],[49.184,27.417],[49.189,27.445],[49.165,27.422],[49.139,27.441],[49.123,27.406],[49.149,27.412],[49.192,27.389],[49.205,27.395],[49.203,27.375],[49.235,27.385],[49.233,27.409],[49.253,27.409],[49.272,27.386],[49.25,27.364],[49.244,27.375],[49.233,27.368],[49.236,27.324],[49.218,27.311],[49.284,27.343],[49.319,27.326],[49.321,27.181],[49.351,27.141],[49.364,27.191],[49.402,27.202],[49.4,27.183],[49.412,27.195],[49.4,27.144],[49.371,27.151],[49.367,27.118],[49.442,27.081],[49.469,27.082],[49.46,27.099],[49.449,27.084],[49.42,27.098],[49.41,27.126],[49.432,27.144],[49.446,27.141],[49.446,27.113],[49.48,27.131],[49.522,27.119],[49.495,27.162],[49.534,27.196],[49.5,27.228],[49.464,27.235],[49.485,27.298],[49.462,27.273],[49.472,27.259],[49.454,27.282],[49.486,27.345],[49.548,27.354],[49.581,27.329],[49.702,27.301],[49.651,27.299],[49.632,27.315],[49.565,27.281],[49.575,27.295],[49.567,27.302],[49.556,27.287],[49.547,27.303],[49.567,27.309],[49.562,27.322],[49.528,27.335],[49.488,27.304],[49.489,27.29],[49.503,27.296],[49.496,27.276],[49.511,27.228],[49.514,27.242],[49.543,27.233],[49.549,27.196],[49.527,27.188],[49.554,27.163],[49.582,27.181],[49.6,27.251],[49.627,27.284],[49.589,27.208],[49.613,27.192],[49.614,27.155],[49.612,27.192],[49.589,27.207],[49.585,27.167],[49.568,27.146],[49.584,27.092],[49.602,27.074],[49.61,27.09],[49.612,27.071],[49.618,27.084],[49.614,27.068],[49.634,27.071],[49.617,27.061],[49.686,27.099],[49.717,27.088],[49.725,27.072],[49.717,27.087],[49.703,27.088],[49.703,27.071],[49.702,27.086],[49.695,27.074],[49.682,27.085],[49.616,27.055],[49.63,27.057],[49.646,27.023],[49.663,27.036],[49.652,27.02],[49.681,27.02],[49.689,27.033],[49.684,27.014],[49.7,27.031],[49.681,27.011],[49.668,27.013],[49.672,26.98],[49.701,26.982],[49.686,26.973],[49.697,26.96],[49.705,26.968],[49.7,26.955],[49.767,26.911],[49.778,26.919],[49.768,26.907],[49.782,26.899],[49.782,26.92],[49.788,26.897],[49.846,26.877],[49.861,26.901],[49.846,26.876],[49.869,26.86],[49.955,26.853],[50.159,26.647],[50.163,26.627],[50.121,26.684],[50.067,26.688],[50.038,26.67],[50.018,26.725],[49.994,26.744],[49.986,26.66],[50.012,26.645],[50.023,26.655],[50.007,26.628],[50.021,26.571],[50.028,26.59],[50.079,26.601],[50.091,26.571],[50.086,26.539],[50.038,26.547],[50.022,26.57],[50.042,26.498],[50.074,26.465],[50.105,26.486],[50.105,26.457],[50.12,26.497],[50.135,26.497],[50.131,26.437],[50.163,26.422],[50.193,26.474],[50.18,26.478],[50.198,26.524],[50.188,26.49],[50.199,26.515],[50.2,26.488],[50.212,26.503],[50.197,26.48],[50.213,26.474],[50.22,26.501],[50.214,26.473],[50.189,26.461],[50.197,26.444],[50.171,26.427],[50.19,26.407],[50.216,26.42],[50.202,26.395],[50.238,26.371],[50.222,26.367],[50.234,26.343],[50.224,26.342],[50.234,26.307],[50.214,26.232],[50.221,26.184],[50.184,26.15],[50.193,26.163],[50.169,26.179],[50.163,26.143],[50.175,26.139],[50.162,26.136],[50.146,26.05],[50.156,26.039],[50.132,26.03],[50.132,26.042],[50.147,26.039],[50.142,26.057],[50.119,26.054],[50.12,26.089],[50.078,26.127],[50.044,26.195],[50.054,26.206],[50.033,26.202],[49.988,26.113],[50.013,26.085],[49.995,26.095],[49.997,26.085],[50.013,26.08],[50.001,26.076],[50,25.989],[50.018,25.986],[50.038,26.007],[50.033,26.022],[50.064,25.989],[50.106,25.984],[50.133,25.931],[50.105,25.917],[50.109,25.882],[50.183,25.762],[50.215,25.744],[50.238,25.688],[50.263,25.672],[50.265,25.612],[50.235,25.683],[50.219,25.673],[50.165,25.73],[50.145,25.725],[50.137,25.741],[50.156,25.694],[50.189,25.66],[50.202,25.687],[50.209,25.681],[50.219,25.62],[50.272,25.556],[50.313,25.54],[50.312,25.515],[50.37,25.448],[50.388,25.444],[50.399,25.412],[50.396,25.453],[50.384,25.454],[50.392,25.442],[50.382,25.45],[50.362,25.503],[50.381,25.512],[50.397,25.472],[50.493,25.403],[50.532,25.301],[50.523,25.231],[50.559,25.183],[50.546,25.133],[50.571,25.064],[50.562,25.044],[50.587,25.032],[50.582,25.07],[50.673,24.945],[50.684,24.89],[50.728,24.872],[50.771,24.718],[50.791,24.744],[50.812,24.745],[50.928,24.547],[50.994,24.504],[51.099,24.471],[51.302,24.506],[51.35,24.534],[51.347,24.555],[51.402,24.6],[51.4,24.625],[51.426,24.611],[51.441,24.622],[51.453,24.58],[51.477,24.597],[51.505,24.574],[51.488,24.558],[51.452,24.556],[51.446,24.533],[51.422,24.534],[51.411,24.496],[51.323,24.43],[51.301,24.391],[51.305,24.355],[51.279,24.341],[51.288,24.317],[51.276,24.301],[51.296,24.285],[51.356,24.289],[51.404,24.328],[51.442,24.325],[51.488,24.307],[51.534,24.251],[51.59,24.253],[51.59,24.127],[52.581,22.939],[53.807,22.797],[55.137,22.632],[55.211,22.705],[55.667,22],[55.423,21.268],[55,20],[53.634,19.545],[52,19],[50.783,18.783],[49.117,18.617],[48.183,18.167],[47.6,17.45],[47.467,17.117],[47.183,16.95],[47,16.951],[46.75,17.283],[46.367,17.233],[46.1,17.25],[45.4,17.333],[45.217,17.435],[44.65,17.435],[44.567,17.407],[44.468,17.435],[44.389,17.435],[44.138,17.409],[44.111,17.366],[44.067,17.406],[44.023,17.391],[44.011,17.402],[43.967,17.331],[43.832,17.339],[43.789,17.375],[43.683,17.367],[43.485,17.545],[43.42,17.566],[43.376,17.544],[43.355,17.556],[43.241,17.48],[43.256,17.458],[43.225,17.426],[43.247,17.402],[43.228,17.386],[43.326,17.328],[43.337,17.304],[43.267,17.292],[43.202,17.259],[43.216,17.21],[43.171,17.173],[43.178,17.131],[43.158,17.114],[43.16,17.087],[43.185,17.099],[43.227,17.075],[43.249,17.015],[43.231,17.03],[43.225,17.011],[43.211,17.023],[43.203,17.01],[43.181,17.032],[43.178,16.963],[43.195,16.945],[43.138,16.911],[43.18,16.849],[43.199,16.853],[43.232,16.807],[43.267,16.795],[43.248,16.775],[43.261,16.754],[43.221,16.747],[43.228,16.728],[43.211,16.711],[43.228,16.694],[43.234,16.651],[43.144,16.678],[43.116,16.532],[42.99,16.522],[42.95,16.497],[42.938,16.451],[42.948,16.4],[42.831,16.38],[42.803,16.402],[42.771,16.404],[42.765,16.418],[42.754,16.412],[42.778,16.469],[42.737,16.502],[42.715,16.568],[42.731,16.662],[42.707,16.672],[42.737,16.669],[42.718,16.675],[42.72,16.697],[42.712,16.707],[42.709,16.691],[42.686,16.74],[42.708,16.732],[42.633,16.823],[42.607,16.822],[42.613,16.824],[42.613,16.829],[42.609,16.824],[42.598,16.837],[42.602,16.831],[42.595,16.838],[42.573,16.842],[42.577,16.832],[42.571,16.84],[42.57,16.858],[42.575,16.847],[42.576,16.858],[42.525,16.883],[42.538,16.883],[42.53,16.892],[42.544,16.902],[42.537,16.971],[42.556,17.003],[42.526,17.033],[42.452,17.056],[42.415,17.105],[42.425,17.159],[42.359,17.19],[42.397,17.116],[42.369,17.102],[42.378,17.076],[42.375,17.069],[42.378,17.027],[42.384,17.038],[42.38,17.025],[42.372,17.015],[42.328,17.337],[42.322,17.349],[42.317,17.33],[42.31,17.338],[42.325,17.407],[42.311,17.446],[42.284,17.464],[42.288,17.452],[42.281,17.464],[42.284,17.453],[42.277,17.459],[42.282,17.448],[42.278,17.447],[42.289,17.448],[42.28,17.446],[42.275,17.448],[42.258,17.491],[42.229,17.518],[42.18,17.559],[42.156,17.57],[42.144,17.558],[42.138,17.6],[42.115,17.626],[41.907,17.77],[41.924,17.77],[41.924,17.801],[41.898,17.777],[41.875,17.792],[41.891,17.807],[41.835,17.81],[41.804,17.837],[41.774,17.838],[41.778,17.862],[41.718,17.911],[41.719,17.927],[41.708,17.922],[41.684,17.945],[41.692,17.958],[41.66,17.984],[41.675,17.997],[41.669,18.017],[41.651,17.99],[41.638,17.998],[41.634,18.016],[41.654,18.019],[41.64,18.031],[41.647,18.047],[41.603,18.061],[41.607,18.081],[41.585,18.094],[41.572,18.165],[41.546,18.169],[41.563,18.173],[41.552,18.193],[41.525,18.202],[41.528,18.238],[41.503,18.254],[41.502,18.227],[41.491,18.233],[41.491,18.248],[41.516,18.273],[41.5,18.269],[41.508,18.285],[41.473,18.294],[41.482,18.313],[41.459,18.337],[41.442,18.396],[41.455,18.411],[41.442,18.447],[41.454,18.446],[41.431,18.464],[41.438,18.482],[41.42,18.487],[41.416,18.474],[41.418,18.515],[41.374,18.548],[41.359,18.58],[41.293,18.584],[41.257,18.612],[41.259,18.637],[41.243,18.641],[41.239,18.674],[41.206,18.722],[41.243,18.847],[41.19,18.86],[41.16,18.883],[41.148,18.939],[41.13,18.956],[41.167,19.04],[41.161,19.086],[41.073,19.12],[41.04,19.196],[41.045,19.263],[41.017,19.287],[41.012,19.319],[40.953,19.351],[40.962,19.363],[40.948,19.422],[40.963,19.497],[40.922,19.535],[40.861,19.548],[40.777,19.61],[40.786,19.619],[40.803,19.599],[40.811,19.668],[40.794,19.733],[40.737,19.798],[40.677,19.783],[40.65,19.793],[40.654,19.77],[40.684,19.753],[40.678,19.745],[40.649,19.763],[40.623,19.814],[40.587,19.829],[40.573,19.889],[40.536,19.903],[40.552,19.925],[40.539,19.967],[40.43,20.029],[40.391,20.069],[40.286,20.1],[40.252,20.159],[40.231,20.159],[40.236,20.192],[40.169,20.191],[40.126,20.232],[40.112,20.273],[40.062,20.288],[40.01,20.282],[40.012,20.267],[39.99,20.264],[39.938,20.302],[39.901,20.303],[39.942,20.28],[39.948,20.26],[39.87,20.295],[39.731,20.392],[39.666,20.454],[39.673,20.471],[39.653,20.481],[39.653,20.514],[39.633,20.512],[39.613,20.53],[39.625,20.545],[39.61,20.549],[39.612,20.532],[39.584,20.565],[39.587,20.583],[39.62,20.559],[39.606,20.59],[39.581,20.585],[39.533,20.641],[39.486,20.727],[39.502,20.733],[39.498,20.764],[39.459,20.789],[39.448,20.781],[39.49,20.729],[39.456,20.744],[39.424,20.818],[39.455,20.799],[39.465,20.804],[39.449,20.815],[39.456,20.823],[39.429,20.833],[39.423,20.821],[39.363,20.867],[39.356,20.886],[39.374,20.888],[39.371,20.902],[39.348,20.923],[39.308,20.926],[39.271,20.98],[39.267,21.035],[39.239,21.075],[39.19,21.102],[39.168,21.154],[39.166,21.216],[39.144,21.233],[39.099,21.324],[39.121,21.333],[39.106,21.334],[39.112,21.349],[39.13,21.337],[39.133,21.366],[39.133,21.345],[39.176,21.375],[39.168,21.388],[39.179,21.383],[39.187,21.401],[39.177,21.407],[39.189,21.415],[39.169,21.445],[39.155,21.429],[39.154,21.445],[39.175,21.447],[39.155,21.445],[39.157,21.464],[39.169,21.448],[39.162,21.482],[39.148,21.474],[39.153,21.491],[39.177,21.481],[39.185,21.493],[39.159,21.499],[39.156,21.534],[39.141,21.535],[39.131,21.509],[39.134,21.526],[39.112,21.534],[39.111,21.63],[39.104,21.624],[39.086,21.704],[39.113,21.72],[39.14,21.768],[39.172,21.779],[39.161,21.785],[39.132,21.765],[39.112,21.724],[39.083,21.71],[39.038,21.805],[39.013,21.818],[39.039,21.839],[39.012,21.819],[38.987,21.86],[39.018,21.943],[38.979,21.954],[38.964,21.92],[38.947,21.925],[38.959,21.941],[38.947,21.943],[38.97,21.951],[38.965,21.967],[38.944,21.962],[38.93,22.012],[38.946,22.032],[38.967,22.018],[38.963,22.034],[38.991,22.039],[38.973,22.027],[38.978,22.002],[38.965,21.986],[39.008,21.985],[39.015,22.062],[39.054,22.063],[39.053,22.165],[39.036,22.098],[39.028,22.086],[39.018,22.095],[39.042,22.146],[39.04,22.203],[39.098,22.282],[39.088,22.292],[39.104,22.304],[39.108,22.337],[39.089,22.349],[39.111,22.337],[39.111,22.365],[39.135,22.37],[39.143,22.407],[39.108,22.406],[39.123,22.379],[39.106,22.382],[39.096,22.36],[39.098,22.391],[39.085,22.387],[39.086,22.407],[39.081,22.395],[39.075,22.404],[39.089,22.461],[39.078,22.509],[39.101,22.526],[39.082,22.526],[39.079,22.58],[38.988,22.729],[39.009,22.737],[39.012,22.76],[38.984,22.755],[38.986,22.741],[38.849,22.938],[38.888,22.923],[38.927,22.864],[38.915,22.862],[38.922,22.852],[38.957,22.842],[38.973,22.863],[38.937,22.902],[38.919,22.958],[38.838,22.981],[38.831,22.998],[38.833,22.969],[38.798,23.009],[38.788,23.037],[38.812,23.088],[38.783,23.195],[38.764,23.176],[38.709,23.254],[38.711,23.281],[38.703,23.288],[38.7,23.274],[38.684,23.298],[38.696,23.291],[38.683,23.319],[38.697,23.333],[38.668,23.348],[38.666,23.424],[38.66,23.437],[38.66,23.421],[38.652,23.43],[38.638,23.507],[38.6,23.542],[38.605,23.571],[38.58,23.557],[38.556,23.563],[38.562,23.542],[38.597,23.531],[38.543,23.54],[38.544,23.598],[38.517,23.624],[38.529,23.618],[38.523,23.628],[38.539,23.633],[38.505,23.64],[38.495,23.678],[38.492,23.662],[38.463,23.736],[38.463,23.781],[38.432,23.812],[38.4,23.81],[38.371,23.865],[38.304,23.899],[38.288,23.935],[38.28,23.917],[38.282,23.942],[38.255,23.951],[38.249,23.932],[38.184,23.98],[38.192,24.001],[38.171,23.991],[38.15,24.001],[38.161,24.019],[38.144,24.017],[38.078,24.067],[38.082,24.077],[38.069,24.058],[38.054,24.067],[38.071,24.082],[38.039,24.07],[37.934,24.145],[37.955,24.154],[37.962,24.168],[37.991,24.157],[37.978,24.175],[37.956,24.171],[37.95,24.158],[37.935,24.166],[37.952,24.21],[37.912,24.197],[37.931,24.18],[37.929,24.146],[37.861,24.152],[37.782,24.208],[37.749,24.261],[37.716,24.261],[37.693,24.301],[37.646,24.286],[37.616,24.294],[37.633,24.25],[37.576,24.246],[37.56,24.27],[37.522,24.27],[37.502,24.286],[37.469,24.341],[37.427,24.369],[37.435,24.418],[37.458,24.409],[37.461,24.438],[37.415,24.511],[37.373,24.548],[37.341,24.632],[37.319,24.624],[37.294,24.677],[37.221,24.707],[37.228,24.724],[37.208,24.764],[37.231,24.759],[37.22,24.772],[37.23,24.793],[37.2,24.8],[37.217,24.792],[37.198,24.775],[37.182,24.794],[37.199,24.8],[37.177,24.807],[37.176,24.792],[37.155,24.824],[37.179,24.84],[37.216,24.832],[37.191,24.822],[37.199,24.81],[37.223,24.814],[37.266,24.867],[37.249,24.907],[37.283,24.96],[37.286,24.991],[37.244,25.064],[37.267,25.104],[37.239,25.19],[37.173,25.24],[37.111,25.313],[37.075,25.401],[37.077,25.442],[36.999,25.5],[37,25.546],[36.993,25.558],[36.975,25.553],[36.967,25.607],[36.939,25.646],[36.875,25.67],[36.821,25.751],[36.8,25.758],[36.814,25.717],[36.801,25.708],[36.772,25.738],[36.746,25.739],[36.718,25.788],[36.696,25.784],[36.672,25.844],[36.644,25.852],[36.695,25.922],[36.711,25.98],[36.706,26.031],[36.651,26.058],[36.574,26.062],[36.577,26.072],[36.565,26.068],[36.496,26.117],[36.464,26.227],[36.373,26.35],[36.307,26.503],[36.235,26.612],[36.247,26.613],[36.23,26.619],[36.226,26.644],[36.174,26.669],[36.145,26.72],[36.098,26.741],[36.033,26.907],[35.969,26.969],[35.916,26.996],[35.8,27.113],[35.788,27.16],[35.817,27.197],[35.807,27.225],[35.741,27.323],[35.661,27.36],[35.592,27.434],[35.585,27.47],[35.535,27.531],[35.528,27.56],[35.548,27.563],[35.531,27.564],[35.518,27.617],[35.529,27.622],[35.486,27.651],[35.429,27.774],[35.36,27.797],[35.349,27.852],[35.282,27.916],[35.267,27.95],[35.165,28.001],[35.163,28.014],[35.225,28.031],[35.222,28.047],[35.108,28.069],[35.059,28.111],[35.039,28.105],[35.013,28.121],[35.007,28.11],[35.034,28.089],[34.998,28.111],[34.927,28.076],[34.849,28.07],[34.838,28.096],[34.864,28.109],[34.849,28.113],[34.796,28.071],[34.818,28.094],[34.814,28.111],[34.785,28.089],[34.756,28.097],[34.768,28.086],[34.755,28.092],[34.765,28.081],[34.754,28.073],[34.77,28.062],[34.739,28.06],[34.757,28.083],[34.74,28.081],[34.74,28.093],[34.755,28.088],[34.755,28.102],[34.715,28.109],[34.712,28.139],[34.704,28.124],[34.684,28.134],[34.648,28.091],[34.669,28.068],[34.648,28.062],[34.644,28.033],[34.624,28.024],[34.604,28.062],[34.61,28.096],[34.574,28.088],[34.582,28.12],[34.631,28.174],[34.659,28.165],[34.646,28.188],[34.667,28.207],[34.676,28.267],[34.806,28.523],[34.798,28.613],[34.775,28.662],[34.834,28.812],[34.84,28.868],[34.822,28.884],[34.861,28.995],[34.847,29.028],[34.873,29.07],[34.91,29.221],[34.941,29.241],[34.929,29.291],[34.952,29.302],[34.96,29.358]]]}}]};</script>
+<script>
+/* Trucksy dashboard DEMO server.
+   Answers the dashboard's /api/... requests inside the browser with realistic Bahrain demo data,
+   and moves the trucks every few seconds — so the real dashboard code can be tried without a backend.
+   Mirrors the Django API in backend/ (same JSON shapes). */
+(() => {
+  "use strict";
+  // ---------- deterministic random ----------
+  let seed = 42;
+  const rnd = () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const pick = (a) => a[Math.floor(rnd() * a.length)];
+  const rint = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+  const MIN = 60000, HOUR = 60 * MIN, DAY = 24 * HOUR;
+  const iso = (t) => new Date(t).toISOString();
+  const bhDate = (t) => new Date(t + 3 * HOUR).toISOString().slice(0, 10); // Bahrain calendar day
+  const APP_URL = "https://trucksy-api.onrender.com";
+
+  const PLACES = {
+    "Khalifa Bin Salman Port, Hidd": [26.2027, 50.672], "Bahrain Logistics Zone, Hidd": [26.212, 50.66],
+    "Mina Salman Port": [26.204, 50.61], "Sitra Industrial Area": [26.15, 50.63], "Salmabad Industrial Area": [26.1785, 50.526],
+    "BIA Cargo Village, Muharraq": [26.2708, 50.6336], "Manama Central Market": [26.2318, 50.58], "Seef District, Manama": [26.2361, 50.5376],
+    "Riffa Views": [26.13, 50.555], "Isa Town Industrial": [26.1736, 50.5478], "Hamad Town Roundabout 1": [26.115, 50.507],
+    "King Fahd Causeway Customs": [26.186, 50.33], "Juffair, Manama": [26.212, 50.604], "Tubli Warehouses": [26.2, 50.56],
+    "Budaiya Highway": [26.22, 50.45], "Askar Industrial Zone": [26.075, 50.617],
+  };
+  const ALIASES = { "hidd port": "Khalifa Bin Salman Port, Hidd", sitra: "Sitra Industrial Area", salmabad: "Salmabad Industrial Area",
+    airport: "BIA Cargo Village, Muharraq", seef: "Seef District, Manama", riffa: "Riffa Views", "isa town": "Isa Town Industrial",
+    "hamad town": "Hamad Town Roundabout 1", causeway: "King Fahd Causeway Customs", juffair: "Juffair, Manama", tubli: "Tubli Warehouses",
+    budaiya: "Budaiya Highway", askar: "Askar Industrial Zone", "mina salman": "Mina Salman Port", muharraq: "BIA Cargo Village, Muharraq" };
+  const lookup = (addr) => {
+    const a = (addr || "").toLowerCase();
+    for (const [n, c] of Object.entries(PLACES)) if (a && (n.toLowerCase() === a || a.includes(n.toLowerCase()))) return c;
+    for (const [k, n] of Object.entries(ALIASES)) if (a.includes(k)) return PLACES[n];
+    return null;
+  };
+  const CUSTOMERS = [["Pearl Coast Foods W.L.L.", "Chilled food cartons"], ["Gulf Steel Supplies", "Rebar bundles"], ["Island Furniture Co.", "Office furniture"],
+    ["Bayview Electronics", "Boxed electronics"], ["Sitra Cold Store", "Frozen poultry"], ["Oasis Building Materials", "Cement bags"],
+    ["Coral Bay Trading", "Mixed general cargo"], ["Manama Fresh Market", "Fresh produce crates"]];
+  const KIND = { pickup: "Pickup (1 ton)", box: "Box truck (3–7 ton)", flatbed: "Flatbed", reefer: "Refrigerated (reefer)", trailer: "Trailer / Semi", tanker: "Tanker" };
+  const LOAD_LABEL = { pending: "Pending", assigned: "Assigned", to_pickup: "Heading to pickup", loaded: "Loaded", in_transit: "In transit", delivered: "Delivered", cancelled: "Cancelled" };
+  const DRIVER_LABEL = { offline: "Offline", available: "Available", on_job: "On a job", break: "On break" };
+  const FLOW = { assigned: "to_pickup", to_pickup: "loaded", loaded: "in_transit", in_transit: "delivered" };
+  const ACTIVE = ["assigned", "to_pickup", "loaded", "in_transit"];
+  const RECEIVERS = ["Ahmed", "Fatima", "Store keeper", "Sameer", "Reception", "Hussain", "Maryam"];
+  const ADMIN = "Ops Manager";
+
+  // ---------- data ----------
+  const now0 = Date.now();
+  const trucks = [
+    ["412 873", "reefer", "Isuzu", "NPR", 2021, 4000], ["538 120", "box", "Mitsubishi", "Fuso Canter", 2020, 3500],
+    ["601 445", "flatbed", "Hino", "500", 2019, 9000], ["227 906", "trailer", "Mercedes-Benz", "Actros", 2022, 25000],
+    ["375 551", "pickup", "Toyota", "Hilux", 2023, 1000], ["489 362", "box", "Isuzu", "FRR", 2018, 7000],
+  ].map((t, i) => ({ id: i + 1, plate_number: t[0], kind: t[1], kind_label: KIND[t[1]], make: t[2], model: t[3], year: t[4], capacity_kg: t[5],
+    registration_expiry: bhDate(now0 + rint(20, 300) * DAY), insurance_expiry: bhDate(now0 + (i === 0 ? 21 : i === 5 ? 25 : rint(60, 320)) * DAY), is_active: true }));
+  const drivers = [["Yasir Ali", "34180130", "BH-48213"], ["Imran Khan", "36001122", "BH-55190"], ["Arun Kumar", "33447788", "BH-61022"],
+    ["Abdullah Saleh", "39112233", "BH-30478"], ["Bilal Ahmed", "35667788", "BH-72815"], ["Rashid Mahmood", "38990011", "BH-19364"]]
+    .map((d, i) => ({ id: i + 1, full_name: d[0], phone: d[1], cpr: String(rint(800000000, 999999999)), license_number: d[2],
+      license_expiry: bhDate(now0 + (i === 4 ? 18 : rint(90, 900)) * DAY), truck_id: i + 1, status: "offline",
+      last_lat: null, last_lng: null, last_speed_kmh: null, last_heading: null, last_seen: null, is_active: true, created_at: iso(now0 - 90 * DAY) }));
+  const loads = [], events = [], pings = [];
+  let loadSeq = 0, eventSeq = 0;
+  const code = () => Array.from({ length: 10 }, () => "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(rnd() * 55)]).join("");
+  const logEvent = (ld, status, note, by, t, lat = null, lng = null) =>
+    events.push({ id: ++eventSeq, load_id: ld.id, status, note: note || "", lat, lng, by, created_at: t });
+
+  function newLoad({ status = "pending", driver = null, created = Date.now(), a, b, price, cust, weight, notes = "" }) {
+    a = a || pick(Object.keys(PLACES)); do { b = b || pick(Object.keys(PLACES)); } while (b === a && !(b = null));
+    const c = cust || pick(CUSTOMERS);
+    const ld = { id: ++loadSeq, reference: "TRK-" + String(loadSeq).padStart(5, "0"), tracking_code: code(),
+      customer_name: c[0], customer_phone: "+973 17" + rint(100000, 999999),
+      pickup_address: a, pickup_lat: PLACES[a]?.[0] ?? null, pickup_lng: PLACES[a]?.[1] ?? null,
+      dropoff_address: b, dropoff_lat: PLACES[b]?.[0] ?? null, dropoff_lng: PLACES[b]?.[1] ?? null,
+      cargo_description: c[1], weight_kg: weight ?? pick([450, 800, 1200, 2500, 3200, 6000]), price: price ?? pick([28, 35, 45, 55, 65, 80, 95, 120, 150]),
+      notes, status: "pending", driver_id: null, scheduled_pickup: iso(created + HOUR), picked_up_at: null, delivered_at: null,
+      proof_receiver_name: "", created_at: iso(created), updated_at: iso(created) };
+    loads.push(ld);
+    logEvent(ld, "pending", "Load created", ADMIN, iso(created));
+    if (driver) { ld.driver_id = driver.id; ld.status = "assigned"; logEvent(ld, "assigned", "Assigned to " + driver.full_name, ADMIN, iso(created + 5 * MIN)); }
+    const seq = ["to_pickup", "loaded", "in_transit", "delivered"];
+    if (seq.includes(status)) {
+      let t = created + 5 * MIN;
+      for (const st of seq.slice(0, seq.indexOf(status) + 1)) {
+        t = Math.min(t + rint(12, 35) * MIN, Date.now() - rint(1, 4) * MIN);
+        logEvent(ld, st, st === "delivered" ? "Goods received" : "", driver.full_name, iso(t));
+        if (st === "loaded") ld.picked_up_at = iso(t);
+        if (st === "delivered") { ld.delivered_at = iso(t); ld.proof_receiver_name = pick(RECEIVERS); }
+      }
+      ld.status = status; ld.updated_at = iso(t);
+    } else if (status === "cancelled") {
+      ld.status = "cancelled"; logEvent(ld, "cancelled", "Customer cancelled", ADMIN, iso(created + 30 * MIN));
+    }
+    return ld;
+  }
+  function trail(driver, ld, from, to, t0, t1, n) {
+    for (let i = 0; i <= n; i++) {
+      const f = i / n;
+      pings.push({ driver_id: driver.id, load_id: ld.id, lat: from[0] + (to[0] - from[0]) * f + (rnd() - 0.5) * 0.002,
+        lng: from[1] + (to[1] - from[1]) * f + (rnd() - 0.5) * 0.002, speed_kmh: 35 + rnd() * 40, heading: rnd() * 360, recorded_at: iso(t0 + (t1 - t0) * f) });
+    }
+  }
+  // a week of delivered work
+  for (let d = 6; d >= 0; d--) {
+    const n = rint(4, 7) + Math.floor((6 - d) / 2);
+    for (let k = 0; k < n; k++) {
+      let created = now0 - d * DAY - rint(3, 8) * HOUR;
+      const drv = pick(drivers);
+      const ld = newLoad({ status: "delivered", driver: drv, created });
+      trail(drv, ld, [ld.pickup_lat, ld.pickup_lng], [ld.dropoff_lat, ld.dropoff_lng], Date.parse(ld.picked_up_at), Date.parse(ld.delivered_at), 10);
+    }
+  }
+  newLoad({ status: "cancelled", created: now0 - 2 * DAY });
+  // live jobs right now
+  [[0, "in_transit", 0.6], [1, "to_pickup", 0.35], [2, "loaded", 1], [3, "in_transit", 0.25], [4, "assigned", 0]].forEach(([i, st, prog]) => {
+    const d = drivers[i];
+    const ld = newLoad({ status: st, driver: d, created: now0 - HOUR - rint(0, 40) * MIN });
+    const pickupPt = [ld.pickup_lat, ld.pickup_lng], dropPt = [ld.dropoff_lat, ld.dropoff_lng];
+    const start = st === "in_transit" ? pickupPt : [pickupPt[0] + (rnd() - 0.5) * 0.08, pickupPt[1] + (rnd() - 0.5) * 0.1];
+    const end = st === "in_transit" ? dropPt : pickupPt;
+    const pos = [start[0] + (end[0] - start[0]) * prog, start[1] + (end[1] - start[1]) * prog];
+    if (prog > 0) trail(d, ld, start, pos, now0 - 30 * MIN, now0 - MIN, Math.max(3, Math.round(25 * prog)));
+    Object.assign(d, { status: "on_job", last_lat: pos[0], last_lng: pos[1], last_speed_kmh: prog > 0 && prog < 1 ? 55 : 0, last_seen: iso(now0 - rint(5, 50) * 1000) });
+  });
+  Object.assign(drivers[5], { status: "available", last_lat: 26.212, last_lng: 50.66, last_seen: iso(now0 - 2 * MIN) });
+  for (let k = 0; k < 3; k++) newLoad({ created: now0 - rint(5, 90) * MIN });
+
+  // ---------- serializers ----------
+  const truckMini = (t) => t && { id: t.id, plate_number: t.plate_number, kind: t.kind, kind_label: t.kind_label, make: t.make, model: t.model, capacity_kg: t.capacity_kg };
+  const truckOf = (d) => trucks.find((t) => t.id === d.truck_id) || null;
+  const isLive = (d) => !!d.last_seen && Date.now() - Date.parse(d.last_seen) <= 10 * MIN && d.status !== "offline";
+  const sDriver = (d) => ({ id: d.id, full_name: d.full_name, phone: d.phone, cpr: d.cpr, license_number: d.license_number, license_expiry: d.license_expiry,
+    truck: truckMini(truckOf(d)), status: d.status, status_label: DRIVER_LABEL[d.status], is_live: isLive(d), last_lat: d.last_lat, last_lng: d.last_lng,
+    last_speed_kmh: d.last_speed_kmh, last_heading: d.last_heading, last_seen: d.last_seen, is_active: d.is_active, created_at: d.created_at });
+  const sTruck = (t) => ({ ...t, driver_name: (drivers.find((d) => d.truck_id === t.id && d.is_active) || {}).full_name || null });
+  const sLoad = (l) => {
+    const d = drivers.find((x) => x.id === l.driver_id);
+    return { ...l, price: Number(l.price).toFixed(3), status_label: LOAD_LABEL[l.status], next_driver_status: FLOW[l.status] || null,
+      driver: d ? { id: d.id, full_name: d.full_name, phone: d.phone } : null, truck: d ? truckMini(truckOf(d)) : null,
+      tracking_url: APP_URL + "/t/" + l.tracking_code + "/" };
+  };
+  const sEvent = (e) => ({ id: e.id, reference: loads.find((l) => l.id === e.load_id).reference, status: e.status, status_label: LOAD_LABEL[e.status],
+    note: e.note, lat: e.lat, lng: e.lng, by: e.by, created_at: e.created_at });
+
+  // ---------- business logic ----------
+  function setStatus(l, st, by, note = "", receiver = "") {
+    const t = iso(Date.now());
+    l.status = st; l.updated_at = t;
+    if (st === "loaded" && !l.picked_up_at) l.picked_up_at = t;
+    if (st === "delivered") { l.delivered_at = t; l.proof_receiver_name = receiver || pick(RECEIVERS); }
+    logEvent(l, st, note, by, t);
+    const d = drivers.find((x) => x.id === l.driver_id);
+    if (d && d.status !== "offline") d.status = loads.some((x) => x.driver_id === d.id && ACTIVE.includes(x.status)) ? "on_job" : "available";
+  }
+  function assign(l, driver) {
+    l.driver_id = driver ? driver.id : null;
+    if (driver && l.status === "pending") l.status = "assigned";
+    else if (!driver && l.status === "assigned") l.status = "pending";
+    l.updated_at = iso(Date.now());
+    logEvent(l, l.status, driver ? "Assigned to " + driver.full_name : "Unassigned", ADMIN, iso(Date.now()));
+    if (driver && driver.status !== "offline") driver.status = "on_job";
+  }
+  const hav = (a, b) => { const r = Math.PI / 180, h = Math.sin((b[0] - a[0]) * r / 2) ** 2 + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin((b[1] - a[1]) * r / 2) ** 2; return 2 * 6371 * Math.asin(Math.sqrt(h)); };
+  const routeKm = (pts) => pts.slice(1).reduce((s, p, i) => { const k = hav([pts[i].lat, pts[i].lng], [p.lat, p.lng]); return s + (k < 3 ? k : 0); }, 0);
+  function period(q, days) {
+    const today = bhDate(Date.now());
+    let to = /^\d{4}-\d{2}-\d{2}$/.test(q.get("to") || "") ? q.get("to") : today;
+    let from = /^\d{4}-\d{2}-\d{2}$/.test(q.get("from") || "") ? q.get("from") : bhDate(Date.parse(to + "T12:00:00Z") - (days - 1) * DAY);
+    if (from > to) [from, to] = [to, from];
+    return { from, to, start: Date.parse(from + "T00:00:00+03:00"), end: Date.parse(to + "T00:00:00+03:00") + DAY };
+  }
+
+  // ---------- API ----------
+  function dashboard() {
+    const today = bhDate(Date.now());
+    const deliveredToday = loads.filter((l) => l.status === "delivered" && bhDate(Date.parse(l.delivered_at)) === today);
+    const trend = [];
+    for (let i = 6; i >= 0; i--) {
+      const day = bhDate(Date.now() - i * DAY);
+      const ds = loads.filter((l) => l.status === "delivered" && bhDate(Date.parse(l.delivered_at)) === day);
+      trend.push({ date: day, deliveries: ds.length, revenue: ds.reduce((s, l) => s + Number(l.price), 0) });
+    }
+    const counts = {};
+    loads.forEach((l) => (counts[l.status] = (counts[l.status] || 0) + 1));
+    const act = drivers.filter((d) => d.is_active);
+    return {
+      kpis: { drivers_live: act.filter(isLive).length, drivers_total: act.length, loads_active: ACTIVE.reduce((s, k) => s + (counts[k] || 0), 0),
+        loads_pending: counts.pending || 0, delivered_today: deliveredToday.length, revenue_today: deliveredToday.reduce((s, l) => s + Number(l.price), 0),
+        deliveries_week: trend.reduce((s, t) => s + t.deliveries, 0), trucks_total: trucks.length },
+      status_counts: counts, trend, drivers: act.map(sDriver),
+      active_loads: loads.filter((l) => ACTIVE.includes(l.status)).map(sLoad),
+      events: events.slice().sort((a, b) => b.created_at.localeCompare(a.created_at) || b.id - a.id).slice(0, 15).map(sEvent),
+      currency: "BHD", server_time: iso(Date.now()),
+    };
+  }
+  function listLoads(q) {
+    let r = loads.slice();
+    const st = q.get("status");
+    if (st === "active") r = r.filter((l) => ACTIVE.includes(l.status)); else if (st) r = r.filter((l) => l.status === st);
+    if (q.get("driver")) r = r.filter((l) => String(l.driver_id) === q.get("driver"));
+    if (q.get("from") || q.get("to")) { const p = period(q, 30); r = r.filter((l) => { const t = Date.parse(l.scheduled_pickup); return t >= p.start && t < p.end; }); }
+    if (q.get("q")) { const s = q.get("q").toLowerCase(); r = r.filter((l) => [l.reference, l.customer_name, l.pickup_address, l.dropoff_address].some((x) => x.toLowerCase().includes(s))); }
+    return r.sort((a, b) => b.created_at.localeCompare(a.created_at)).map(sLoad);
+  }
+  const bad = (msg, status = 400) => ({ status, body: { detail: msg } });
+
+  function handle(method, path, q, body) {
+    let m;
+    if (path === "dashboard/") return { body: dashboard() };
+    if (path === "loads/" && method === "GET") return { body: listLoads(q) };
+    if (path === "loads/" && method === "POST") {
+      const errs = {};
+      ["customer_name", "pickup_address", "dropoff_address"].forEach((k) => { if (!(body[k] || "").trim()) errs[k] = ["This field is required."]; });
+      if (Object.keys(errs).length) return { status: 400, body: errs };
+      const drv = body.driver_id ? drivers.find((d) => d.id === Number(body.driver_id)) : null;
+      const pu = lookup(body.pickup_address), dr = lookup(body.dropoff_address);
+      const created = Date.now();
+      const l = newLoad({ created, a: body.pickup_address, b: body.dropoff_address, cust: [body.customer_name, body.cargo_description || ""],
+        price: Number(body.price || 0), weight: Number(body.weight_kg || 0), notes: body.notes || "" });
+      Object.assign(l, { customer_phone: body.customer_phone || "", pickup_lat: pu?.[0] ?? null, pickup_lng: pu?.[1] ?? null,
+        dropoff_lat: dr?.[0] ?? null, dropoff_lng: dr?.[1] ?? null, scheduled_pickup: body.scheduled_pickup || iso(created + 30 * MIN) });
+      if (drv) assign(l, drv);
+      return { status: 201, body: sLoad(l) };
+    }
+    if ((m = path.match(/^loads\/(\d+)\/(events\/|route\/|set_status\/)?$/))) {
+      const l = loads.find((x) => x.id === Number(m[1]));
+      if (!l) return bad("Not found.", 404);
+      if (m[2] === "events/") return { body: events.filter((e) => e.load_id === l.id).sort((a, b) => b.created_at.localeCompare(a.created_at)).map(sEvent) };
+      if (m[2] === "route/") return { body: pings.filter((p) => p.load_id === l.id).sort((a, b) => a.recorded_at.localeCompare(b.recorded_at)) };
+      if (m[2] === "set_status/") { setStatus(l, body.status, ADMIN, body.note || "Updated by dispatcher", body.receiver_name); return { body: sLoad(l) }; }
+      if (method === "PATCH") {
+        if ("driver_id" in body) { const d = body.driver_id ? drivers.find((x) => x.id === Number(body.driver_id)) : null; if ((d?.id ?? null) !== l.driver_id) assign(l, d); }
+        return { body: sLoad(l) };
+      }
+      return { body: sLoad(l) };
+    }
+    if (path === "drivers/" && method === "GET") return { body: drivers.map(sDriver) };
+    if (path === "drivers/" && method === "POST") {
+      const phone = String(body.phone || "").replace(/[^\d+]/g, "");
+      if (!body.full_name) return { status: 400, body: { full_name: ["This field is required."] } };
+      if (phone.replace("+", "").length < 7) return { status: 400, body: { phone: ["Enter a valid phone number."] } };
+      if (drivers.some((d) => d.phone === phone)) return { status: 400, body: { phone: ["A driver with this phone already exists."] } };
+      if (!body.pin || String(body.pin).length < 4) return { status: 400, body: { pin: ["Set a 4–12 digit PIN for the driver's app login."] } };
+      const d = { id: drivers.length + 1, full_name: body.full_name, phone, cpr: body.cpr || "", license_number: body.license_number || "",
+        license_expiry: body.license_expiry || null, truck_id: body.truck_id ? Number(body.truck_id) : null, status: "offline", last_lat: null, last_lng: null,
+        last_speed_kmh: null, last_heading: null, last_seen: null, is_active: true, created_at: iso(Date.now()) };
+      drivers.push(d);
+      return { status: 201, body: sDriver(d) };
+    }
+    if ((m = path.match(/^drivers\/(\d+)\/history\/$/))) {
+      const d = drivers.find((x) => x.id === Number(m[1]));
+      if (!d) return bad("Not found.", 404);
+      const p = period(q, 1);
+      const pts = pings.filter((x) => x.driver_id === d.id && Date.parse(x.recorded_at) >= p.start && Date.parse(x.recorded_at) < p.end).sort((a, b) => a.recorded_at.localeCompare(b.recorded_at));
+      const del = loads.filter((l) => l.driver_id === d.id && l.status === "delivered" && Date.parse(l.delivered_at) >= p.start && Date.parse(l.delivered_at) < p.end).sort((a, b) => a.delivered_at.localeCompare(b.delivered_at));
+      return { body: { driver: { id: d.id, full_name: d.full_name, truck: truckOf(d)?.plate_number || null }, from: p.from, to: p.to,
+        stats: { points: pts.length, km: Math.round(routeKm(pts) * 10) / 10, first: pts[0]?.recorded_at || null, last: pts[pts.length - 1]?.recorded_at || null,
+          max_speed_kmh: pts.length ? Math.round(Math.max(...pts.map((x) => x.speed_kmh || 0))) : null, deliveries: del.length, truncated: false },
+        points: pts.map((x) => ({ lat: x.lat, lng: x.lng, speed_kmh: x.speed_kmh, at: x.recorded_at, load: loads.find((l) => l.id === x.load_id)?.reference || null })),
+        deliveries: del.map((l) => ({ reference: l.reference, dropoff: l.dropoff_address, lat: l.dropoff_lat, lng: l.dropoff_lng, at: l.delivered_at })) } };
+    }
+    if ((m = path.match(/^drivers\/(\d+)\/$/))) {
+      const d = drivers.find((x) => x.id === Number(m[1]));
+      if (!d) return bad("Not found.", 404);
+      return { body: sDriver(d) }; // PIN reset accepted
+    }
+    if (path === "trucks/" && method === "GET") return { body: trucks.map(sTruck) };
+    if (path === "trucks/" && method === "POST") {
+      if (!body.plate_number) return { status: 400, body: { plate_number: ["This field is required."] } };
+      if (trucks.some((t) => t.plate_number === body.plate_number)) return { status: 400, body: { plate_number: ["truck with this plate number already exists."] } };
+      const t = { id: trucks.length + 1, plate_number: body.plate_number, kind: body.kind || "box", kind_label: KIND[body.kind || "box"], make: body.make || "",
+        model: body.model || "", year: body.year ? Number(body.year) : null, capacity_kg: Number(body.capacity_kg || 3000),
+        registration_expiry: body.registration_expiry || null, insurance_expiry: body.insurance_expiry || null, is_active: true };
+      trucks.push(t);
+      return { status: 201, body: sTruck(t) };
+    }
+    return bad("Not found.", 404);
+  }
+
+  const realFetch = window.fetch.bind(window);
+  window.fetch = async (input, opts = {}) => {
+    const url = new URL(typeof input === "string" ? input : input.url, location.href);
+    const i = url.pathname.indexOf("/api/");
+    if (i === -1) return realFetch(input, opts);
+    const path = url.pathname.slice(i + 5);
+    const method = (opts.method || "GET").toUpperCase();
+    let body = {};
+    try { body = opts.body ? JSON.parse(opts.body) : {}; } catch {}
+    await new Promise((r) => setTimeout(r, 60 + Math.random() * 120)); // feel like a network
+    const res = handle(method, path, url.searchParams, body);
+    const status = res.status || 200;
+    return status === 204 ? new Response(null, { status }) : new Response(JSON.stringify(res.body), { status, headers: { "Content-Type": "application/json" } });
+  };
+
+  // ---------- simulation: drivers drive and work their jobs ----------
+  const STEP = 0.0035;
+  let ticks = 0;
+  setInterval(() => {
+    ticks++;
+    const t = iso(Date.now());
+    for (const d of drivers) {
+      if (!d.is_active) continue;
+      const l = loads.find((x) => x.driver_id === d.id && ACTIVE.includes(x.status));
+      if (!l) { if (d.status === "available") d.last_seen = t; continue; }
+      d.last_seen = t;
+      if (l.status === "assigned") { if (rnd() < 0.25) setStatus(l, "to_pickup", d.full_name); continue; }
+      if (l.status === "loaded") { if (rnd() < 0.3) setStatus(l, "in_transit", d.full_name); continue; }
+      const target = l.status === "to_pickup" ? [l.pickup_lat, l.pickup_lng] : [l.dropoff_lat, l.dropoff_lng];
+      if (target[0] == null || d.last_lat == null) continue;
+      const dl = target[0] - d.last_lat, dg = target[1] - d.last_lng, dist = Math.hypot(dl, dg);
+      if (dist < 0.003) {
+        d.last_speed_kmh = 0;
+        setStatus(l, l.status === "to_pickup" ? "loaded" : "delivered", d.full_name, l.status === "in_transit" ? "Goods received" : "");
+        continue;
+      }
+      const f = Math.min(1, STEP / dist);
+      d.last_lat += dl * f + (rnd() - 0.5) * 0.0004;
+      d.last_lng += dg * f + (rnd() - 0.5) * 0.0004;
+      d.last_speed_kmh = 40 + rnd() * 40;
+      pings.push({ driver_id: d.id, load_id: l.id, lat: d.last_lat, lng: d.last_lng, speed_kmh: d.last_speed_kmh, heading: 0, recorded_at: t });
+    }
+    if (ticks % 25 === 0 && loads.filter((l) => l.status === "pending").length < 6) newLoad({ created: Date.now() }); // new customer order
+  }, 3000);
+})();
+
+</script>
+<script>
+
+// Demo only: real downloads and server pages are not available in a standalone file.
+document.addEventListener("click", (e) => {
+  const a = e.target.closest("a, form button");
+  if (!a) return;
+  const href = a.getAttribute && a.getAttribute("href") || "";
+  const msg = a.hasAttribute("download") ? "In the live app this downloads the Excel file."
+    : href.includes("/t/") ? "In the live app this opens the customer tracking page."
+    : href === "/admin/" ? "In the live app this opens the admin back office."
+    : a.closest("form[action='#']") ? "In the live app this signs you out." : null;
+  if (msg) { e.preventDefault(); e.stopPropagation();
+    const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(window.__dt); window.__dt = setTimeout(() => t.classList.remove("show"), 2600); }
+}, true);
+
+</script>
+<script>
+/* Trucksy dispatch console — plain JavaScript, no build step. */
+(() => {
+  "use strict";
+
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const TZ = "Asia/Bahrain";
+  const STAGES = ["assigned", "to_pickup", "loaded", "in_transit", "delivered"];
+  const STATUS_LABEL = {
+    pending: "Waiting", assigned: "Assigned", to_pickup: "Heading to pickup", loaded: "Loaded",
+    in_transit: "In transit", delivered: "Delivered", cancelled: "Cancelled",
+    available: "Available", on_job: "On a job", offline: "Offline", break: "On break",
+  };
+
+  const state = { view: "overview", dash: null, drivers: [], trucks: [], loadFilter: "", loadQuery: "", loadFrom: "", loadTo: "", lastOk: 0 };
+
+  // ---------- helpers ----------
+  const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const csrf = () => (document.cookie.match(/csrftoken=([^;]+)/) || [])[1] || "";
+  const money = (n) => Number(n || 0).toLocaleString("en-BH", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+  const money0 = (n) => Number(n || 0).toLocaleString("en-BH", { maximumFractionDigits: 0 });
+  const fmtTime = (d) => d ? new Date(d).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: TZ }) : "—";
+  const fmtDate = (d) => d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: TZ }) : "—";
+  const fmtDT = (d) => d ? `${fmtDate(d)}, ${fmtTime(d)}` : "—";
+  const ago = (d) => {
+    if (!d) return "Never";
+    const s = Math.max(0, (Date.now() - new Date(d)) / 1000);
+    if (s < 60) return "Just now";
+    if (s < 3600) return `${Math.round(s / 60)} min ago`;
+    if (s < 86400) return `${Math.round(s / 3600)} h ago`;
+    return fmtDate(d);
+  };
+  const daysUntil = (d) => d ? Math.round((new Date(d) - new Date()) / 86400000) : null;
+  // Bahrain calendar day, offset in days from today, as YYYY-MM-DD
+  const isoDay = (offset = 0) => new Date(Date.now() + offset * 86400000).toLocaleDateString("en-CA", { timeZone: TZ });
+  const chip = (st, label) => `<span class="chip st-${esc(st)}">${esc(label || STATUS_LABEL[st] || st)}</span>`;
+  const plate = (t) => t ? `<span class="plate">${esc(t.plate_number)}</span>` : `<span class="sub">No truck</span>`;
+  const expiry = (d) => {
+    if (!d) return `<span class="sub">Not set</span>`;
+    const n = daysUntil(d);
+    if (n < 0) return `<span class="warn">Expired ${fmtDate(d)}</span>`;
+    if (n <= 30) return `<span class="warn">${fmtDate(d)} (${n} days)</span>`;
+    return esc(fmtDate(d));
+  };
+
+  function toast(msg) {
+    const t = $("#toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.classList.remove("show"), 2600);
+  }
+
+  async function api(path, opts = {}) {
+    const res = await fetch(`/api/${path}`, {
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", "X-CSRFToken": csrf() },
+      ...opts,
+      body: opts.body ? JSON.stringify(opts.body) : undefined,
+    });
+    if (res.status === 401 || res.status === 403) { location.href = "/login/?next=/"; throw new Error("auth"); }
+    const data = res.status === 204 ? null : await res.json().catch(() => null);
+    if (!res.ok) {
+      const msg = data && (data.detail || Object.entries(data).map(([k, v]) => `${k.replace(/_/g, " ")}: ${[].concat(v).join(" ")}`).join(" · "));
+      throw new Error(msg || `Request failed (${res.status})`);
+    }
+    return data;
+  }
+
+  // ---------- the road strip ----------
+  function roadStrip(load) {
+    const idx = Math.max(0, STAGES.indexOf(load.status));
+    // Truck sits between stops: heading to pickup = 1/8, loaded = at pickup (1/4)… delivered = end.
+    const pos = { assigned: 4, to_pickup: 14, loaded: 28, in_transit: 62, delivered: 96 }[load.status] ?? 4;
+    const plateTxt = load.truck ? load.truck.plate_number : (load.driver ? load.driver.full_name.split(" ")[0] : "—");
+    return `
+      <div class="road" role="img" aria-label="${esc(STATUS_LABEL[load.status])}, step ${idx + 1} of ${STAGES.length}">
+        <div class="road-done" style="width:${pos}%"></div>
+        <span class="road-stop" style="left:28%"></span>
+        <span class="road-stop" style="left:96%"></span>
+        <span class="road-truck" style="left:${Math.min(Math.max(pos, 7), 92)}%">${esc(plateTxt)}</span>
+      </div>
+      <div class="road-ends"><span>${esc(load.pickup_address)}</span><span>${esc(load.dropoff_address)}</span></div>`;
+  }
+
+  // ---------- map ----------
+  let map, truckLayer, routeLayer;
+  const BAHRAIN = [26.17, 50.56];
+  function tiles() {
+    return L.geoJSON(window.TRUCKSY_LAND, { interactive: false,
+      style: { color: "#4a4f55", weight: 1, fillColor: "#2e3033", fillOpacity: 1 } });
+  }
+  function initMap() {
+    map = L.map("map", { zoomControl: true, scrollWheelZoom: true }).setView(BAHRAIN, 11);
+    tiles().addTo(map);
+    truckLayer = L.layerGroup().addTo(map);
+    routeLayer = L.layerGroup().addTo(map);
+  }
+  function truckIcon(d) {
+    const cls = d.status === "offline" || !d.is_live ? "offline" : d.status === "on_job" ? "" : "idle";
+    const label = d.truck ? d.truck.plate_number : d.full_name.split(" ")[0];
+    return L.divIcon({ className: "pin-wrap", html: `<span class="truck-pin ${cls}">${esc(label)}</span>`, iconSize: [0, 0] });
+  }
+  let fitted = false;
+  function drawTrucks(drivers, loads) {
+    truckLayer.clearLayers();
+    routeLayer.clearLayers();
+    const pts = [];
+    const byDriver = Object.fromEntries(loads.filter((l) => l.driver).map((l) => [l.driver.id, l]));
+    drivers.filter((d) => d.last_lat != null).forEach((d) => {
+      const ld = byDriver[d.id];
+      const m = L.marker([d.last_lat, d.last_lng], { icon: truckIcon(d), keyboard: true, title: d.full_name });
+      m.bindPopup(`<strong>${esc(d.full_name)}</strong><br>${chip(d.status, d.status_label)}<br>
+        ${ld ? `<a href="#" data-open-load="${ld.id}">${esc(ld.reference)}</a> → ${esc(ld.dropoff_address)}<br>` : ""}
+        <span class="sub">${d.last_speed_kmh ? Math.round(d.last_speed_kmh) + " km/h · " : ""}${ago(d.last_seen)}</span>`);
+      m.addTo(truckLayer);
+      pts.push([d.last_lat, d.last_lng]);
+      if (ld) {
+        const dest = ld.status === "in_transit" || ld.status === "loaded" ? [ld.dropoff_lat, ld.dropoff_lng] : [ld.pickup_lat, ld.pickup_lng];
+        if (dest[0] != null) {
+          L.polyline([[d.last_lat, d.last_lng], dest], { color: "#34d399", weight: 2, dashArray: "6 6", opacity: 0.8 }).addTo(routeLayer);
+          L.marker(dest, { icon: L.divIcon({ className: "pin-wrap", html: `<div class="place-pin ${ld.status === "in_transit" || ld.status === "loaded" ? "drop" : ""}"></div>`, iconSize: [14, 14] }) }).addTo(routeLayer);
+        }
+      }
+    });
+    if (!fitted && pts.length) { map.fitBounds(pts, { padding: [40, 40], maxZoom: 12 }); fitted = true; }
+    $("#map-meta").textContent = `${pts.length} trucks reporting`;
+  }
+
+  // ---------- overview ----------
+  function renderOverview(d) {
+    const k = d.kpis;
+    $("#k-live").innerHTML = `${k.drivers_live}<small>/ ${k.drivers_total}</small>`;
+    $("#k-active").textContent = k.loads_active;
+    $("#k-pending").textContent = k.loads_pending;
+    $("#k-delivered").textContent = k.delivered_today;
+    $("#k-revenue").innerHTML = `${money0(k.revenue_today)}<small>BHD</small>`;
+
+    const trips = d.active_loads;
+    $("#trip-count").textContent = trips.length ? `${trips.length} jobs` : "";
+    $("#trip-list").innerHTML = trips.length ? trips.map((l) => `
+      <div class="trip" tabindex="0" data-open-load="${l.id}">
+        <div class="trip-top"><span class="trip-ref">${esc(l.reference)}</span><span class="trip-cust">${esc(l.customer_name)}</span>${chip(l.status, l.status_label)}</div>
+        ${roadStrip(l)}
+      </div>`).join("")
+      : `<div class="empty">No trucks on a job right now. Create a load and assign a driver to get one moving.</div>`;
+
+    drawTrucks(d.drivers, trips);
+
+    // 7-day chart
+    const max = Math.max(1, ...d.trend.map((t) => t.deliveries));
+    $("#bars").innerHTML = d.trend.map((t, i) => {
+      const day = new Date(t.date + "T12:00:00");
+      const label = i === d.trend.length - 1 ? "Today" : day.toLocaleDateString("en-GB", { weekday: "short" });
+      return `<div class="bar-col" title="${t.deliveries} deliveries · ${money(t.revenue)} BHD">
+        <span class="bar-n">${t.deliveries}</span>
+        <div class="bar ${i === d.trend.length - 1 ? "today" : ""}" style="height:${(t.deliveries / max) * 100}%"></div>
+        <span class="bar-day">${label}</span></div>`;
+    }).join("");
+    const weekRev = d.trend.reduce((a, t) => a + t.revenue, 0);
+    const weekN = d.trend.reduce((a, t) => a + t.deliveries, 0);
+    $("#chart-foot").innerHTML = `<span><b>${weekN}</b> deliveries</span><span><b>${money0(weekRev)}</b> BHD revenue</span><span><b>${weekN ? money(weekRev / weekN) : "0"}</b> BHD per job</span>`;
+
+    $("#log").innerHTML = d.events.length ? d.events.map((e) => `
+      <li><time>${fmtTime(e.created_at)}</time>
+        <div><a href="#" data-open-load-ref="${esc(e.reference)}">${esc(e.reference)}</a> ${esc(e.status_label.toLowerCase())}
+        <div class="who">${esc(e.by)}${e.note ? " — " + esc(e.note) : ""}</div></div></li>`).join("")
+      : `<li><span></span><span class="sub">Job updates from drivers will appear here.</span></li>`;
+  }
+
+  async function refreshDashboard() {
+    try {
+      const d = await api("dashboard/");
+      state.dash = d;
+      state.drivers = d.drivers;
+      state.lastOk = Date.now();
+      if (state.view === "overview") renderOverview(d);
+    } catch (e) {
+      if (e.message !== "auth") console.warn(e);
+    }
+    $("#live-dot").classList.toggle("stale", Date.now() - state.lastOk > 30000);
+  }
+
+  // ---------- loads ----------
+  let loadsSeq = 0;
+  async function renderLoads() {
+    const seq = ++loadsSeq; // ignore answers to older requests that arrive late
+    const params = new URLSearchParams();
+    if (state.loadFilter) params.set("status", state.loadFilter);
+    if (state.loadQuery) params.set("q", state.loadQuery);
+    if (state.loadFrom) params.set("from", state.loadFrom);
+    if (state.loadTo) params.set("to", state.loadTo);
+    // The Excel button always downloads exactly what the table shows.
+    const xl = new URLSearchParams(params);
+    if (!state.loadFrom && !state.loadTo) { xl.set("from", isoDay(-29)); xl.set("to", isoDay(0)); }
+    $("#dl-loads").href = `/api/reports/loads.xlsx?${xl}`;
+    const loads = await api(`loads/?${params}`);
+    if (seq !== loadsSeq) return;
+    $("#loads-body").innerHTML = loads.length ? loads.map((l) => `
+      <tr class="clickable" tabindex="0" data-open-load="${l.id}">
+        <td><strong>${esc(l.reference)}</strong><div class="sub">${esc(l.customer_name)}</div></td>
+        <td>${esc(l.pickup_address)}<div class="sub">to ${esc(l.dropoff_address)}</div></td>
+        <td>${l.driver ? esc(l.driver.full_name) : `<span class="sub">Unassigned</span>`}${l.truck ? `<div class="sub">${esc(l.truck.plate_number)}</div>` : ""}</td>
+        <td>${chip(l.status, l.status_label)}</td>
+        <td class="num">${Number(l.weight_kg).toLocaleString()} kg</td>
+        <td class="num">${money(l.price)}</td>
+        <td>${fmtDT(l.scheduled_pickup)}</td>
+      </tr>`).join("")
+      : `<tr><td colspan="7" class="empty">No loads match. Try another filter, or create a new load.</td></tr>`;
+  }
+
+  // ---------- drivers ----------
+  async function renderDrivers() {
+    const drivers = await api("drivers/");
+    state.drivers = drivers;
+    $("#drivers-body").innerHTML = drivers.length ? drivers.map((d) => `
+      <tr${d.is_active ? "" : ' style="opacity:.5"'}>
+        <td><strong>${esc(d.full_name)}</strong><div class="sub">CPR ${esc(d.cpr || "—")}</div></td>
+        <td>${esc(d.phone)}</td>
+        <td>${plate(d.truck)}</td>
+        <td>${d.is_active ? chip(d.is_live ? d.status : "offline", d.is_live ? d.status_label : "Offline") : chip("cancelled", "Deactivated")}</td>
+        <td>${ago(d.last_seen)}</td>
+        <td>${expiry(d.license_expiry)}</td>
+        <td style="white-space:nowrap">${d.is_active ? `<button class="btn btn-sm" data-route-history="${d.id}">Route history</button> <button class="btn btn-sm" data-reset-pin="${d.id}">Reset PIN</button>` : `<button class="btn btn-sm" data-route-history="${d.id}">Route history</button>`}</td>
+      </tr>`).join("")
+      : `<tr><td colspan="7" class="empty">No drivers yet. Add your first driver to give them app access.</td></tr>`;
+  }
+
+  // ---------- fleet ----------
+  async function renderFleet() {
+    const trucks = await api("trucks/");
+    state.trucks = trucks;
+    $("#trucks-body").innerHTML = trucks.length ? trucks.map((t) => `
+      <tr>
+        <td>${plate(t)}</td><td>${esc(t.kind_label)}</td>
+        <td>${esc([t.make, t.model].filter(Boolean).join(" ") || "—")}${t.year ? `<div class="sub">${t.year}</div>` : ""}</td>
+        <td class="num">${Number(t.capacity_kg).toLocaleString()} kg</td>
+        <td>${t.driver_name ? esc(t.driver_name) : `<span class="sub">Unassigned</span>`}</td>
+        <td>${expiry(t.registration_expiry)}</td><td>${expiry(t.insurance_expiry)}</td>
+      </tr>`).join("")
+      : `<tr><td colspan="7" class="empty">No trucks yet. Add a truck to assign it to a driver.</td></tr>`;
+  }
+
+  // ---------- load drawer ----------
+  let drawerMap;
+  async function openLoad(id) {
+    const [l, events, route] = await Promise.all([api(`loads/${id}/`), api(`loads/${id}/events/`), api(`loads/${id}/route/`)]);
+    if (!state.drivers.length) state.drivers = await api("drivers/");
+    $("#d-title").textContent = l.reference;
+    $("#d-sub").innerHTML = `${esc(l.customer_name)} &nbsp; ${chip(l.status, l.status_label)}`;
+    const canAssign = !["delivered", "cancelled"].includes(l.status);
+    const driverOpts = state.drivers.filter((d) => d.is_active).map((d) =>
+      `<option value="${d.id}" ${l.driver && l.driver.id === d.id ? "selected" : ""}>${esc(d.full_name)}${d.truck ? " — " + esc(d.truck.plate_number) : ""} (${esc(STATUS_LABEL[d.status])})</option>`).join("");
+    $("#drawer-body").innerHTML = `
+      ${STAGES.includes(l.status) ? roadStrip(l) : ""}
+      <div id="drawer-map"></div>
+      <h3>Job</h3>
+      <dl class="dl">
+        <dt>Pickup</dt><dd>${esc(l.pickup_address)}<div class="sub">${fmtDT(l.scheduled_pickup)}</div></dd>
+        <dt>Drop-off</dt><dd>${esc(l.dropoff_address)}</dd>
+        <dt>Cargo</dt><dd>${esc(l.cargo_description || "—")} · ${Number(l.weight_kg).toLocaleString()} kg</dd>
+        <dt>Price</dt><dd>${money(l.price)} BHD</dd>
+        <dt>Customer phone</dt><dd>${l.customer_phone ? `<a href="tel:${esc(l.customer_phone)}">${esc(l.customer_phone)}</a>` : "—"}</dd>
+        ${l.notes ? `<dt>Instructions</dt><dd>${esc(l.notes)}</dd>` : ""}
+        ${l.proof_receiver_name ? `<dt>Received by</dt><dd>${esc(l.proof_receiver_name)} · ${fmtDT(l.delivered_at)}</dd>` : ""}
+      </dl>
+      ${canAssign ? `<h3>Driver</h3>
+        <div class="assign-row"><label class="sr-only" for="assign-select">Driver</label>
+          <select id="assign-select"><option value="">Unassigned</option>${driverOpts}</select>
+          <button class="btn btn-primary" id="assign-btn">Save driver</button></div>` : ""}
+      <h3>Share with the customer</h3>
+      <div class="actions">
+        <button class="btn" id="copy-link">Copy tracking link</button>
+        <a class="btn" target="_blank" rel="noopener" href="${esc(l.tracking_url)}">Open tracking page</a>
+        ${l.customer_phone ? `<a class="btn" target="_blank" rel="noopener" href="https://wa.me/${esc(l.customer_phone.replace(/[^0-9]/g, ""))}?text=${encodeURIComponent(`Your Trucksy delivery ${l.reference} can be tracked here: ${l.tracking_url}`)}">Send on WhatsApp</a>` : ""}
+      </div>
+      <h3>History</h3>
+      <ul class="timeline">${events.slice().reverse().map((e) => `<li><strong>${esc(e.status_label)}</strong> <span class="sub">by ${esc(e.by)}</span>${e.note ? `<div>${esc(e.note)}</div>` : ""}<time>${fmtDT(e.created_at)}</time></li>`).join("")}</ul>
+      ${canAssign ? `<div class="actions" style="margin-top:22px"><button class="btn btn-danger" id="cancel-load">Cancel this load</button></div>` : ""}`;
+
+    document.body.classList.add("drawer-open");
+    $("#drawer").setAttribute("aria-hidden", "false");
+    $("#drawer-close").focus();
+
+    // mini map with the GPS trail
+    if (drawerMap) drawerMap.remove();
+    drawerMap = L.map("drawer-map", { zoomControl: false, attributionControl: false }).setView(BAHRAIN, 11);
+    tiles().addTo(drawerMap);
+    const b = [];
+    if (l.pickup_lat != null) { L.marker([l.pickup_lat, l.pickup_lng], { icon: L.divIcon({ className: "pin-wrap", html: '<div class="place-pin"></div>', iconSize: [14, 14] }) }).addTo(drawerMap).bindTooltip("Pickup"); b.push([l.pickup_lat, l.pickup_lng]); }
+    if (l.dropoff_lat != null) { L.marker([l.dropoff_lat, l.dropoff_lng], { icon: L.divIcon({ className: "pin-wrap", html: '<div class="place-pin drop"></div>', iconSize: [14, 14] }) }).addTo(drawerMap).bindTooltip("Drop-off"); b.push([l.dropoff_lat, l.dropoff_lng]); }
+    if (route.length) {
+      const line = route.map((p) => [p.lat, p.lng]);
+      L.polyline(line, { color: "#34d399", weight: 5, opacity: 0.9 }).addTo(drawerMap);
+      L.polyline(line, { color: "#0b0b0b", weight: 1.5, dashArray: "4 4" }).addTo(drawerMap);
+      b.push(...line);
+    }
+    setTimeout(() => { drawerMap.invalidateSize(); if (b.length) drawerMap.fitBounds(b, { padding: [24, 24], maxZoom: 13 }); }, 260);
+
+    $("#copy-link").onclick = async () => {
+      try { await navigator.clipboard.writeText(l.tracking_url); toast("Tracking link copied"); }
+      catch { prompt("Copy this link", l.tracking_url); }
+    };
+    const assignBtn = $("#assign-btn");
+    if (assignBtn) assignBtn.onclick = async () => {
+      const v = $("#assign-select").value;
+      try {
+        await api(`loads/${l.id}/`, { method: "PATCH", body: { driver_id: v ? Number(v) : null } });
+        toast(v ? "Driver assigned" : "Driver removed");
+        refreshAll(); openLoad(l.id);
+      } catch (e) { toast(e.message); }
+    };
+    const cancelBtn = $("#cancel-load");
+    if (cancelBtn) cancelBtn.onclick = async () => {
+      if (!confirm(`Cancel ${l.reference}? The driver will see it removed from their app.`)) return;
+      await api(`loads/${l.id}/set_status/`, { method: "POST", body: { status: "cancelled", note: "Cancelled by dispatcher" } });
+      toast("Load cancelled"); closeDrawer(); refreshAll();
+    };
+  }
+  // ---------- route history (date range) ----------
+  async function openRouteHistory(driverId, from = isoDay(0), to = isoDay(0)) {
+    const h = await api(`drivers/${driverId}/history/?from=${from}&to=${to}`);
+    const s = h.stats;
+    const q = `from=${from}&to=${to}`;
+    $("#d-title").textContent = h.driver.full_name;
+    $("#d-sub").innerHTML = `Route history${h.driver.truck ? ` · <span class="plate">${esc(h.driver.truck)}</span>` : ""}`;
+    $("#drawer-body").innerHTML = `
+      <form class="hist-form" id="hist-form">
+        <div class="field"><label for="h-from">From</label><input type="date" id="h-from" value="${from}" max="${isoDay(0)}"></div>
+        <div class="field"><label for="h-to">To</label><input type="date" id="h-to" value="${to}" max="${isoDay(0)}"></div>
+        <button class="btn btn-primary" type="submit">Show route</button>
+      </form>
+      <div class="quick">
+        <button class="btn btn-sm" data-range="0,0">Today</button>
+        <button class="btn btn-sm" data-range="-1,-1">Yesterday</button>
+        <button class="btn btn-sm" data-range="-6,0">Last 7 days</button>
+        <button class="btn btn-sm" data-range="-29,0">Last 30 days</button>
+      </div>
+      <div class="hist-stats">
+        <div><b>${s.km.toLocaleString()} km</b><span>Distance driven</span></div>
+        <div><b>${s.deliveries}</b><span>Deliveries</span></div>
+        <div><b>${s.points.toLocaleString()}</b><span>GPS points</span></div>
+        <div><b>${s.first ? fmtTime(s.first) : "—"}</b><span>First signal${s.first ? " · " + fmtDate(s.first) : ""}</span></div>
+        <div><b>${s.last ? fmtTime(s.last) : "—"}</b><span>Last signal${s.last ? " · " + fmtDate(s.last) : ""}</span></div>
+        <div><b>${s.max_speed_kmh != null ? Math.round(s.max_speed_kmh) + " km/h" : "—"}</b><span>Top speed</span></div>
+      </div>
+      ${s.points ? "" : `<p class="sub">No GPS signal from ${esc(h.driver.full_name)} in this period. Pick other dates, or check the driver was online.</p>`}
+      ${s.truncated ? `<p class="warn">Showing the first 20,000 points. Pick a shorter period to see the full route.</p>` : ""}
+      <div id="drawer-map"></div>
+      <div class="actions"><a class="btn" href="/api/reports/drivers/${h.driver.id}/route.xlsx?${q}" download>Download Excel</a></div>
+      ${h.deliveries.length ? `<h3>Deliveries</h3><ul class="timeline">${h.deliveries.map((d) =>
+        `<li><a href="#" data-open-load-ref="${esc(d.reference)}">${esc(d.reference)}</a> · ${esc(d.dropoff)}<time>${fmtDT(d.at)}</time></li>`).join("")}</ul>` : ""}`;
+
+    document.body.classList.add("drawer-open");
+    $("#drawer").setAttribute("aria-hidden", "false");
+
+    $("#hist-form").onsubmit = (e) => { e.preventDefault(); openRouteHistory(driverId, $("#h-from").value, $("#h-to").value); };
+    $$("[data-range]").forEach((b) => b.onclick = () => {
+      const [a, z] = b.dataset.range.split(",").map(Number);
+      openRouteHistory(driverId, isoDay(a), isoDay(z));
+    });
+
+    if (drawerMap) drawerMap.remove();
+    drawerMap = L.map("drawer-map", { zoomControl: true, attributionControl: false }).setView(BAHRAIN, 11);
+    tiles().addTo(drawerMap);
+    const line = h.points.map((p) => [p.lat, p.lng]);
+    if (line.length) {
+      L.polyline(line, { color: "#34d399", weight: 5, opacity: 0.9 }).addTo(drawerMap);
+      L.polyline(line, { color: "#0b0b0b", weight: 1.5, dashArray: "4 4" }).addTo(drawerMap);
+      L.marker(line[0], { icon: L.divIcon({ className: "pin-wrap", html: '<div class="place-pin"></div>', iconSize: [14, 14] }) })
+        .addTo(drawerMap).bindTooltip(`Start ${fmtTime(s.first)}`);
+      L.marker(line[line.length - 1], { icon: L.divIcon({ className: "pin-wrap", html: `<span class="truck-pin">${esc(h.driver.truck || "End")}</span>`, iconSize: [0, 0] }) })
+        .addTo(drawerMap).bindTooltip(`Last ${fmtTime(s.last)}`);
+    }
+    h.deliveries.filter((d) => d.lat != null).forEach((d) =>
+      L.marker([d.lat, d.lng], { icon: L.divIcon({ className: "pin-wrap", html: '<div class="place-pin drop"></div>', iconSize: [14, 14] }) })
+        .addTo(drawerMap).bindTooltip(`${d.reference} delivered ${fmtTime(d.at)}`));
+    setTimeout(() => { drawerMap.invalidateSize(); if (line.length) drawerMap.fitBounds(line, { padding: [24, 24], maxZoom: 14 }); }, 260);
+  }
+
+  function closeDrawer() {
+    document.body.classList.remove("drawer-open");
+    $("#drawer").setAttribute("aria-hidden", "true");
+  }
+
+  // ---------- forms ----------
+  function formJSON(form) {
+    const out = {};
+    new FormData(form).forEach((v, k) => { if (v !== "") out[k] = v; });
+    return out;
+  }
+  function fillSelect(sel, items, label, first) {
+    sel.innerHTML = `<option value="">${first}</option>` + items.map((i) => `<option value="${i.id}">${esc(label(i))}</option>`).join("");
+  }
+  function wireDialog(id, path, errId, prepare, after) {
+    const dlg = $(id);
+    const form = $("form", dlg);
+    form.addEventListener("submit", async (ev) => {
+      if (ev.submitter && ev.submitter.value === "cancel") return; // let dialog close
+      ev.preventDefault();
+      $(errId).textContent = "";
+      try {
+        const body = prepare(formJSON(form));
+        const res = await api(path, { method: "POST", body });
+        dlg.close(); form.reset(); after(res);
+      } catch (e) { $(errId).textContent = e.message; }
+    });
+    return dlg;
+  }
+
+  const dlgLoad = wireDialog("#dlg-load", "loads/", "#err-load", (b) => {
+    if (b.driver_id) b.driver_id = Number(b.driver_id);
+    if (b.scheduled_pickup) b.scheduled_pickup = new Date(b.scheduled_pickup).toISOString();
+    return b;
+  }, (l) => { toast(`${l.reference} created`); refreshAll(); });
+  const dlgDriver = wireDialog("#dlg-driver", "drivers/", "#err-driver", (b) => {
+    if (b.truck_id) b.truck_id = Number(b.truck_id);
+    return b;
+  }, (d) => { toast(`${d.full_name} can now sign in to the app`); refreshAll(); });
+  const dlgTruck = wireDialog("#dlg-truck", "trucks/", "#err-truck", (b) => b, (t) => { toast(`Truck ${t.plate_number} added`); refreshAll(); });
+
+  $("#btn-new-load").onclick = async () => {
+    const drivers = (await api("drivers/")).filter((d) => d.is_active);
+    fillSelect($("#f-driver"), drivers, (d) => `${d.full_name}${d.truck ? " — " + d.truck.plate_number : ""} (${STATUS_LABEL[d.status]})`, "Assign later");
+    const now = new Date(Date.now() + 30 * 60000 - new Date().getTimezoneOffset() * 60000);
+    $("#f-when").value = now.toISOString().slice(0, 16);
+    $("#err-load").textContent = "";
+    dlgLoad.showModal();
+  };
+  $("#btn-new-driver").onclick = async () => {
+    const trucks = await api("trucks/");
+    fillSelect($("#g-truck"), trucks, (t) => `${t.plate_number} — ${t.kind_label}`, "No truck yet");
+    $("#err-driver").textContent = "";
+    dlgDriver.showModal();
+  };
+  $("#btn-new-truck").onclick = () => { $("#err-truck").textContent = ""; dlgTruck.showModal(); };
+
+  // ---------- navigation ----------
+  const TITLES = { overview: "Live map", loads: "Loads", drivers: "Drivers", fleet: "Fleet" };
+  function show(view) {
+    state.view = view;
+    $$(".nav button").forEach((b) => {
+      if (b.dataset.view === view) b.setAttribute("aria-current", "page");
+      else b.removeAttribute("aria-current");
+    });
+    $$(".view").forEach((v) => (v.hidden = v.id !== `view-${view}`));
+    $("#page-title").textContent = TITLES[view];
+    try { localStorage.setItem("trucksy.view", view); } catch {}
+    refreshAll();
+    if (view === "overview" && map) setTimeout(() => map.invalidateSize(), 50);
+  }
+  function refreshAll() {
+    if (state.view === "overview") return refreshDashboard();
+    if (state.view === "loads") return renderLoads().catch((e) => toast(e.message));
+    if (state.view === "drivers") return renderDrivers().catch((e) => toast(e.message));
+    if (state.view === "fleet") return renderFleet().catch((e) => toast(e.message));
+  }
+
+  $$(".nav button").forEach((b) => b.addEventListener("click", () => show(b.dataset.view)));
+  $("#load-filter").addEventListener("click", (e) => {
+    const b = e.target.closest("button"); if (!b) return;
+    state.loadFilter = b.dataset.f;
+    $$("#load-filter button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    renderLoads();
+  });
+  const onDates = () => { state.loadFrom = $("#load-from").value; state.loadTo = $("#load-to").value; renderLoads(); };
+  $("#load-from").addEventListener("change", onDates);
+  $("#load-to").addEventListener("change", onDates);
+  $("#dl-week").href = `/api/reports/operations.xlsx?from=${isoDay(-6)}&to=${isoDay(0)}`;
+  let qT;
+  $("#load-search").addEventListener("input", (e) => { clearTimeout(qT); qT = setTimeout(() => { state.loadQuery = e.target.value.trim(); renderLoads(); }, 250); });
+
+  document.addEventListener("click", async (e) => {
+    const o = e.target.closest("[data-open-load]");
+    if (o) { e.preventDefault(); openLoad(o.dataset.openLoad); return; }
+    const r = e.target.closest("[data-open-load-ref]");
+    if (r) {
+      e.preventDefault();
+      const found = await api(`loads/?q=${encodeURIComponent(r.dataset.openLoadRef)}`);
+      if (found[0]) openLoad(found[0].id);
+      return;
+    }
+    const rh = e.target.closest("[data-route-history]");
+    if (rh) { openRouteHistory(rh.dataset.routeHistory).catch((err) => toast(err.message)); return; }
+    const p = e.target.closest("[data-reset-pin]");
+    if (p) {
+      const pin = prompt("New 4–12 digit PIN for this driver:");
+      if (!pin) return;
+      try { await api(`drivers/${p.dataset.resetPin}/`, { method: "PATCH", body: { pin } }); toast("PIN updated. Share it with the driver privately."); }
+      catch (err) { toast(err.message); }
+    }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeDrawer();
+    if (e.key === "Enter" && e.target.matches("[data-open-load]")) openLoad(e.target.dataset.openLoad);
+  });
+  $("#drawer-close").onclick = closeDrawer;
+  $("#drawer-backdrop").onclick = closeDrawer;
+
+  // ---------- clock & boot ----------
+  const tick = () => { $("#clock").textContent = new Date().toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: TZ }) + " Bahrain"; };
+  tick(); setInterval(tick, 15000);
+
+  initMap();
+  let start = "overview";
+  try { start = localStorage.getItem("trucksy.view") || "overview"; } catch {}
+  show(TITLES[start] ? start : "overview");
+  setInterval(() => { if (!document.hidden) refreshAll(); }, 10000);
+})();
+
+</script>
