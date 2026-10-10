@@ -336,3 +336,22 @@ dialog h2 { font-family: var(--display); font-size: 26px; margin: 0 0 16px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* ---------- signal alerts (phone went quiet during a job) ---------- */
+.alerts { display: grid; gap: 8px; margin-bottom: 14px; }
+.alert-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding: 12px 14px; border-radius: 10px;
+  background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.55); box-shadow: 0 0 18px rgba(248,113,113,.15); }
+.alert-icon { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none; font-weight: 800;
+  background: #f87171; color: #1a0606; animation: alert-pulse 1.6s ease-in-out infinite; }
+@keyframes alert-pulse { 50% { box-shadow: 0 0 0 7px rgba(248,113,113,0); } 0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,.6); } }
+.alert-text { min-width: 0; flex: 1 1 320px; }
+.alert-text b { display: block; color: #fecaca; }
+.alert-text span { color: var(--ink-2); font-size: 13px; }
+.alerts .spacer { flex: 0 1 auto; }
+.hist-stats .is-bad b { color: #f87171; }
+.gaps h3 { color: #fecaca; }
+.gap-item b { color: #f87171; }
+.gap-pin { width: 18px; height: 18px; border-radius: 50%; background: #f87171; color: #1a0606; font: 800 12px/18px sans-serif; text-align: center;
+  box-shadow: 0 0 0 3px rgba(248,113,113,.35); }
+@media (prefers-reduced-motion: reduce) { .alert-icon { animation: none; } }
+.gaps .timeline li::before { background: #f87171 !important; border-color: #f87171 !important; }

@@ -137,6 +137,8 @@ TRUCKSY_CURRENCY = os.getenv("TRUCKSY_CURRENCY", "BHD")
 TRUCKSY_COMPANY_NAME = os.getenv("TRUCKSY_COMPANY_NAME", "Trucksy")
 # A driver is considered "live" if we heard from them within this many minutes.
 TRUCKSY_ONLINE_WINDOW_MIN = int(os.getenv("TRUCKSY_ONLINE_WINDOW_MIN", "10"))
+# Alert when a driver on a job records no GPS for this many minutes (phone off / app closed).
+TRUCKSY_GAP_ALERT_MIN = int(os.getenv("TRUCKSY_GAP_ALERT_MIN", "10"))
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

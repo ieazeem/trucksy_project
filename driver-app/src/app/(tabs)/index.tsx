@@ -11,6 +11,9 @@ import { useAuth } from '../../lib/auth';
 import { currentPosition, queuedCount, startTracking, stopTracking, wasTracking, type TrackingMode } from '../../lib/tracking';
 import { colors, fonts, NEXT_ACTION } from '../../theme';
 
+/** Job steps where the truck is on the road: tracking can't be turned off. */
+const MOVING = ['to_pickup', 'loaded', 'in_transit'];
+
 function greeting() {
   const h = new Date().getHours();
   return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
@@ -68,6 +71,13 @@ export default function Today() {
   const online = mode !== 'off';
 
   async function toggleOnline(next: boolean) {
+    // Tracking can't be switched off in the middle of a job: dispatch and the customer rely on it.
+    const job = me?.active_load;
+    if (!next && job && MOVING.includes(job.status)) {
+      Alert.alert('Tracking stays on during a job',
+        `You can go offline after ${job.reference} is delivered. If your location stops, dispatch is alerted straight away.`);
+      return;
+    }
     setToggling(true);
     try {
       if (next) {

@@ -17,6 +17,7 @@ from tracking.serializers import PingSerializer
 
 from .models import Load, LoadEvent
 from .serializers import AdvanceSerializer, LoadEventSerializer, LoadSerializer, PublicTrackSerializer
+from tracking.gaps import gap_minutes, silent_drivers
 
 
 class LoadViewSet(viewsets.ModelViewSet):
@@ -116,7 +117,9 @@ class DashboardView(APIView):
             "events": LoadEventSerializer(
                 LoadEvent.objects.select_related("load", "created_by", "created_by__driver")[:15], many=True
             ).data,
+            "alerts": silent_drivers(drivers, now),
             "currency": "BHD",
+            "gap_alert_minutes": gap_minutes(),
             "server_time": now,
         })
 

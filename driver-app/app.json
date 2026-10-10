@@ -2,7 +2,7 @@
   "expo": {
     "name": "Trucksy Driver",
     "slug": "trucksy-driver",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "trucksydriver",
@@ -20,7 +20,7 @@
     },
     "android": {
       "package": "com.trucksy.driver",
-      "versionCode": 2,
+      "versionCode": 3,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#1A1A1A"
@@ -32,7 +32,9 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION",
         "FOREGROUND_SERVICE",
-        "FOREGROUND_SERVICE_LOCATION"
+        "FOREGROUND_SERVICE_LOCATION",
+        "RECEIVE_BOOT_COMPLETED",
+        "WAKE_LOCK"
       ],
       "blockedPermissions": [
         "android.permission.CAMERA",
@@ -69,7 +71,8 @@
           "isAndroidBackgroundLocationEnabled": true,
           "isAndroidForegroundServiceEnabled": true
         }
-      ]
+      ],
+      "./plugins/withBootRestart"
     ],
     "experiments": {
       "typedRoutes": false

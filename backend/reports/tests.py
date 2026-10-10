@@ -87,7 +87,7 @@ class ReportTests(APITestCase):
         self.assertIsNone(empty["stats"]["first"])
         # Excel version
         wb = self.wb(f"/api/reports/drivers/{self.yasir.id}/route.xlsx?from={today}&to={today}")
-        self.assertEqual(wb.sheetnames, ["Summary", "Deliveries", "GPS points"])
+        self.assertEqual(wb.sheetnames, ["Summary", "Deliveries", "Signal gaps", "GPS points"])
         gps = wb["GPS points"]
         self.assertEqual(gps.max_row - 1, data["stats"]["points"])
         self.assertIn("google.com/maps", gps.cell(2, 6).hyperlink.target)

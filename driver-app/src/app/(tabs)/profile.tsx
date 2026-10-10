@@ -4,7 +4,7 @@ import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Btn, Card, SignBoard, T } from '../../components/ui';
-import { getApiUrl } from '../../lib/api';
+import { api, getApiUrl } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { colors, fonts } from '../../theme';
 
@@ -15,7 +15,13 @@ export default function Profile() {
   const [server, setServer] = useState('');
   useEffect(() => { getApiUrl().then(setServer); }, []);
 
-  const confirmSignOut = () => {
+  const confirmSignOut = async () => {
+    const me = await api<{ active_load: { reference: string; status: string } | null }>('me/').catch(() => null);
+    const job = me?.active_load;
+    if (job && ['to_pickup', 'loaded', 'in_transit'].includes(job.status)) {
+      Alert.alert('Finish your job first', `You can sign out after ${job.reference} is delivered. Tracking stays on during a job.`);
+      return;
+    }
     Alert.alert('Sign out?', 'Tracking stops and dispatch will see you as offline.', [
       { text: 'Stay signed in', style: 'cancel' },
       { text: 'Sign out', style: 'destructive', onPress: signOut },

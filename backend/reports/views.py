@@ -15,6 +15,7 @@ from rest_framework.views import APIView
 from fleet.models import Driver, Truck
 from fleet.permissions import IsDispatcher
 from loads.models import Load
+from tracking.gaps import find_gaps, gap_minutes
 from tracking.models import LocationPing
 
 from .excel import D, DT, GREEN, KG, KM, MONEY, Sheet, local, parse_period, route_km, xlsx_response
@@ -216,6 +217,7 @@ class DriverHistoryView(APIView):
         driver = get_object_or_404(Driver.objects.select_related("truck"), pk=pk)
         d_from, d_to, start, end = parse_period(request.query_params, default_days=1)
         pings, km, deliveries = _history(driver, start, end)
+        gaps = find_gaps(pings) if end > timezone.now() else find_gaps(pings, now=end)
         return Response({
             "driver": {"id": driver.id, "full_name": driver.full_name,
                        "truck": driver.truck.plate_number if driver.truck else None},
@@ -228,7 +230,10 @@ class DriverHistoryView(APIView):
                 "max_speed_kmh": round(max((p.speed_kmh or 0) for p in pings), 0) if pings else None,
                 "deliveries": len(deliveries),
                 "truncated": len(pings) >= MAX_POINTS,
+                "gaps": len(gaps),
             },
+            "gap_alert_minutes": gap_minutes(),
+            "gaps": gaps,
             "points": [{"lat": p.lat, "lng": p.lng, "speed_kmh": p.speed_kmh, "at": p.recorded_at,
                         "load": p.load.reference if p.load else None} for p in pings],
             "deliveries": [{"reference": ld.reference, "dropoff": ld.dropoff_address,
@@ -246,6 +251,7 @@ class DriverRouteExportView(APIView):
         driver = get_object_or_404(Driver.objects.select_related("truck"), pk=pk)
         d_from, d_to, start, end = parse_period(request.query_params, default_days=1)
         pings, km, deliveries = _history(driver, start, end)
+        gaps = find_gaps(pings) if end > timezone.now() else find_gaps(pings, now=end)
 
         wb = Workbook()
         ws = wb.active
@@ -260,6 +266,7 @@ class DriverRouteExportView(APIView):
             ("First signal", local(pings[0].recorded_at) if pings else None, DT),
             ("Last signal", local(pings[-1].recorded_at) if pings else None, DT),
             ("Deliveries completed", len(deliveries), None),
+            ("Signal gaps during jobs", len(gaps), None),
         ], start=4):
             ws.cell(row=i, column=1, value=label)
             c = ws.cell(row=i, column=2, value=value)
@@ -274,6 +281,16 @@ class DriverRouteExportView(APIView):
         for ld in deliveries:
             dl.add([ld.reference, ld.customer_name, ld.dropoff_address, local(ld.delivered_at), ld.proof_receiver_name])
         dl.finish()
+
+        gp = Sheet(wb, "Signal gaps", [("Job", 12), ("Signal lost", 18, DT), ("Signal back", 18, DT), ("Minutes", 10),
+                                       ("Km moved meanwhile", 18, KM), ("Last position", 14)])
+        for g in gaps:
+            gp.add([g["load"], local(g["start"]), local(g["end"]) if g["end"] else "Still silent", g["minutes"],
+                    g["km_moved"], "Open map"])
+            cell = gp.ws.cell(row=gp.row, column=6)
+            cell.hyperlink = f"https://www.google.com/maps?q={g['lat']:.6f},{g['lng']:.6f}"
+            cell.font = Font(color="059669", underline="single")
+        gp.finish()
 
         gps = Sheet(wb, "GPS points", [("Time", 18, DT), ("Latitude", 12), ("Longitude", 12),
                                        ("Speed (km/h)", 13), ("Job", 12), ("Map", 14)])

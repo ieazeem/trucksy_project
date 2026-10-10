@@ -149,6 +149,19 @@
 
     drawTrucks(d.drivers, trips);
 
+    // Phones that went quiet during a job (switched off, app closed, GPS off)
+    const al = d.alerts || [];
+    $("#alerts").hidden = !al.length;
+    $("#alerts").innerHTML = al.map((a) => `
+      <div class="alert-row">
+        <span class="alert-icon" aria-hidden="true">!</span>
+        <div class="alert-text"><b>No GPS from ${esc(a.driver)}${a.minutes != null ? ` for ${a.minutes} min` : ""}</b>
+          <span>${esc(a.load)} · ${esc(a.status_label)}${a.truck ? ` · <span class="plate">${esc(a.truck)}</span>` : ""}${a.last_seen ? ` · last seen ${fmtTime(a.last_seen)}` : " · never sent a position"}. Phone switched off, app closed, or GPS turned off.</span></div>
+        <span class="spacer"></span>
+        <button class="btn btn-sm" data-route-history="${a.driver_id}">Route history</button>
+        <button class="btn btn-sm" data-open-load="${a.load_id}">Open job</button>
+      </div>`).join("");
+
     // 7-day chart
     const max = Math.max(1, ...d.trend.map((t) => t.deliveries));
     $("#bars").innerHTML = d.trend.map((t, i) => {
@@ -345,9 +358,12 @@
         <div><b>${s.first ? fmtTime(s.first) : "—"}</b><span>First signal${s.first ? " · " + fmtDate(s.first) : ""}</span></div>
         <div><b>${s.last ? fmtTime(s.last) : "—"}</b><span>Last signal${s.last ? " · " + fmtDate(s.last) : ""}</span></div>
         <div><b>${s.max_speed_kmh != null ? Math.round(s.max_speed_kmh) + " km/h" : "—"}</b><span>Top speed</span></div>
+        <div class="${s.gaps ? "is-bad" : ""}"><b>${s.gaps || 0}</b><span>Signal gaps on jobs</span></div>
       </div>
       ${s.points ? "" : `<p class="sub">No GPS signal from ${esc(h.driver.full_name)} in this period. Pick other dates, or check the driver was online.</p>`}
       ${s.truncated ? `<p class="warn">Showing the first 20,000 points. Pick a shorter period to see the full route.</p>` : ""}
+      ${h.gaps && h.gaps.length ? `<div class="gaps"><h3>Signal gaps during jobs</h3><p class="sub">The app saves positions when there is no internet, so a gap means the phone recorded nothing: switched off, app closed or GPS off (${h.gap_alert_minutes}+ min).</p><ul class="timeline">${h.gaps.map((g) =>
+        `<li class="gap-item"><b>${g.ongoing ? "Silent now" : g.minutes + " min"}</b> · ${esc(g.load || "")} · ${fmtTime(g.start)} → ${g.end ? fmtTime(g.end) : "still silent"}${g.km_moved != null ? ` · truck moved <b>${g.km_moved} km</b> meanwhile` : ""}<time>${fmtDate(g.start)}</time></li>`).join("")}</ul></div>` : ""}
       <div id="drawer-map"></div>
       <div class="actions"><a class="btn" href="/api/reports/drivers/${h.driver.id}/route.xlsx?${q}" download>Download Excel</a></div>
       ${h.deliveries.length ? `<h3>Deliveries</h3><ul class="timeline">${h.deliveries.map((d) =>
@@ -374,6 +390,12 @@
       L.marker(line[line.length - 1], { icon: L.divIcon({ className: "pin-wrap", html: `<span class="truck-pin">${esc(h.driver.truck || "End")}</span>`, iconSize: [0, 0] }) })
         .addTo(drawerMap).bindTooltip(`Last ${fmtTime(s.last)}`);
     }
+    (h.gaps || []).forEach((g) => {
+      if (g.resume_lat != null) L.polyline([[g.lat, g.lng], [g.resume_lat, g.resume_lng]], { color: "#f87171", weight: 3, dashArray: "6 6" })
+        .addTo(drawerMap).bindTooltip(`No signal ${g.minutes} min · ${fmtTime(g.start)} → ${fmtTime(g.end)}`);
+      L.marker([g.lat, g.lng], { icon: L.divIcon({ className: "pin-wrap", html: '<div class="gap-pin">!</div>', iconSize: [18, 18] }) })
+        .addTo(drawerMap).bindTooltip(`Signal lost ${fmtTime(g.start)}`);
+    });
     h.deliveries.filter((d) => d.lat != null).forEach((d) =>
       L.marker([d.lat, d.lng], { icon: L.divIcon({ className: "pin-wrap", html: '<div class="place-pin drop"></div>', iconSize: [14, 14] }) })
         .addTo(drawerMap).bindTooltip(`${d.reference} delivered ${fmtTime(d.at)}`));
