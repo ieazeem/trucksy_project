@@ -1,0 +1,18 @@
+# Netlify: publish only the website folder of this repo (no build step).
+# The backend, driver app and old v1 code must never be published.
+[build]
+  base = "website"
+  publish = "."
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
+
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
