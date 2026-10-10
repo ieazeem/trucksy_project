@@ -11,7 +11,7 @@
   <meta property="og:site_name" content="Trucksy">
   <meta property="og:title" content="TRUCKSY – Fast. Reliable. Efficient.">
   <meta property="og:description" content="Road freight across Bahrain and the GCC, with live tracking on every delivery.">
-  <meta property="og:image" content="https://trucksy.netlify.app/trucksy-truck.jpg">
+  <meta property="og:image" content="https://trucksy.netlify.app/trucksy-truck-poster.jpg">
   <meta property="og:url" content="https://trucksy.netlify.app/">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -118,8 +118,8 @@
     .mobile-nav .btn { margin-top: 1rem; }
 
     /* ---------- hero ----------
-       The photo is the stage. Every animated layer (lane light-trails, underglow, headlight)
-       lives in an SVG that shares the photo's own 750x681 coordinate space, so it can never drift. */
+       A 3-second seamless loop made from the photo (design/hero-vfx): the truck holds still,
+       wheels spin and the road streams past. Glow layers share the photo's 750x681 space, so they never drift. */
     .hero { position: relative; min-height: min(100svh, 980px); display: flex; align-items: center; padding: 110px 0 80px; overflow: hidden; isolation: isolate;
       background: radial-gradient(60% 70% at 78% 58%, rgba(52,211,153,.10), transparent 70%), var(--ink); }
     .hero-grid { position: relative; z-index: 2; width: 100%; }
@@ -147,10 +147,9 @@
       mask-composite: intersect;
     }
     .stage .kb { position: absolute; inset: 0; transform-origin: 32% 62%; animation: kenburns 28s ease-in-out infinite alternate; }
-    @keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.045); } }
-    .stage img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; filter: brightness(.92) contrast(1.06) saturate(1.05); }
+    @keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.025); } }
+    .stage video { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; filter: brightness(.94) contrast(1.05) saturate(1.05); }
     .stage svg.fx { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-    .fx .trail { fill: none; stroke-linecap: round; mix-blend-mode: screen; }
     .fx .glowbar { mix-blend-mode: screen; animation: underglow 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
     .fx .glowbar.b { animation-delay: -.4s; }
     @keyframes underglow { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
@@ -451,7 +450,7 @@
       html { scroll-behavior: auto; }
       *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; transition-delay: 0s !important; }
       .map .flow { animation: none; }
-      .fx .trail { display: none; }
+      .fx .glowbar, .fx .flare { animation: none; }
       .logo span { animation: none !important; }
     }
   </style>
@@ -515,18 +514,12 @@
       <div class="stage" id="stage">
         <div class="frame">
           <div class="kb">
-            <img src="trucksy-truck-hd.jpg" width="1500" height="1362" alt="The Trucksy truck with its green underglow driving on a desert highway under a stormy sky" fetchpriority="high">
+            <video id="truck-video" poster="trucksy-truck-poster.jpg" width="1200" height="1090" autoplay muted loop playsinline preload="auto" disablepictureinpicture aria-label="The Trucksy truck with its green underglow driving on a desert highway, wheels turning and the road rushing past"><source src="trucksy-truck-loop.webm" type="video/webm"><source src="trucksy-truck-loop.mp4" type="video/mp4"></video>
             <svg class="fx" viewBox="0 0 750 681" aria-hidden="true">
               <defs>
                 <filter id="soft" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="7"/></filter>
                 <filter id="softer" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
-                <linearGradient id="trailG" gradientUnits="userSpaceOnUse" x1="760" y1="452" x2="-20" y2="641"><stop offset="0" stop-color="#34D399" stop-opacity="0"/><stop offset=".5" stop-color="#34D399" stop-opacity=".55"/><stop offset="1" stop-color="#bff7e2" stop-opacity=".95"/></linearGradient>
               </defs>
-              <!-- light trails running along the photo's own lane line, toward the viewer -->
-              <path id="lane1" class="trail" d="M380 543 L-30 643" stroke="url(#trailG)" stroke-width="3.2" pathLength="100" stroke-dasharray="14 86"><animate attributeName="stroke-dashoffset" from="0" to="-100" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines=".55 0 .9 .6"/></path>
-              <path class="trail" d="M380 543 L-30 643" stroke="url(#trailG)" stroke-width="2.4" pathLength="100" stroke-dasharray="10 90" opacity=".7"><animate attributeName="stroke-dashoffset" from="-50" to="-150" dur="1.6s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines=".55 0 .9 .6"/></path>
-              <path class="trail" d="M712 469 L596 491" stroke="#34D399" stroke-width="2" pathLength="100" stroke-dasharray="22 78" opacity=".7"><animate attributeName="stroke-dashoffset" from="0" to="-100" dur="1.1s" repeatCount="indefinite"/></path>
-              <path class="trail" d="M330 491 L-10 524" stroke="#34D399" stroke-width="1.6" pathLength="100" stroke-dasharray="12 88" opacity=".45"><animate attributeName="stroke-dashoffset" from="-30" to="-130" dur="2s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines=".55 0 .9 .6"/></path>
               <!-- underglow: sits exactly on the truck's green light bars -->
               <ellipse class="glowbar" cx="220" cy="492" rx="58" ry="9" fill="#34D399" fill-opacity=".75" filter="url(#soft)"/>
               <ellipse class="glowbar b" cx="490" cy="477" rx="52" ry="8" fill="#34D399" fill-opacity=".75" filter="url(#soft)"/>
@@ -969,10 +962,14 @@
     else new IntersectionObserver(([e]) => e.isIntersecting ? mapSvg.unpauseAnimations() : mapSvg.pauseAnimations()).observe(mapSvg);
 
 
-    // Hero light-trails: SVG animations, paused when off screen or when the visitor prefers less motion
+    // Hero footage + glow layers: paused when off screen or when the visitor prefers less motion
     const fx = document.querySelector(".fx");
-    if (reduce) fx.pauseAnimations();
-    else new IntersectionObserver(([e]) => e.isIntersecting ? fx.unpauseAnimations() : fx.pauseAnimations()).observe(fx);
+    const vid = document.getElementById("truck-video");
+    if (reduce) { fx.pauseAnimations(); vid.removeAttribute("autoplay"); vid.pause(); }
+    else new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { fx.unpauseAnimations(); vid.play().catch(() => {}); }
+      else { fx.pauseAnimations(); vid.pause(); }
+    }).observe(vid);
 
     // Track a delivery: accepts a full link (…/t/CODE/) or just the code.
     $("#track-form").addEventListener("submit", (e) => {
