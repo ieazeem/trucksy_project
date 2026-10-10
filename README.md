@@ -38,7 +38,7 @@ To make the trucks move on the map during a demo, open a second terminal and run
 python manage.py simulate_drivers
 ```
 
-Run the tests with `python manage.py test`. All 8 should pass.
+Run the tests with `python manage.py test`. All 15 should pass.
 
 ### 2. Driver app
 
@@ -82,13 +82,28 @@ Dispatcher creates load ─► assigns driver ─► driver app shows "Your job"
 | `/api/loads/`, `/api/drivers/`, `/api/trucks/` | Dispatcher | Create, read, update and delete |
 | `POST /api/loads/<id>/set_status/` | Dispatcher | Manual override, such as cancelling a load |
 | `GET /api/public/track/<code>/` | Anyone | Customer-safe tracking data (no prices) |
+| `GET /api/drivers/<id>/history/?from=&to=` | Dispatcher | Route trail, km driven and deliveries for a date range |
+| `GET /api/reports/operations.xlsx?from=&to=` | Dispatcher | Management report: Summary, Daily, Loads, Drivers, Fleet |
+| `GET /api/reports/loads.xlsx?from=&to=&status=&q=` | Dispatcher | Exactly what the Loads tab shows |
+| `GET /api/reports/drivers.xlsx` | Dispatcher | Driver list with documents, trucks and performance |
+| `GET /api/reports/drivers/<id>/route.xlsx?from=&to=` | Dispatcher | One driver's route: summary, deliveries, every GPS point |
 | `GET /api/health/` | Anyone | Uptime check |
 
 Drivers authenticate with `Authorization: Token <token>`. Dispatchers are Django **staff** users; create one with `python manage.py createsuperuser`.
 
+## Excel reports
+
+Every export button in the dashboard downloads a formatted `.xlsx`. The header row is frozen, filters are switched on, money is shown in BHD with 3 decimals, times are in Bahrain time, and totals are live Excel formulas.
+
+* **Live map → Download weekly report.** The last 7 days across five tabs: Summary, Daily, Loads, Drivers and Fleet.
+* **Loads → Download Excel.** Respects the status filter, the search box and the From/To pickup dates.
+* **Drivers → Download driver list.** Documents and expiry dates, trucks, last position, and deliveries, revenue and km for the last 30 days.
+* **Drivers → Route history.** Pick any date range to see the route on a map with km driven, first and last signal, and deliveries. **Download Excel** gives every GPS point with a Google Maps link.
+
 ## What changed from v1
 
-* **The source code was missing from the archive.** v2 is a clean rebuild based on the v1 database schema and the decompiled v1 APK.
+* v2 is a clean rebuild. The original v1 code is kept unchanged in `legacy/v1/`.
+* v1's two best features are kept and upgraded: the Excel export, now with five report types, and driver history by date range, now with a map, km driven and an Excel download.
 * The API address no longer points at a temporary ngrok URL. It's set at build time in `eas.json`, and can be overridden from the login screen.
 * Fixed the field mismatch that broke driver registration (`cpr`/`license_number` vs `truck_id`).
 * Merged the two location tables and the two sensor tables into one `LocationPing` and one `SensorReading`.

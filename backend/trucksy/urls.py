@@ -7,6 +7,7 @@ from rest_framework.routers import DefaultRouter
 
 from fleet import views as fleet
 from loads import views as loads
+from reports import views as reports
 
 router = DefaultRouter()
 router.register("trucks", fleet.TruckViewSet, basename="truck")
@@ -36,6 +37,12 @@ api = [
     path("me/loads/<int:pk>/advance/", fleet.MeLoadAdvanceView.as_view()),
     # dispatcher
     path("dashboard/", loads.DashboardView.as_view()),
+    path("drivers/<int:pk>/history/", reports.DriverHistoryView.as_view()),
+    # Excel exports (dispatcher only)
+    path("reports/operations.xlsx", reports.OperationsReportView.as_view()),
+    path("reports/loads.xlsx", reports.LoadsExportView.as_view()),
+    path("reports/drivers.xlsx", reports.DriversExportView.as_view()),
+    path("reports/drivers/<int:pk>/route.xlsx", reports.DriverRouteExportView.as_view()),
     path("", include(router.urls)),
     # public
     path("public/track/<str:code>/", loads.public_track_api),

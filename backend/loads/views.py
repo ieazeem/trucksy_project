@@ -32,6 +32,10 @@ class LoadViewSet(viewsets.ModelViewSet):
             qs = qs.filter(status=p["status"])
         if p.get("driver"):
             qs = qs.filter(driver_id=p["driver"])
+        if p.get("from") or p.get("to"):
+            from reports.excel import parse_period
+            _, _, start, end = parse_period(p, default_days=30)
+            qs = qs.filter(scheduled_pickup__gte=start, scheduled_pickup__lt=end)
         if p.get("q"):
             q = p["q"]
             qs = qs.filter(Q(reference__icontains=q) | Q(customer_name__icontains=q)

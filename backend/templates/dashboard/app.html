@@ -76,7 +76,7 @@
 
       <div class="grid-two">
         <div class="panel">
-          <div class="panel-head"><h2>Deliveries, last 7 days</h2></div>
+          <div class="panel-head"><h2>Deliveries, last 7 days</h2><span class="spacer"></span><a class="btn btn-sm" id="dl-week" href="/api/reports/operations.xlsx" download>Download weekly report</a></div>
           <div class="panel-body">
             <div class="bars" id="bars"></div>
             <div class="chart-foot" id="chart-foot"></div>
@@ -101,6 +101,12 @@
         </div>
         <label class="sr-only" for="load-search">Search loads</label>
         <input class="search" id="load-search" type="search" placeholder="Search reference, customer, place">
+        <div class="date-range" role="group" aria-label="Pickup date range">
+          <label for="load-from">From</label><input type="date" id="load-from">
+          <label for="load-to">to</label><input type="date" id="load-to">
+        </div>
+        <span class="spacer" style="flex:1"></span>
+        <a class="btn" id="dl-loads" href="/api/reports/loads.xlsx" download>Download Excel</a>
       </div>
       <div class="panel"><div class="table-wrap"><table>
         <thead><tr><th>Load</th><th>Route</th><th>Driver</th><th>Status</th><th class="num">Weight</th><th class="num">Price (BHD)</th><th>Pickup</th></tr></thead>
@@ -110,7 +116,7 @@
 
     <!-- DRIVERS -->
     <section class="view" id="view-drivers" hidden>
-      <div class="toolbar"><span class="spacer" style="flex:1"></span><button class="btn" id="btn-new-driver" type="button">Add driver</button></div>
+      <div class="toolbar"><span class="spacer" style="flex:1"></span><a class="btn" href="/api/reports/drivers.xlsx" download>Download driver list</a><button class="btn" id="btn-new-driver" type="button">Add driver</button></div>
       <div class="panel"><div class="table-wrap"><table>
         <thead><tr><th>Driver</th><th>Phone (app login)</th><th>Truck</th><th>Status</th><th>Last signal</th><th>Licence expiry</th><th></th></tr></thead>
         <tbody id="drivers-body"></tbody>

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "fleet",
     "loads",
     "tracking",
+    "reports",
 ]
 
 MIDDLEWARE = [

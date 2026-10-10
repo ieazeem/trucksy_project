@@ -12,7 +12,7 @@
     available: "Available", on_job: "On a job", offline: "Offline", break: "On break",
   };
 
-  const state = { view: "overview", dash: null, drivers: [], trucks: [], loadFilter: "", loadQuery: "", lastOk: 0 };
+  const state = { view: "overview", dash: null, drivers: [], trucks: [], loadFilter: "", loadQuery: "", loadFrom: "", loadTo: "", lastOk: 0 };
 
   // ---------- helpers ----------
   const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -31,6 +31,8 @@
     return fmtDate(d);
   };
   const daysUntil = (d) => d ? Math.round((new Date(d) - new Date()) / 86400000) : null;
+  // Bahrain calendar day, offset in days from today, as YYYY-MM-DD
+  const isoDay = (offset = 0) => new Date(Date.now() + offset * 86400000).toLocaleDateString("en-CA", { timeZone: TZ });
   const chip = (st, label) => `<span class="chip st-${esc(st)}">${esc(label || STATUS_LABEL[st] || st)}</span>`;
   const plate = (t) => t ? `<span class="plate">${esc(t.plate_number)}</span>` : `<span class="sub">No truck</span>`;
   const expiry = (d) => {
@@ -182,11 +184,20 @@
   }
 
   // ---------- loads ----------
+  let loadsSeq = 0;
   async function renderLoads() {
+    const seq = ++loadsSeq; // ignore answers to older requests that arrive late
     const params = new URLSearchParams();
     if (state.loadFilter) params.set("status", state.loadFilter);
     if (state.loadQuery) params.set("q", state.loadQuery);
+    if (state.loadFrom) params.set("from", state.loadFrom);
+    if (state.loadTo) params.set("to", state.loadTo);
+    // The Excel button always downloads exactly what the table shows.
+    const xl = new URLSearchParams(params);
+    if (!state.loadFrom && !state.loadTo) { xl.set("from", isoDay(-29)); xl.set("to", isoDay(0)); }
+    $("#dl-loads").href = `/api/reports/loads.xlsx?${xl}`;
     const loads = await api(`loads/?${params}`);
+    if (seq !== loadsSeq) return;
     $("#loads-body").innerHTML = loads.length ? loads.map((l) => `
       <tr class="clickable" tabindex="0" data-open-load="${l.id}">
         <td><strong>${esc(l.reference)}</strong><div class="sub">${esc(l.customer_name)}</div></td>
@@ -212,7 +223,7 @@
         <td>${d.is_active ? chip(d.is_live ? d.status : "offline", d.is_live ? d.status_label : "Offline") : chip("cancelled", "Deactivated")}</td>
         <td>${ago(d.last_seen)}</td>
         <td>${expiry(d.license_expiry)}</td>
-        <td>${d.is_active ? `<button class="btn btn-sm" data-reset-pin="${d.id}">Reset PIN</button>` : ""}</td>
+        <td style="white-space:nowrap">${d.is_active ? `<button class="btn btn-sm" data-route-history="${d.id}">Route history</button> <button class="btn btn-sm" data-reset-pin="${d.id}">Reset PIN</button>` : `<button class="btn btn-sm" data-route-history="${d.id}">Route history</button>`}</td>
       </tr>`).join("")
       : `<tr><td colspan="7" class="empty">No drivers yet. Add your first driver to give them app access.</td></tr>`;
   }
@@ -308,6 +319,67 @@
       toast("Load cancelled"); closeDrawer(); refreshAll();
     };
   }
+  // ---------- route history (date range) ----------
+  async function openRouteHistory(driverId, from = isoDay(0), to = isoDay(0)) {
+    const h = await api(`drivers/${driverId}/history/?from=${from}&to=${to}`);
+    const s = h.stats;
+    const q = `from=${from}&to=${to}`;
+    $("#d-title").textContent = h.driver.full_name;
+    $("#d-sub").innerHTML = `Route history${h.driver.truck ? ` · <span class="plate">${esc(h.driver.truck)}</span>` : ""}`;
+    $("#drawer-body").innerHTML = `
+      <form class="hist-form" id="hist-form">
+        <div class="field"><label for="h-from">From</label><input type="date" id="h-from" value="${from}" max="${isoDay(0)}"></div>
+        <div class="field"><label for="h-to">To</label><input type="date" id="h-to" value="${to}" max="${isoDay(0)}"></div>
+        <button class="btn btn-primary" type="submit">Show route</button>
+      </form>
+      <div class="quick">
+        <button class="btn btn-sm" data-range="0,0">Today</button>
+        <button class="btn btn-sm" data-range="-1,-1">Yesterday</button>
+        <button class="btn btn-sm" data-range="-6,0">Last 7 days</button>
+        <button class="btn btn-sm" data-range="-29,0">Last 30 days</button>
+      </div>
+      <div class="hist-stats">
+        <div><b>${s.km.toLocaleString()} km</b><span>Distance driven</span></div>
+        <div><b>${s.deliveries}</b><span>Deliveries</span></div>
+        <div><b>${s.points.toLocaleString()}</b><span>GPS points</span></div>
+        <div><b>${s.first ? fmtTime(s.first) : "—"}</b><span>First signal${s.first ? " · " + fmtDate(s.first) : ""}</span></div>
+        <div><b>${s.last ? fmtTime(s.last) : "—"}</b><span>Last signal${s.last ? " · " + fmtDate(s.last) : ""}</span></div>
+        <div><b>${s.max_speed_kmh != null ? Math.round(s.max_speed_kmh) + " km/h" : "—"}</b><span>Top speed</span></div>
+      </div>
+      ${s.points ? "" : `<p class="sub">No GPS signal from ${esc(h.driver.full_name)} in this period. Pick other dates, or check the driver was online.</p>`}
+      ${s.truncated ? `<p class="warn">Showing the first 20,000 points. Pick a shorter period to see the full route.</p>` : ""}
+      <div id="drawer-map"></div>
+      <div class="actions"><a class="btn" href="/api/reports/drivers/${h.driver.id}/route.xlsx?${q}" download>Download Excel</a></div>
+      ${h.deliveries.length ? `<h3>Deliveries</h3><ul class="timeline">${h.deliveries.map((d) =>
+        `<li><a href="#" data-open-load-ref="${esc(d.reference)}">${esc(d.reference)}</a> · ${esc(d.dropoff)}<time>${fmtDT(d.at)}</time></li>`).join("")}</ul>` : ""}`;
+
+    document.body.classList.add("drawer-open");
+    $("#drawer").setAttribute("aria-hidden", "false");
+
+    $("#hist-form").onsubmit = (e) => { e.preventDefault(); openRouteHistory(driverId, $("#h-from").value, $("#h-to").value); };
+    $$("[data-range]").forEach((b) => b.onclick = () => {
+      const [a, z] = b.dataset.range.split(",").map(Number);
+      openRouteHistory(driverId, isoDay(a), isoDay(z));
+    });
+
+    if (drawerMap) drawerMap.remove();
+    drawerMap = L.map("drawer-map", { zoomControl: true, attributionControl: false }).setView(BAHRAIN, 11);
+    tiles().addTo(drawerMap);
+    const line = h.points.map((p) => [p.lat, p.lng]);
+    if (line.length) {
+      L.polyline(line, { color: "#f2a900", weight: 5 }).addTo(drawerMap);
+      L.polyline(line, { color: "#2a3340", weight: 1.5, dashArray: "4 4" }).addTo(drawerMap);
+      L.marker(line[0], { icon: L.divIcon({ className: "pin-wrap", html: '<div class="place-pin"></div>', iconSize: [14, 14] }) })
+        .addTo(drawerMap).bindTooltip(`Start ${fmtTime(s.first)}`);
+      L.marker(line[line.length - 1], { icon: L.divIcon({ className: "pin-wrap", html: `<span class="truck-pin">${esc(h.driver.truck || "End")}</span>`, iconSize: [0, 0] }) })
+        .addTo(drawerMap).bindTooltip(`Last ${fmtTime(s.last)}`);
+    }
+    h.deliveries.filter((d) => d.lat != null).forEach((d) =>
+      L.marker([d.lat, d.lng], { icon: L.divIcon({ className: "pin-wrap", html: '<div class="place-pin drop"></div>', iconSize: [14, 14] }) })
+        .addTo(drawerMap).bindTooltip(`${d.reference} delivered ${fmtTime(d.at)}`));
+    setTimeout(() => { drawerMap.invalidateSize(); if (line.length) drawerMap.fitBounds(line, { padding: [24, 24], maxZoom: 14 }); }, 260);
+  }
+
   function closeDrawer() {
     document.body.classList.remove("drawer-open");
     $("#drawer").setAttribute("aria-hidden", "true");
@@ -393,6 +465,10 @@
     $$("#load-filter button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
     renderLoads();
   });
+  const onDates = () => { state.loadFrom = $("#load-from").value; state.loadTo = $("#load-to").value; renderLoads(); };
+  $("#load-from").addEventListener("change", onDates);
+  $("#load-to").addEventListener("change", onDates);
+  $("#dl-week").href = `/api/reports/operations.xlsx?from=${isoDay(-6)}&to=${isoDay(0)}`;
   let qT;
   $("#load-search").addEventListener("input", (e) => { clearTimeout(qT); qT = setTimeout(() => { state.loadQuery = e.target.value.trim(); renderLoads(); }, 250); });
 
@@ -406,6 +482,8 @@
       if (found[0]) openLoad(found[0].id);
       return;
     }
+    const rh = e.target.closest("[data-route-history]");
+    if (rh) { openRouteHistory(rh.dataset.routeHistory).catch((err) => toast(err.message)); return; }
     const p = e.target.closest("[data-reset-pin]");
     if (p) {
       const pin = prompt("New 4–12 digit PIN for this driver:");

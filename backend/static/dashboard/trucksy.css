@@ -224,6 +224,16 @@ td .sub { color: var(--ink-3); font-size: 13px; }
 .warn { color: var(--stop); font-weight: 600; }
 .empty { padding: 36px 18px; text-align: center; color: var(--ink-2); }
 
+.date-range { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-2); }
+.date-range input { border: 1px solid var(--line); background: var(--paper); border-radius: 6px; padding: 6px 8px; }
+.hist-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; margin: 12px 0; }
+.hist-stats div { background: var(--paper); padding: 10px 12px; }
+.hist-stats b { display: block; font-family: var(--display); font-size: 24px; line-height: 1.1; }
+.hist-stats span { font-size: 12px; color: var(--ink-2); }
+.hist-form { display: flex; gap: 8px; align-items: end; flex-wrap: wrap; }
+.hist-form .field { flex: 1; min-width: 130px; }
+.quick { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+
 /* ---------- drawer ---------- */
 .drawer-backdrop { position: fixed; inset: 0; background: rgba(24,33,46,.35); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 1150; }
 .drawer {
