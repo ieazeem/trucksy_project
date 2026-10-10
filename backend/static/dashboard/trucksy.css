@@ -65,6 +65,18 @@ a { color: var(--amber); }
   display: grid; place-items: center; box-shadow: inset 0 0 0 1px var(--amber), 0 0 12px rgba(52,211,153,.35);
 }
 .brand-name { font-family: var(--display); font-weight: 800; font-size: 24px; letter-spacing: .05em; text-transform: uppercase; }
+/* The official TRUCKSY wordmark (same as the website): white letters, green glow sweeping T -> Y. */
+.wordmark {
+  --glow: 0 0 10px #FFFFFF, 0 0 30px #34D399, 0 0 50px rgba(52, 211, 153, 0.8), 0 0 80px rgba(52, 211, 153, 0.4);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  font-size: 1.9rem; font-weight: 800; letter-spacing: 0.04em; line-height: 1; white-space: nowrap; color: #fff; display: inline-block;
+}
+.wordmark span { display: inline-block; color: #fff; animation: tk-sweep 4s infinite; }
+.wordmark span:nth-child(2) { animation-delay: .12s; } .wordmark span:nth-child(3) { animation-delay: .24s; }
+.wordmark span:nth-child(4) { animation-delay: .36s; } .wordmark span:nth-child(5) { animation-delay: .48s; }
+.wordmark span:nth-child(6) { animation-delay: .6s; } .wordmark span:nth-child(7) { animation-delay: .72s; }
+@keyframes tk-sweep { 0%, 20%, 100% { color: #fff; text-shadow: none; } 8% { color: #34D399; text-shadow: var(--glow); } }
+@media (prefers-reduced-motion: reduce) { .wordmark span { animation: none; } }
 .nav { display: flex; flex-direction: column; gap: 2px; }
 .nav button {
   all: unset; cursor: pointer; display: flex; align-items: center; gap: 12px;

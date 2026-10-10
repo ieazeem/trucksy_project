@@ -3,7 +3,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Btn, SignBoard, T } from '../components/ui';
-import { Icon } from '../components/Icon';
+import { Wordmark } from '../components/Wordmark';
 import { DEFAULT_API_URL, getApiUrl, setApiUrl } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { colors, fonts } from '../theme';
@@ -41,8 +41,7 @@ export default function Login() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={st.wrap} keyboardShouldPersistTaps="handled">
           <View style={st.brand}>
-            <View style={st.mark}><Icon name="truck" color={colors.amber} size={26} /></View>
-            <T style={st.brandName}>TRUCKSY</T>
+            <Wordmark size={34} />
           </View>
 
           <SignBoard>
@@ -89,8 +88,6 @@ export default function Login() {
 const st = StyleSheet.create({
   wrap: { padding: 20, paddingTop: 36, flexGrow: 1 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 22 },
-  mark: { width: 44, height: 44, borderRadius: 9, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.amber },
-  brandName: { fontFamily: fonts.display, fontSize: 30, lineHeight: 34, color: '#fff', letterSpacing: 2 },
   h1: { fontFamily: fonts.display, fontSize: 36, lineHeight: 40, color: '#fff' },
   lead: { color: colors.signText, marginTop: 2, marginBottom: 14 },
   label: { color: '#fff', fontFamily: fonts.semibold, fontSize: 14, marginTop: 10, marginBottom: 5 },
