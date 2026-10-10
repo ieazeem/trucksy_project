@@ -1,0 +1,26 @@
+# One-click deploy on Render: New → Blueprint → pick this repo.
+services:
+  - type: web
+    name: trucksy-api
+    runtime: python
+    rootDir: backend
+    plan: starter
+    region: frankfurt
+    buildCommand: ./build.sh
+    startCommand: gunicorn trucksy.wsgi --bind 0.0.0.0:$PORT --workers 2 --timeout 60
+    healthCheckPath: /api/health/
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: "3.12.7"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: trucksy-db
+          property: connectionString
+databases:
+  - name: trucksy-db
+    plan: basic-256mb
+    region: frankfurt

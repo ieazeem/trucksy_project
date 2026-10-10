@@ -1,0 +1,219 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trucksy Dispatch</title>
+  <link rel="icon" href="{% static 'dashboard/favicon.svg' %}">
+  <link rel="stylesheet" href="{% static 'vendor/leaflet/leaflet.css' %}">
+  <link rel="stylesheet" href="{% static 'dashboard/trucksy.css' %}">
+</head>
+<body>
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">{% include "dashboard/_truck.svg" %}</div>
+      <span class="brand-name">Trucksy</span>
+    </div>
+    <nav class="nav" aria-label="Main">
+      <button data-view="overview" aria-current="page">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <span>Live map</span>
+      </button>
+      <button data-view="loads">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>
+        <span>Loads</span>
+      </button>
+      <button data-view="drivers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+        <span>Drivers</span>
+      </button>
+      <button data-view="fleet">
+        {% include "dashboard/_truck.svg" %}
+        <span>Fleet</span>
+      </button>
+    </nav>
+    <div class="rail-foot">
+      <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+      Dispatcher · <a href="/admin/">Admin</a>
+      <form method="post" action="{% url 'logout' %}" style="margin-top:8px">{% csrf_token %}<button class="btn btn-sm" type="submit">Sign out</button></form>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <h1 id="page-title">Live map</h1>
+      <span class="clock"><span class="live-dot" id="live-dot"></span><span id="clock">—</span></span>
+      <span class="spacer"></span>
+      <button class="btn btn-primary" id="btn-new-load" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        New load
+      </button>
+    </header>
+
+    <!-- OVERVIEW -->
+    <section class="view" id="view-overview">
+      <div class="signboard" aria-label="Today at a glance">
+        <div class="signboard-inner">
+          <div class="kpi"><div class="kpi-value" id="k-live">–</div><div class="kpi-label">Trucks live now</div></div>
+          <div class="kpi is-amber"><div class="kpi-value" id="k-active">–</div><div class="kpi-label">Loads on the road</div></div>
+          <div class="kpi"><div class="kpi-value" id="k-pending">–</div><div class="kpi-label">Waiting for a driver</div></div>
+          <div class="kpi"><div class="kpi-value" id="k-delivered">–</div><div class="kpi-label">Delivered today</div></div>
+          <div class="kpi"><div class="kpi-value" id="k-revenue">–</div><div class="kpi-label">Revenue today</div></div>
+        </div>
+      </div>
+
+      <div class="grid-main">
+        <div class="panel map-panel">
+          <div class="panel-head"><h2>Fleet map</h2><span class="meta" id="map-meta"></span></div>
+          <div id="map" role="region" aria-label="Map of trucks"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>On the road</h2><span class="meta" id="trip-count"></span></div>
+          <div class="trip-list" id="trip-list"></div>
+        </div>
+      </div>
+
+      <div class="grid-two">
+        <div class="panel">
+          <div class="panel-head"><h2>Deliveries, last 7 days</h2></div>
+          <div class="panel-body">
+            <div class="bars" id="bars"></div>
+            <div class="chart-foot" id="chart-foot"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Activity</h2><span class="meta">Latest job updates</span></div>
+          <div class="panel-body"><ul class="log" id="log"></ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LOADS -->
+    <section class="view" id="view-loads" hidden>
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Filter loads" id="load-filter">
+          <button data-f="" aria-pressed="true">All</button>
+          <button data-f="pending" aria-pressed="false">Waiting</button>
+          <button data-f="active" aria-pressed="false">On the road</button>
+          <button data-f="delivered" aria-pressed="false">Delivered</button>
+          <button data-f="cancelled" aria-pressed="false">Cancelled</button>
+        </div>
+        <label class="sr-only" for="load-search">Search loads</label>
+        <input class="search" id="load-search" type="search" placeholder="Search reference, customer, place">
+      </div>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Load</th><th>Route</th><th>Driver</th><th>Status</th><th class="num">Weight</th><th class="num">Price (BHD)</th><th>Pickup</th></tr></thead>
+        <tbody id="loads-body"></tbody>
+      </table></div></div>
+    </section>
+
+    <!-- DRIVERS -->
+    <section class="view" id="view-drivers" hidden>
+      <div class="toolbar"><span class="spacer" style="flex:1"></span><button class="btn" id="btn-new-driver" type="button">Add driver</button></div>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Driver</th><th>Phone (app login)</th><th>Truck</th><th>Status</th><th>Last signal</th><th>Licence expiry</th><th></th></tr></thead>
+        <tbody id="drivers-body"></tbody>
+      </table></div></div>
+    </section>
+
+    <!-- FLEET -->
+    <section class="view" id="view-fleet" hidden>
+      <div class="toolbar"><span class="spacer" style="flex:1"></span><button class="btn" id="btn-new-truck" type="button">Add truck</button></div>
+      <div class="panel"><div class="table-wrap"><table>
+        <thead><tr><th>Plate</th><th>Type</th><th>Make &amp; model</th><th class="num">Capacity</th><th>Driver</th><th>Registration</th><th>Insurance</th></tr></thead>
+        <tbody id="trucks-body"></tbody>
+      </table></div></div>
+    </section>
+  </main>
+</div>
+
+<!-- Load drawer -->
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+<aside class="drawer" id="drawer" aria-label="Load details" aria-hidden="true">
+  <div class="drawer-head">
+    <div>
+      <h2 id="d-title">—</h2>
+      <div id="d-sub" class="clock"></div>
+    </div>
+    <span class="spacer"></span>
+    <button class="btn btn-sm" id="drawer-close" type="button">Close</button>
+  </div>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+
+<!-- New load -->
+<dialog id="dlg-load">
+  <form method="dialog" id="form-load">
+    <h2>New load</h2>
+    <div class="form-grid">
+      <div class="field full"><label for="f-customer">Customer</label><input id="f-customer" name="customer_name" required placeholder="Company or person"></div>
+      <div class="field"><label for="f-cphone">Customer phone</label><input id="f-cphone" name="customer_phone" placeholder="+973 1700 0000"></div>
+      <div class="field"><label for="f-cargo">Cargo</label><input id="f-cargo" name="cargo_description" placeholder="e.g. 20 pallets of water"></div>
+      <div class="field full"><label for="f-pick">Pickup address</label><input id="f-pick" name="pickup_address" required list="places"></div>
+      <div class="field full"><label for="f-drop">Drop-off address</label><input id="f-drop" name="dropoff_address" required list="places"></div>
+      <div class="field"><label for="f-weight">Weight (kg)</label><input id="f-weight" name="weight_kg" type="number" min="0" value="0"></div>
+      <div class="field"><label for="f-price">Price (BHD)</label><input id="f-price" name="price" type="number" min="0" step="0.001" value="0"></div>
+      <div class="field"><label for="f-when">Pickup time</label><input id="f-when" name="scheduled_pickup" type="datetime-local"></div>
+      <div class="field"><label for="f-driver">Driver</label><select id="f-driver" name="driver_id"><option value="">Assign later</option></select></div>
+      <div class="field full"><label for="f-notes">Instructions for the driver</label><textarea id="f-notes" name="notes" rows="2" placeholder="Gate number, contact on site, loading bay…"></textarea></div>
+    </div>
+    <p class="form-error" id="err-load" role="alert"></p>
+    <div class="dialog-actions"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn btn-primary" id="submit-load" value="default">Create load</button></div>
+  </form>
+</dialog>
+
+<!-- New driver -->
+<dialog id="dlg-driver">
+  <form method="dialog" id="form-driver">
+    <h2>Add driver</h2>
+    <div class="form-grid">
+      <div class="field full"><label for="g-name">Full name</label><input id="g-name" name="full_name" required></div>
+      <div class="field"><label for="g-phone">Mobile number</label><input id="g-phone" name="phone" required placeholder="3xxxxxxx"><span class="hint">The driver signs into the app with this number.</span></div>
+      <div class="field"><label for="g-pin">App PIN</label><input id="g-pin" name="pin" required inputmode="numeric" minlength="4" maxlength="12"><span class="hint">4–12 digits. Share it privately.</span></div>
+      <div class="field"><label for="g-cpr">CPR number</label><input id="g-cpr" name="cpr"></div>
+      <div class="field"><label for="g-lic">Licence number</label><input id="g-lic" name="license_number"></div>
+      <div class="field"><label for="g-licexp">Licence expiry</label><input id="g-licexp" name="license_expiry" type="date"></div>
+      <div class="field"><label for="g-truck">Truck</label><select id="g-truck" name="truck_id"><option value="">No truck yet</option></select></div>
+    </div>
+    <p class="form-error" id="err-driver" role="alert"></p>
+    <div class="dialog-actions"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn btn-primary" value="default">Add driver</button></div>
+  </form>
+</dialog>
+
+<!-- New truck -->
+<dialog id="dlg-truck">
+  <form method="dialog" id="form-truck">
+    <h2>Add truck</h2>
+    <div class="form-grid">
+      <div class="field"><label for="h-plate">Plate number</label><input id="h-plate" name="plate_number" required></div>
+      <div class="field"><label for="h-kind">Type</label><select id="h-kind" name="kind">
+        <option value="pickup">Pickup (1 ton)</option><option value="box" selected>Box truck (3–7 ton)</option>
+        <option value="flatbed">Flatbed</option><option value="reefer">Refrigerated (reefer)</option>
+        <option value="trailer">Trailer / Semi</option><option value="tanker">Tanker</option></select></div>
+      <div class="field"><label for="h-make">Make</label><input id="h-make" name="make" placeholder="Isuzu"></div>
+      <div class="field"><label for="h-model">Model</label><input id="h-model" name="model" placeholder="NPR"></div>
+      <div class="field"><label for="h-year">Year</label><input id="h-year" name="year" type="number" min="1980" max="2100"></div>
+      <div class="field"><label for="h-cap">Capacity (kg)</label><input id="h-cap" name="capacity_kg" type="number" min="0" value="3000"></div>
+      <div class="field"><label for="h-reg">Registration expiry</label><input id="h-reg" name="registration_expiry" type="date"></div>
+      <div class="field"><label for="h-ins">Insurance expiry</label><input id="h-ins" name="insurance_expiry" type="date"></div>
+    </div>
+    <p class="form-error" id="err-truck" role="alert"></p>
+    <div class="dialog-actions"><button class="btn" value="cancel" formnovalidate>Cancel</button><button class="btn btn-primary" value="default">Add truck</button></div>
+  </form>
+</dialog>
+
+<datalist id="places">
+  <option value="Khalifa Bin Salman Port, Hidd"><option value="Bahrain Logistics Zone, Hidd"><option value="Mina Salman Port">
+  <option value="Sitra Industrial Area"><option value="Salmabad Industrial Area"><option value="BIA Cargo Village, Muharraq">
+  <option value="Manama Central Market"><option value="Seef District, Manama"><option value="Riffa Views"><option value="Isa Town Industrial">
+  <option value="Hamad Town Roundabout 1"><option value="King Fahd Causeway Customs"><option value="Juffair, Manama"><option value="Tubli Warehouses">
+  <option value="Askar Industrial Zone">
+</datalist>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="{% static 'vendor/leaflet/leaflet.js' %}"></script>
+<script src="{% static 'dashboard/app.js' %}"></script>
+</body>
+</html>

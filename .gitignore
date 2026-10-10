@@ -1,6 +1,12 @@
-﻿venv/
-db.sqlite3
 __pycache__/
 *.pyc
-staticfiles/
 .env
+db.sqlite3
+backend/staticfiles/
+node_modules/
+.expo/
+dist/
+*.apk
+*.aab
+*.apks
+.DS_Store
