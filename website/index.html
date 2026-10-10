@@ -5,366 +5,759 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TRUCKSY – Road Freight &amp; Logistics in Bahrain and the GCC</title>
   <meta name="description" content="Trucksy moves full and partial loads across Bahrain and the GCC: KSA, UAE, Qatar, Kuwait and Oman. Live tracking on every delivery. Get a quote within 24 hours.">
-  <meta name="theme-color" content="#1A1A1A">
+  <meta name="theme-color" content="#0b0c0c">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Trucksy">
   <meta property="og:title" content="TRUCKSY – Fast. Reliable. Efficient.">
   <meta property="og:description" content="Road freight across Bahrain and the GCC, with live tracking on every delivery.">
   <meta property="og:image" content="https://trucksy.netlify.app/trucksy-truck.jpg">
   <meta property="og:url" content="https://trucksy.netlify.app/">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
+  <script>document.documentElement.classList.add("js")</script>
   <style>
-    /* TRUCKSY website — dark grey / black / green, matching the truck's green underglow. */
+    /* TRUCKSY — black / charcoal / green, matching the truck's green underglow and the dispatch dashboard. */
     :root {
+      --ink: #0b0c0c;
+      --black: #000;
+      --near-black: #1A1A1A;
       --bg-dark: #262626;
       --bg-medium: #333333;
       --bg-light: #404040;
-      --border: #1A1A1A;
-      --black: #000000;
-      --near-black: #1A1A1A;
       --green: #34D399;
-      --green-soft: rgba(52, 211, 153, 0.15);
-      --text: #FFFFFF;
-      --text-muted: #C9CDD2;
-      --glow: 0 0 10px #FFFFFF, 0 0 30px var(--green), 0 0 50px rgba(52, 211, 153, 0.8), 0 0 80px rgba(52, 211, 153, 0.4);
-      --font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-      color-scheme: dark;
+      --green-deep: #059669;
+      --green-a10: rgba(52, 211, 153, .10);
+      --green-a20: rgba(52, 211, 153, .20);
+      --green-a40: rgba(52, 211, 153, .40);
+      --text: #fff;
+      --muted: #b9bec4;
+      --line: rgba(255, 255, 255, .09);
+      --display: "Archivo", ui-sans-serif, system-ui, sans-serif;
+      --body: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      --r-card: 22px;
+      --ease: cubic-bezier(.2, .7, .1, 1);
+      --gutter: clamp(16px, 4vw, 40px);
     }
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 84px; }
     body {
-      font-family: var(--font); margin: 0; line-height: 1.6;
-      color: var(--text); background: var(--bg-dark);
-      -webkit-font-smoothing: antialiased; overflow-x: hidden;
+      margin: 0; background: var(--ink); color: var(--text); font-family: var(--body);
+      font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden;
     }
-    img { max-width: 100%; display: block; }
+    img, svg { display: block; max-width: 100%; }
     a { color: inherit; }
-    :focus-visible { outline: 3px solid var(--green); outline-offset: 3px; border-radius: 4px; }
-    .container { max-width: 1200px; margin: 0 auto; padding-inline: 1.25rem; }
-    h1, h2, h3 { line-height: 1.1; font-weight: 800; margin: 0; text-wrap: balance; }
-    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-    section { padding-block: 4rem; scroll-margin-top: 72px; }
-    @media (min-width: 768px) { section { padding-block: 5.5rem; } }
-    .section-title { font-size: clamp(1.75rem, 3.5vw, 2.4rem); text-transform: uppercase; letter-spacing: 0.02em; text-align: center; }
-    .section-sub { color: var(--text-muted); text-align: center; max-width: 60ch; margin: 0.75rem auto 3rem; }
-    .accent { color: var(--green); }
-
-    /* Buttons */
-    .button {
-      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-      height: 48px; padding: 0 1.6rem; border-radius: 0.4rem; font: inherit; font-weight: 700;
-      font-size: 0.95rem; letter-spacing: 0.04em; text-decoration: none; cursor: pointer; white-space: nowrap;
-      transition: box-shadow 0.25s, background-color 0.25s, transform 0.15s;
+    :focus-visible { outline: 2px solid var(--green); outline-offset: 3px; border-radius: 6px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+    .wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 var(--gutter); }
+    .display { font-family: var(--display); font-stretch: 125%; font-weight: 800; letter-spacing: -.01em; line-height: .98; text-transform: uppercase; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: .6rem; font-size: .78rem; font-weight: 700; letter-spacing: .22em;
+      text-transform: uppercase; color: var(--green); margin: 0 0 1.1rem;
     }
-    .button:active { transform: translateY(1px); }
-    .button.primary { background: linear-gradient(90deg, var(--near-black), var(--black)); color: #fff; border: 1px solid #000; box-shadow: 0 0 8px rgba(0,0,0,0.35); }
-    .button.primary:hover { box-shadow: 0 0 0 1px var(--green), 0 0 16px rgba(52, 211, 153, 0.45); }
-    .button.outline { background: transparent; color: var(--green); border: 1px solid var(--green); }
-    .button.outline:hover { background: rgba(52, 211, 153, 0.1); box-shadow: 0 0 12px rgba(52, 211, 153, 0.5); }
-    .button.small { height: 40px; padding: 0 1.1rem; font-size: 0.85rem; }
-    .button svg { width: 16px; height: 16px; }
+    .eyebrow::before { content: ""; width: 26px; height: 2px; border-radius: 2px; background: var(--green); box-shadow: 0 0 10px var(--green); }
+    .h2 { font-size: clamp(2rem, 5.2vw, 3.6rem); margin: 0 0 1rem; }
+    .lede { color: var(--muted); font-size: clamp(1rem, 1.6vw, 1.15rem); max-width: 56ch; margin: 0; }
+    section { position: relative; }
+    .pad { padding: clamp(80px, 11vw, 140px) 0; }
 
-    /* Header */
-    header.site {
-      position: sticky; top: 0; z-index: 50;
-      background: rgba(30, 30, 30, 0.92); backdrop-filter: blur(6px);
-      border-bottom: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    /* ---------- buttons ---------- */
+    .btn {
+      --h: 52px; position: relative; display: inline-flex; align-items: center; justify-content: center; gap: .6rem;
+      height: var(--h); padding: 0 1.6rem; border-radius: 999px; border: 1px solid transparent; cursor: pointer;
+      font: 700 .82rem/1 var(--body); font-stretch: 112%; letter-spacing: .14em; text-transform: uppercase; text-decoration: none;
+      transition: transform .35s var(--ease), box-shadow .35s var(--ease), background .35s, color .35s, border-color .35s;
+      white-space: nowrap;
     }
-    .header-row { display: flex; align-items: center; justify-content: space-between; height: 68px; gap: 1rem; }
-    .logo { font-size: 1.9rem; font-weight: 800; letter-spacing: 0.04em; text-decoration: none; white-space: nowrap; line-height: 1; }
-    .logo span { display: inline-block; color: #fff; animation: sweep 4s infinite; }
-    .logo span:nth-child(2) { animation-delay: 0.12s; } .logo span:nth-child(3) { animation-delay: 0.24s; }
-    .logo span:nth-child(4) { animation-delay: 0.36s; } .logo span:nth-child(5) { animation-delay: 0.48s; }
-    .logo span:nth-child(6) { animation-delay: 0.6s; } .logo span:nth-child(7) { animation-delay: 0.72s; }
-    @keyframes sweep { 0%, 20%, 100% { color: #fff; text-shadow: none; } 8% { color: var(--green); text-shadow: var(--glow); } }
-    nav.main { display: none; align-items: center; gap: 1.75rem; }
-    nav.main a { text-decoration: none; font-weight: 500; color: var(--text); transition: color 0.2s; }
-    nav.main a:hover { color: var(--green); }
-    nav.main a.button { color: #fff; }
-    .menu-btn { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 0.4rem; border: 1px solid var(--bg-light); background: transparent; color: #fff; cursor: pointer; }
-    .menu-btn svg { width: 22px; height: 22px; }
-    @media (min-width: 960px) { nav.main { display: flex; } .menu-btn { display: none; } }
-    .mobile-nav { display: grid; gap: 0.25rem; padding: 0.5rem 1.25rem 1.25rem; border-top: 1px solid var(--border); background: #1e1e1e; }
-    .mobile-nav a { padding: 0.8rem 0.25rem; text-decoration: none; font-weight: 600; border-bottom: 1px solid #2c2c2c; }
-    .mobile-nav a:last-child { border-bottom: 0; margin-top: 0.5rem; }
-    @media (min-width: 960px) { .mobile-nav { display: none !important; } }
+    .btn svg { width: 18px; height: 18px; transition: transform .35s var(--ease); }
+    .btn:hover svg { transform: translateX(4px); }
+    .btn-green { background: var(--green); color: #04130d; box-shadow: 0 0 0 0 var(--green-a40), 0 10px 30px -10px rgba(52,211,153,.6); }
+    .btn-green:hover { transform: translateY(-2px); box-shadow: 0 0 0 6px var(--green-a20), 0 16px 40px -10px rgba(52,211,153,.8); }
+    .btn-ghost { background: rgba(255,255,255,.04); color: #fff; border-color: rgba(255,255,255,.18); backdrop-filter: blur(8px); }
+    .btn-ghost:hover { border-color: var(--green); color: var(--green); transform: translateY(-2px); }
+    .btn:disabled { opacity: .6; cursor: progress; transform: none; }
 
-    /* Hero */
-    .hero { padding-block: 2.5rem 4rem; border-bottom: 1px solid var(--border); }
-    .hero-grid { display: grid; gap: 2.25rem; align-items: center; }
-    .hero-photo { position: relative; border-radius: 0.9rem; overflow: hidden; box-shadow: 0 0 0 1px #000, 0 20px 50px rgba(0,0,0,0.5), 0 0 40px rgba(52, 211, 153, 0.12); }
-    .hero-photo img { width: 100%; height: auto; aspect-ratio: 750 / 681; object-fit: cover; }
-    .hero-copy { text-align: center; }
-    .hero h1 { font-size: clamp(2.4rem, 6vw, 4.2rem); letter-spacing: 0.01em; }
-    .hero p.lead { font-size: clamp(1.05rem, 1.6vw, 1.25rem); color: var(--text); margin: 1.25rem auto 2rem; max-width: 46ch; }
-    .hero-buttons { display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap; }
-    .routes-line { margin-top: 1.75rem; color: var(--text-muted); font-size: 0.95rem; }
-    .routes-line b { color: var(--green); font-weight: 600; }
-    @media (max-width: 520px) { .hero-buttons .button { width: 100%; } }
-    @media (min-width: 960px) {
-      .hero { padding-block: 4.5rem 5.5rem; }
-      .hero-grid { grid-template-columns: 1.05fr 1fr; gap: 3.5rem; }
-      .hero-copy { text-align: left; order: -1; }
-      .hero p.lead { margin-inline: 0; }
-      .hero-buttons { justify-content: flex-start; }
+    /* ---------- logo ---------- */
+    .brand { display: inline-flex; align-items: center; gap: .7rem; text-decoration: none; }
+    .brand svg { width: 38px; height: 38px; flex: none; }
+    .brand b { font-family: var(--display); font-stretch: 125%; font-weight: 800; font-size: 1.12rem; letter-spacing: .2em; }
+
+    /* ---------- nav ---------- */
+    .nav { position: fixed; inset: 0 0 auto; z-index: 50; transition: background .4s, border-color .4s, backdrop-filter .4s; border-bottom: 1px solid transparent; }
+    .nav.scrolled { background: rgba(8, 9, 9, .72); backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%); border-color: var(--line); }
+    .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 76px; gap: 1rem; }
+    .nav-links { display: flex; align-items: center; gap: .3rem; }
+    .nav-links a:not(.btn) {
+      position: relative; padding: .55rem .9rem; border-radius: 999px; font-size: .9rem; font-weight: 600; color: #d6d9dc; text-decoration: none; transition: color .25s, background .25s;
     }
+    .nav-links a:not(.btn):hover { color: #fff; background: rgba(255,255,255,.06); }
+    .nav-links .btn { --h: 44px; margin-left: .6rem; padding: 0 1.2rem; }
+    .menu-btn { display: none; width: 46px; height: 46px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255,255,255,.04); color: #fff; cursor: pointer; place-items: center; }
+    .menu-btn span { position: relative; display: block; width: 18px; height: 2px; background: currentColor; border-radius: 2px; transition: background .2s; }
+    .menu-btn span::before, .menu-btn span::after { content: ""; position: absolute; left: 0; width: 18px; height: 2px; background: currentColor; border-radius: 2px; transition: transform .3s var(--ease); }
+    .menu-btn span::before { top: -6px; } .menu-btn span::after { top: 6px; }
+    .menu-btn[aria-expanded="true"] span { background: transparent; }
+    .menu-btn[aria-expanded="true"] span::before { transform: translateY(6px) rotate(45deg); }
+    .menu-btn[aria-expanded="true"] span::after { transform: translateY(-6px) rotate(-45deg); }
+    .mobile-nav {
+      position: fixed; inset: 76px 0 auto; z-index: 49; padding: 1rem var(--gutter) 1.5rem; display: grid; gap: .25rem;
+      background: rgba(8,9,9,.96); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--line);
+    }
+    .mobile-nav[hidden] { display: none; }
+    .mobile-nav a:not(.btn) { padding: .9rem .25rem; font-family: var(--display); font-stretch: 115%; font-weight: 700; font-size: 1.15rem; text-decoration: none; border-bottom: 1px solid var(--line); }
+    .mobile-nav .btn { margin-top: 1rem; }
 
-    /* Services */
-    .service-grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-    .service-card { background: var(--bg-medium); border: 1px solid var(--border); border-radius: 0.75rem; padding: 2rem 1.5rem; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.3s, box-shadow 0.3s; }
-    .service-card:hover { transform: translateY(-4px); box-shadow: 0 0 20px rgba(52, 211, 153, 0.45); }
-    .service-card h3 { font-size: 1.25rem; margin: 0.25rem 0 0.5rem; }
-    .service-card p { margin: 0; color: var(--text-muted); font-size: 0.97rem; }
-    .icon-ring { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 1rem; position: relative; border: 1px solid var(--green); background: var(--green-soft); }
-    .icon-ring svg { width: 30px; height: 30px; color: var(--green); position: relative; z-index: 1; }
-    .tyre { width: 46px; height: 46px; border-radius: 50%; position: relative; background: radial-gradient(circle, #404040 0 32%, #2a2a2a 33% 100%); border: 2px solid var(--green); box-shadow: 0 0 10px rgba(52,211,153,0.3), inset 0 0 12px rgba(0,0,0,0.8); animation: spin 3s linear infinite; }
-    .tyre::before, .tyre::after { content: ""; position: absolute; inset: 45% 8%; background: var(--green); border-radius: 2px; opacity: 0.75; }
-    .tyre::after { transform: rotate(90deg); }
+    /* ---------- hero ---------- */
+    .hero { min-height: 100svh; display: flex; align-items: center; padding: 110px 0 70px; overflow: hidden; isolation: isolate; }
+    .hero canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -2; }
+    .hero::before { /* keeps the headline readable over the road */
+      content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(11,12,12,.88) 0%, rgba(11,12,12,.5) 34%, rgba(11,12,12,0) 58%),
+        linear-gradient(180deg, rgba(11,12,12,.55) 0%, rgba(11,12,12,0) 25%, rgba(11,12,12,0) 75%, var(--ink) 100%);
+    }
+    .hero-grid { display: grid; grid-template-columns: 1.08fr 1fr; align-items: center; gap: clamp(1rem, 4vw, 3.5rem); }
+    .hero h1 { font-size: clamp(2.6rem, 7.4vw, 6.4rem); margin: 0 0 1.4rem; }
+    .hero h1 .line { display: block; overflow: hidden; padding-bottom: .04em; }
+    .settled .hero h1 .line { overflow: visible; }
+    .hero h1 .line > span { display: inline-block; }
+    .hero h1 .glow { color: var(--green); text-shadow: 0 0 24px rgba(52,211,153,.55), 0 0 60px rgba(52,211,153,.3); }
+    .hero .lede { margin-bottom: 2rem; }
+    .hero-cta { display: flex; flex-wrap: wrap; gap: .8rem; margin-bottom: 2.2rem; }
+    .flags { display: flex; flex-wrap: wrap; gap: .5rem; padding: 0; margin: 0; list-style: none; }
+    .flags li {
+      display: inline-flex; align-items: center; gap: .45rem; padding: .38rem .8rem; border-radius: 999px; font-size: .78rem; font-weight: 700; letter-spacing: .1em;
+      background: rgba(255,255,255,.04); border: 1px solid var(--line); color: #e6e8ea;
+    }
+    .flags li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .flags li.home { border-color: var(--green-a40); color: var(--green); }
+
+    .truck { position: relative; aspect-ratio: 750 / 681; will-change: transform; width: 118%; margin-right: -12%; }
+    .truck img {
+      width: 100%; height: 100%; object-fit: cover; border-radius: 28px;
+      -webkit-mask-image: radial-gradient(ellipse closest-side at 50% 52%, #000 62%, transparent 100%);
+              mask-image: radial-gradient(ellipse closest-side at 50% 52%, #000 62%, transparent 100%);
+      filter: contrast(1.06) saturate(1.05);
+    }
+    .truck .underglow {
+      position: absolute; left: 14%; right: 12%; bottom: 13%; height: 12%; border-radius: 50%; pointer-events: none;
+      background: radial-gradient(closest-side, rgba(52,211,153,.75), rgba(52,211,153,0)); filter: blur(18px); mix-blend-mode: screen;
+      animation: glow 3.2s ease-in-out infinite;
+    }
+    @keyframes glow { 50% { opacity: .45; transform: scaleX(.92); } }
+    .truck .tag {
+      position: absolute; display: flex; align-items: center; gap: .6rem; padding: .7rem .95rem; border-radius: 16px;
+      background: rgba(10,12,11,.72); border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      font-size: .8rem; line-height: 1.25; box-shadow: 0 20px 40px -20px #000; animation: float 6s ease-in-out infinite;
+    }
+    .truck .tag b { display: block; font-size: .92rem; }
+    .truck .tag small { color: var(--muted); }
+    .truck .tag svg { width: 30px; height: 30px; flex: none; }
+    .truck .tag.t1 { left: 2%; top: 20%; }
+    .truck .tag.t2 { right: 8%; bottom: 10%; animation-delay: -3s; }
+    @keyframes float { 50% { transform: translateY(-10px); } }
+    .live-dot { position: relative; width: 10px; height: 10px; border-radius: 50%; background: var(--green); flex: none; }
+    .live-dot::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; border: 2px solid var(--green); animation: ping 1.8s ease-out infinite; }
+    @keyframes ping { from { transform: scale(.5); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
+
+    .scroll-cue { position: absolute; left: 50%; bottom: 22px; translate: -50% 0; width: 26px; height: 42px; border: 2px solid rgba(255,255,255,.25); border-radius: 14px; }
+    .scroll-cue::after { content: ""; position: absolute; left: 50%; top: 8px; width: 4px; height: 8px; margin-left: -2px; border-radius: 2px; background: var(--green); animation: cue 1.8s var(--ease) infinite; }
+    @keyframes cue { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(14px); } }
+
+    /* hero entrance */
+    .js .hero h1 .line > span { transform: translateY(105%); }
+    .js .hero .enter { opacity: 0; transform: translateY(18px); }
+    .js .hero .truck-in { opacity: 0; transform: translateX(40px) scale(.97); }
+    .ready .hero h1 .line > span { transform: none; transition: transform 1.1s var(--ease); }
+    .ready .hero h1 .line:nth-child(2) > span { transition-delay: .1s; }
+    .ready .hero h1 .line:nth-child(3) > span { transition-delay: .2s; }
+    .ready .hero .enter { opacity: 1; transform: none; transition: opacity .9s var(--ease), transform .9s var(--ease); transition-delay: calc(.35s + var(--d, 0s)); }
+    .ready .hero .truck-in { opacity: 1; transform: none; transition: opacity 1.4s var(--ease) .2s, transform 1.4s var(--ease) .2s; }
+
+    /* ---------- marquee ---------- */
+    .marquee { border-block: 1px solid var(--line); background: #070808; overflow: hidden; padding: 1.15rem 0; }
+    .marquee-track { display: flex; width: max-content; animation: marquee 38s linear infinite; }
+    .marquee:hover .marquee-track { animation-play-state: paused; }
+    .marquee-track span {
+      display: inline-flex; align-items: center; gap: 1.6rem; padding-right: 1.6rem; white-space: nowrap;
+      font-family: var(--display); font-stretch: 120%; font-weight: 700; font-size: clamp(.95rem, 1.6vw, 1.2rem); letter-spacing: .06em; text-transform: uppercase; color: #dfe2e4;
+    }
+    .marquee-track span::after { content: ""; width: 9px; height: 9px; transform: rotate(45deg); background: var(--green); box-shadow: 0 0 12px var(--green); }
+    .marquee-track span.o { color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.55); }
+    @keyframes marquee { to { transform: translateX(-50%); } }
+
+    /* ---------- stats ---------- */
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); border-radius: var(--r-card); overflow: hidden; background: linear-gradient(180deg, #121414, #0c0d0d); }
+    .stat { padding: clamp(1.4rem, 3vw, 2.2rem); border-right: 1px solid var(--line); position: relative; }
+    .stat:last-child { border-right: 0; }
+    .stat .num { font-family: var(--display); font-stretch: 125%; font-weight: 800; font-size: clamp(2.2rem, 4.6vw, 3.6rem); line-height: 1; color: #fff; }
+    .stat .num em { font-style: normal; color: var(--green); }
+    .stat p { margin: .6rem 0 0; color: var(--muted); font-size: .92rem; line-height: 1.45; }
+    .stat::before { content: ""; position: absolute; left: clamp(1.4rem, 3vw, 2.2rem); top: 0; width: 34px; height: 3px; border-radius: 0 0 3px 3px; background: var(--green); box-shadow: 0 0 14px var(--green); }
+
+    /* ---------- section heads ---------- */
+    .head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1.5rem 3rem; margin-bottom: clamp(2.5rem, 5vw, 4rem); }
+
+    /* ---------- services ---------- */
+    .services { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    .card {
+      position: relative; padding: 2rem 1.6rem 1.8rem; border-radius: var(--r-card); overflow: hidden;
+      background: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015)); border: 1px solid var(--line);
+      transition: transform .5s var(--ease), border-color .5s, box-shadow .5s;
+    }
+    .card::before { /* spotlight that follows the cursor */
+      content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .4s;
+      background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 0%), rgba(52,211,153,.14), transparent 60%);
+    }
+    .card:hover { transform: translateY(-6px); border-color: rgba(52,211,153,.4); box-shadow: 0 30px 60px -30px rgba(52,211,153,.35); }
+    .card:hover::before { opacity: 1; }
+    .card .ico {
+      width: 64px; height: 64px; border-radius: 18px; display: grid; place-items: center; margin-bottom: 1.6rem;
+      background: radial-gradient(circle at 30% 20%, rgba(52,211,153,.22), rgba(52,211,153,.04) 70%); border: 1px solid rgba(52,211,153,.3);
+      box-shadow: inset 0 0 18px rgba(52,211,153,.12);
+    }
+    .card .ico svg { width: 36px; height: 36px; overflow: visible; }
+    .card h3 { font-family: var(--display); font-stretch: 115%; font-size: 1.22rem; font-weight: 800; margin: 0 0 .5rem; letter-spacing: .01em; }
+    .card p { margin: 0; color: var(--muted); font-size: .95rem; }
+    .card .idx { position: absolute; right: 1.3rem; top: 1.2rem; font: 700 .75rem/1 var(--body); letter-spacing: .15em; color: rgba(255,255,255,.28); }
+
+    /* self-drawing icons */
+    .draw path, .draw circle, .draw rect, .draw line, .draw polyline { fill: none; stroke: var(--green); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .draw .w { stroke: #fff; }
+    .js .draw > * { stroke-dasharray: 1; stroke-dashoffset: 1; }
+    .in .draw > *, .in.draw > * { stroke-dashoffset: 0; transition: stroke-dashoffset 1.4s var(--ease); transition-delay: calc(var(--d, 0s) + .25s); }
+    .draw .spin { transform-origin: center; transform-box: fill-box; }
+    .card:hover .draw .spin { animation: spin 1s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .wave { position: absolute; top: 50%; left: 50%; width: 0; height: 0; border-radius: 50%; background: var(--green); transform: translate(-50%, -50%); animation: pulse 1.6s ease-out infinite; }
-    .wave.late { animation-delay: 0.6s; }
-    @keyframes pulse { 0% { width: 0; height: 0; opacity: 0.4; } 100% { width: 100px; height: 100px; opacity: 0; } }
-    .shield { animation: shieldglow 3s ease-in-out infinite; }
-    @keyframes shieldglow { 0%, 100% { box-shadow: 0 0 5px rgba(52,211,153,0.5); } 50% { box-shadow: 0 0 16px rgba(52,211,153,1); } }
-    .live-dot { position: absolute; top: 12px; right: 12px; width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(52,211,153,0.7); animation: ping 1.8s infinite; }
-    @keyframes ping { 70% { box-shadow: 0 0 0 10px rgba(52,211,153,0); } 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); } }
 
-    /* How it works */
-    .how { background: #1f1f1f; border-block: 1px solid var(--border); }
-    .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); counter-reset: step; }
-    .steps li { counter-increment: step; position: relative; padding: 1.5rem 1.4rem 1.5rem 1.4rem; background: var(--bg-medium); border: 1px solid var(--border); border-radius: 0.75rem; }
-    .steps li::before { content: counter(step); display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--green); color: var(--green); font-weight: 800; margin-bottom: 0.9rem; }
-    .steps h3 { font-size: 1.1rem; margin-bottom: 0.4rem; }
-    .steps p { margin: 0; color: var(--text-muted); font-size: 0.95rem; }
-
-    /* About */
-    .about-grid { display: grid; gap: 2.5rem; align-items: start; }
-    @media (min-width: 960px) { .about-grid { grid-template-columns: 1.1fr 1fr; gap: 4rem; } }
-    .about-grid h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); text-transform: uppercase; }
-    .about-grid p { color: var(--text-muted); margin: 1rem 0 0; }
-    .checks { list-style: none; padding: 0; margin: 1.75rem 0 0; display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
-    .checks li { display: flex; align-items: center; gap: 0.6rem; font-weight: 600; }
-    .checks svg { width: 20px; height: 20px; color: var(--green); flex: none; }
-    .board { background: #121212; border: 1px solid #000; border-radius: 0.9rem; padding: 1.5rem; box-shadow: inset 0 0 0 1px #2a2a2a, 0 10px 30px rgba(0,0,0,0.4); }
-    .board h3 { font-size: 0.95rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem; font-weight: 700; }
-    .board table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-    .board td { padding: 0.75rem 0.25rem; border-top: 1px solid #262626; font-weight: 600; }
-    .board td:last-child { text-align: right; color: var(--green); font-weight: 700; letter-spacing: 0.04em; font-size: 0.85rem; }
-    .board tr:first-child td { border-top: 0; }
-    .board .via { color: var(--text-muted); font-weight: 500; font-size: 0.9rem; }
-
-    /* Track */
-    .track-box { max-width: 680px; margin: 0 auto; background: var(--bg-medium); border: 1px solid var(--border); border-radius: 0.9rem; padding: 1.75rem; box-shadow: 0 0 30px rgba(52, 211, 153, 0.08); }
-    .track-form { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-    .track-form input { flex: 1 1 260px; min-width: 0; }
-    .hint { color: var(--text-muted); font-size: 0.9rem; margin: 0.9rem 0 0; }
-    .form-msg { margin: 0.75rem 0 0; font-size: 0.95rem; min-height: 1.4em; }
-    .form-msg.err { color: #FCA5A5; }
-
-    /* Forms */
-    label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem; }
-    input, select, textarea {
-      width: 100%; height: 48px; padding: 0 1rem; border-radius: 0.4rem; font: inherit; font-size: 1rem;
-      border: 1px solid var(--border); background: var(--bg-light); color: var(--text);
+    /* ---------- route network ---------- */
+    .network { background: radial-gradient(70% 60% at 70% 50%, rgba(52,211,153,.07), transparent 70%), #080909; border-block: 1px solid var(--line); overflow: hidden; }
+    .net-grid { display: grid; grid-template-columns: .82fr 1.18fr; gap: clamp(2rem, 4vw, 4rem); align-items: center; }
+    .routes { list-style: none; padding: 0; margin: 2rem 0 0; display: grid; gap: .5rem; }
+    .routes button {
+      width: 100%; display: grid; grid-template-columns: 52px 1fr auto; align-items: center; gap: .9rem; padding: .85rem 1rem; border-radius: 16px;
+      background: rgba(255,255,255,.03); border: 1px solid var(--line); color: #fff; font: inherit; text-align: left; cursor: pointer;
+      transition: border-color .3s, background .3s, transform .3s var(--ease);
     }
-    textarea { height: auto; min-height: 110px; padding: 0.75rem 1rem; resize: vertical; }
-    input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.55); }
-    input:focus, select:focus, textarea:focus { outline: 2px solid var(--green); outline-offset: 0; border-color: transparent; }
-    select:invalid { color: rgba(255,255,255,0.55); }
-    option { color: #fff; background: #333; }
+    .routes button:hover, .routes button.on { border-color: rgba(52,211,153,.5); background: rgba(52,211,153,.07); transform: translateX(4px); }
+    .routes .code { font-family: var(--display); font-stretch: 125%; font-weight: 800; font-size: .85rem; letter-spacing: .08em; color: var(--green); }
+    .routes .name { font-weight: 600; line-height: 1.3; }
+    .routes .name small { display: block; color: var(--muted); font-weight: 400; font-size: .82rem; }
+    .routes .arr { color: var(--muted); font-size: 1.1rem; }
+    .map { position: relative; }
+    .map svg { width: 100%; height: auto; overflow: visible; }
+    .map .land { stroke: #4a5056; stroke-width: 6; stroke-linecap: round; }
+    .map .sea { fill: rgba(52,211,153,.35); font: 600 13px/1 var(--body); letter-spacing: .5em; text-transform: uppercase; font-style: italic; }
+    .map .bh { stroke: var(--green); stroke-width: 6; stroke-linecap: round; filter: drop-shadow(0 0 6px var(--green)); }
+    .map .rt { fill: none; stroke: rgba(52,211,153,.28); stroke-width: 2; }
+    .map .flow { fill: none; stroke: var(--green); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 2 14; animation: flow 1.6s linear infinite; opacity: .9; }
+    .map .rtg { transition: opacity .4s; }
+    .map.focus .rtg { opacity: .18; }
+    .map.focus .rtg.on { opacity: 1; }
+    .map.focus .rtg.on .rt { stroke: rgba(52,211,153,.7); stroke-width: 3; }
+    @keyframes flow { to { stroke-dashoffset: -16; } }
+    .map .city circle.dot { fill: #fff; }
+    .map .city circle.ring { fill: none; stroke: var(--green); stroke-width: 1.5; transform-box: fill-box; transform-origin: center; animation: ringp 2.6s ease-out infinite; }
+    .map .city text { fill: #e8eaec; font: 700 15px/1 var(--body); letter-spacing: .12em; text-transform: uppercase; }
+    .map .city text.c { fill: var(--muted); font-weight: 500; font-size: 12px; letter-spacing: .06em; }
+    .map .hub circle.dot { fill: var(--green); }
+    .map .hub text { fill: var(--green); }
+    @keyframes ringp { from { transform: scale(.6); opacity: 1; } to { transform: scale(2.6); opacity: 0; } }
+    .map .truckdot { fill: #fff; filter: drop-shadow(0 0 6px var(--green)) drop-shadow(0 0 2px #fff); }
+    .map-note { position: absolute; left: 0; bottom: 0; font-size: .78rem; color: rgba(255,255,255,.4); }
 
-    /* Contact */
-    #contact { background: var(--bg-medium); }
-    .contact-grid { display: grid; gap: 2.5rem; }
-    @media (min-width: 960px) { .contact-grid { grid-template-columns: 1.4fr 1fr; gap: 3.5rem; } }
-    .quote-form { display: grid; gap: 1rem; grid-template-columns: 1fr 1fr; }
+    /* ---------- how it works ---------- */
+    .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; position: relative; counter-reset: s; }
+    .steps::before, .steps::after { content: ""; position: absolute; left: 32px; right: 12%; top: 32px; height: 2px; border-radius: 2px; background: var(--line); }
+    .steps::after { background: linear-gradient(90deg, var(--green), rgba(52,211,153,.4)); box-shadow: 0 0 12px var(--green); transform-origin: left; transform: scaleX(0); transition: transform 2.2s var(--ease) .2s; }
+    .steps.in::after { transform: scaleX(1); }
+    .steps li { position: relative; counter-increment: s; }
+    .steps .node {
+      position: relative; z-index: 1; width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 1.4rem;
+      background: #0b0c0c; border: 2px solid rgba(52,211,153,.5); box-shadow: 0 0 0 6px #0b0c0c, 0 0 24px rgba(52,211,153,.25);
+    }
+    .steps .node svg { width: 30px; height: 30px; overflow: visible; }
+    .steps h3 { font-family: var(--display); font-stretch: 115%; font-weight: 800; font-size: 1.12rem; margin: 0 0 .4rem; }
+    .steps h3::before { content: "0" counter(s) " "; color: var(--green); margin-right: .2rem; }
+    .steps p { margin: 0; color: var(--muted); font-size: .95rem; max-width: 30ch; }
+
+    /* ---------- about ---------- */
+    .about-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: clamp(2rem, 5vw, 5rem); align-items: center; }
+    .about-grid p { color: var(--muted); }
+    .checks { list-style: none; padding: 0; margin: 2rem 0; display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+    .checks li { display: flex; align-items: center; gap: .7rem; font-weight: 600; }
+    .checks svg { width: 22px; height: 22px; flex: none; }
+    .promise {
+      position: relative; padding: clamp(2rem, 4vw, 3rem); border-radius: 28px; overflow: hidden;
+      background: linear-gradient(160deg, #141716, #0b0c0c 60%); border: 1px solid rgba(52,211,153,.25);
+    }
+    .promise::after { content: ""; position: absolute; width: 340px; height: 340px; right: -120px; top: -120px; border-radius: 50%; background: radial-gradient(closest-side, rgba(52,211,153,.25), transparent); }
+    .promise blockquote { margin: 0; font-family: var(--display); font-stretch: 112%; font-weight: 700; font-size: clamp(1.3rem, 2.4vw, 1.75rem); line-height: 1.3; position: relative; z-index: 1; }
+    .promise blockquote em { font-style: normal; color: var(--green); }
+    .promise .sig { margin-top: 1.6rem; display: flex; align-items: center; gap: .8rem; color: var(--muted); font-size: .9rem; position: relative; z-index: 1; }
+    .promise .sig svg { width: 34px; height: 34px; }
+
+    /* ---------- track ---------- */
+    .track-panel {
+      position: relative; display: grid; grid-template-columns: 1fr 1.1fr; gap: 2rem; align-items: center; padding: clamp(1.8rem, 4vw, 3.2rem);
+      border-radius: 28px; overflow: hidden; border: 1px solid var(--line);
+      background: linear-gradient(120deg, rgba(52,211,153,.12), rgba(52,211,153,0) 45%), #0f1111;
+    }
+    .track-panel::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+      background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 36px 36px; -webkit-mask-image: linear-gradient(90deg, transparent, #000); mask-image: linear-gradient(90deg, transparent, #000); }
+    .track-form { position: relative; display: flex; gap: .5rem; padding: .4rem; border-radius: 999px; background: #000; border: 1px solid rgba(255,255,255,.14); transition: border-color .3s, box-shadow .3s; }
+    .track-form:focus-within { border-color: var(--green); box-shadow: 0 0 0 5px var(--green-a20); }
+    .track-form input { flex: 1; min-width: 0; height: 48px; padding: 0 1.1rem; border: 0; background: transparent; color: #fff; font: 500 1rem var(--body); outline: none; }
+    .track-form input::placeholder { color: #8a9096; }
+    .track-form .btn { --h: 48px; }
+    .hint { position: relative; color: var(--muted); font-size: .9rem; margin: .9rem 0 0 .4rem; }
+    .form-msg { min-height: 1.4em; margin: .6rem 0 0 .4rem; font-size: .9rem; color: var(--green); position: relative; }
+    .form-msg.err { color: #f87171; }
+    .form-msg.err a { color: #fff; }
+
+    /* ---------- quote ---------- */
+    .quote-grid { display: grid; grid-template-columns: 1.35fr .65fr; gap: 1.2rem; align-items: start; }
+    .panel { border-radius: 28px; padding: clamp(1.4rem, 3.5vw, 2.6rem); background: linear-gradient(180deg, #121414, #0d0e0e); border: 1px solid var(--line); }
+    .quote-form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem 1rem; }
     .quote-form .full { grid-column: 1 / -1; }
-    @media (max-width: 640px) { .quote-form { grid-template-columns: 1fr; } }
-    .quote-form .req { color: var(--green); }
-    .contact-card { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 0.9rem; padding: 1.5rem; display: grid; gap: 1.25rem; align-content: start; }
-    .contact-card h3 { font-size: 1.15rem; }
-    .contact-card .row { display: flex; gap: 0.8rem; align-items: flex-start; }
-    .contact-card .row svg { width: 22px; height: 22px; color: var(--green); flex: none; margin-top: 2px; }
-    .contact-card .row div { min-width: 0; }
-    .contact-card .row b { display: block; }
-    .contact-card .row span { color: var(--text-muted); overflow-wrap: anywhere; }
-    .contact-card a { color: var(--green); }
-    .success { display: none; text-align: center; padding: 2.5rem 1rem; border: 1px solid var(--green); border-radius: 0.9rem; background: rgba(52, 211, 153, 0.06); }
-    .success svg { width: 48px; height: 48px; color: var(--green); margin: 0 auto 1rem; }
-    .success h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
-    .success p { color: var(--text-muted); margin: 0; }
+    .field label { display: block; margin-bottom: .45rem; font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #d4d7da; }
+    .req { color: var(--green); }
+    .field input, .field select, .field textarea {
+      width: 100%; height: 52px; padding: 0 1rem; border-radius: 14px; border: 1px solid rgba(255,255,255,.1); background: #1c1e1e; color: #fff;
+      font: 500 1rem var(--body); transition: border-color .25s, box-shadow .25s, background .25s; color-scheme: dark;
+    }
+    .field select { appearance: none; -webkit-appearance: none; padding-right: 2.6rem; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2334D399' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 1rem center; background-size: 18px; }
+    .field select:invalid { color: #8a9096; }
+    .field option { color: #fff; background: #1c1e1e; }
+    .field textarea { height: 130px; padding: .9rem 1rem; resize: vertical; line-height: 1.5; }
+    .field input:hover, .field select:hover, .field textarea:hover { border-color: rgba(255,255,255,.2); }
+    .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 4px var(--green-a20); background: #202322; }
+    .quote-form .btn { width: 100%; --h: 58px; }
+    .success { display: none; text-align: center; padding: 3rem 1rem; }
+    .success svg { width: 76px; height: 76px; margin: 0 auto 1.2rem; }
+    .success h3 { font-family: var(--display); font-stretch: 120%; font-size: 1.6rem; margin: 0 0 .4rem; }
+    .success p { color: var(--muted); margin: 0; }
+    .contact { display: grid; gap: 1.2rem; }
+    .contact h3 { font-family: var(--display); font-stretch: 115%; font-weight: 800; font-size: 1.2rem; margin: 0 0 .4rem; }
+    .crow { display: flex; gap: .9rem; align-items: flex-start; padding: 1rem 0; border-top: 1px solid var(--line); }
+    .crow:first-of-type { border-top: 0; }
+    .crow .ci { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: var(--green-a10); border: 1px solid rgba(52,211,153,.3); flex: none; }
+    .crow .ci svg { width: 20px; height: 20px; }
+    .crow b { display: block; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+    .crow span, .crow a { font-weight: 600; text-decoration: none; }
+    .crow a:hover { color: var(--green); }
+    .reply-badge { display: flex; align-items: center; gap: .8rem; padding: 1rem 1.1rem; border-radius: 18px; background: var(--green-a10); border: 1px solid rgba(52,211,153,.3); font-weight: 600; font-size: .92rem; }
 
-    /* Footer */
-    footer { background: #1e1e1e; border-top: 1px solid var(--border); padding-block: 2.5rem; }
-    .foot { display: grid; gap: 1.25rem; justify-items: center; text-align: center; }
-    .foot nav { display: flex; gap: 1.25rem; flex-wrap: wrap; justify-content: center; }
-    .foot nav a { text-decoration: none; color: var(--text-muted); }
+    /* ---------- footer ---------- */
+    footer { position: relative; overflow: hidden; border-top: 1px solid var(--line); padding: 4rem 0 0; background: #060707; }
+    .foot { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 2rem; position: relative; z-index: 1; }
+    .foot p { color: var(--muted); font-size: .92rem; max-width: 36ch; }
+    .foot h4 { margin: 0 0 .9rem; font-size: .78rem; letter-spacing: .16em; text-transform: uppercase; color: var(--green); }
+    .foot nav { display: grid; gap: .5rem; }
+    .foot nav a { color: #d6d9dc; text-decoration: none; font-size: .95rem; width: fit-content; }
     .foot nav a:hover { color: var(--green); }
-    .foot p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
-    .foot .logo { font-size: 1.5rem; }
+    .legal { position: relative; z-index: 1; margin-top: 3rem; padding-top: 1.4rem; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: .6rem; color: #80868c; font-size: .85rem; }
+    .legal a { color: #b9bec4; }
+    .wordmark {
+      display: block; text-align: center; pointer-events: none; white-space: nowrap; user-select: none;
+      font-family: var(--display); font-stretch: 125%; font-weight: 900; font-size: clamp(3.4rem, 15.5vw, 15rem); line-height: .8; letter-spacing: .02em;
+      margin: 2.5rem 0 -.12em; color: transparent; -webkit-text-stroke: 1px rgba(52,211,153,.22);
+      background: linear-gradient(180deg, rgba(52,211,153,.10), rgba(52,211,153,0) 85%); -webkit-background-clip: text; background-clip: text;
+    }
 
+    /* ---------- floating actions ---------- */
+    .wa {
+      position: fixed; right: 20px; bottom: 20px; z-index: 40; width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center;
+      background: var(--green); color: #04130d; box-shadow: 0 12px 30px -8px rgba(52,211,153,.7); transition: transform .3s var(--ease);
+    }
+    .wa:hover { transform: scale(1.08); }
+    .wa svg { width: 28px; height: 28px; }
+    .wa[hidden] { display: none; }
+    .mbar { display: none; }
+
+    /* ---------- reveal ---------- */
+    .js .rv { opacity: 0; transform: translateY(28px); }
+    .rv.in { opacity: 1; transform: none; transition: opacity 1s var(--ease), transform 1s var(--ease); transition-delay: var(--d, 0s); }
+
+    /* ---------- responsive ---------- */
+    @media (max-width: 1080px) {
+      .services { grid-template-columns: repeat(2, 1fr); }
+      .net-grid { grid-template-columns: 1fr; }
+      .map { order: -1; }
+    }
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .menu-btn { display: grid; }
+      .hero { padding-top: 96px; }
+      .hero-grid { grid-template-columns: 1fr; }
+      .truck { max-width: 600px; width: 112%; margin: -1rem -6% 0; justify-self: center; order: 2; }
+      .truck .tag.t1 { left: 8%; }
+      .truck .tag.t2 { right: 8%; }
+      .hero::before { background: linear-gradient(180deg, rgba(11,12,12,.8) 0%, rgba(11,12,12,.55) 45%, rgba(11,12,12,.2) 70%, var(--ink) 100%); }
+      .scroll-cue { display: none; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .stat:nth-child(2) { border-right: 0; }
+      .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .steps { grid-template-columns: 1fr 1fr; row-gap: 2.4rem; }
+      .steps::before, .steps::after { display: none; }
+      .about-grid, .track-panel, .quote-grid { grid-template-columns: 1fr; }
+      .foot { grid-template-columns: 1fr 1fr; }
+      .foot > div:first-child { grid-column: 1 / -1; }
+    }
+    @media (max-width: 600px) {
+      .services { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .steps li { display: grid; grid-template-columns: 64px 1fr; gap: 0 1rem; }
+      .steps .node { margin: 0; grid-row: span 2; }
+      .quote-form { grid-template-columns: 1fr; }
+      .checks { grid-template-columns: 1fr; }
+      .hero-cta .btn { flex: 1 1 100%; }
+      .eyebrow { letter-spacing: .14em; font-size: .72rem; }
+      .track-form { flex-direction: column; border-radius: 22px; }
+      .track-form .btn { width: 100%; }
+      .truck .tag { font-size: .72rem; padding: .55rem .7rem; }
+      .truck .tag b { font-size: .8rem; }
+      .truck .tag svg { width: 24px; height: 24px; }
+      .stat p { font-size: .82rem; }
+      .map .city text { font-size: 22px; }
+      .map .city text.c { display: none; }
+      .wa { bottom: 84px; }
+      .mbar {
+        position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 45; display: flex; gap: .5rem; padding: .45rem; border-radius: 999px;
+        background: rgba(8,9,9,.86); border: 1px solid var(--line); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+        transform: translateY(140%); transition: transform .5s var(--ease);
+      }
+      .mbar.show { transform: none; }
+      .mbar .btn { flex: 1; --h: 46px; padding: 0 .8rem; letter-spacing: .1em; }
+      footer { padding-bottom: 5rem; }
+    }
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; transition-delay: 0s !important; }
+      .map .flow { animation: none; }
     }
   </style>
 </head>
 <body>
-  <svg style="display:none" aria-hidden="true">
-    <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
-    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
-    <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
-    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
-    <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
-    <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
-    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
-    <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
-    <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <!-- Icon sprite (small UI icons) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="rgba(52,211,153,.14)" stroke="#34D399" stroke-width="1.6"/><path d="m7.5 12.3 3 3 6-6.3" fill="none" stroke="#34D399" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><g fill="none" stroke="#34D399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m4 7 8 6 8-6"/></g></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="#34D399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.6"/></g></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="#34D399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
+    <symbol id="i-wa" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></symbol>
+    <symbol id="logo" viewBox="0 0 48 48">
+      <defs>
+        <filter id="lg-g" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="1.6"/></filter>
+        <linearGradient id="lg-road" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d9dde1"/></linearGradient>
+      </defs>
+      <rect x="1" y="1" width="46" height="46" rx="12" fill="#0b0c0c" stroke="#34D399" stroke-opacity=".55"/>
+      <rect x="10" y="10" width="28" height="7" rx="2" fill="url(#lg-road)"/>
+      <path d="M20.5 17h7l4.5 20h-16z" fill="url(#lg-road)"/>
+      <rect x="23.3" y="20" width="1.4" height="3" rx=".7" fill="#34D399"/>
+      <rect x="23.15" y="25.5" width="1.7" height="3.8" rx=".85" fill="#34D399"/>
+      <rect x="23" y="31.8" width="2" height="4.6" rx="1" fill="#34D399"/>
+      <rect x="12" y="39.6" width="24" height="2.2" rx="1.1" fill="#34D399" filter="url(#lg-g)"/>
+      <rect x="14" y="40" width="20" height="1.4" rx=".7" fill="#34D399"/>
+    </symbol>
   </svg>
 
-  <header class="site">
-    <div class="container header-row">
-      <a href="#top" class="logo" aria-label="Trucksy home"><span>T</span><span>R</span><span>U</span><span>C</span><span>K</span><span>S</span><span>Y</span></a>
-      <nav class="main" aria-label="Main">
-        <a href="#services">Services</a>
-        <a href="#how">How it works</a>
-        <a href="#about">About us</a>
-        <a href="#track">Track a delivery</a>
-        <a href="#contact" class="button primary small">Get a quote</a>
-      </nav>
-      <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu">
-        <svg><use href="#i-menu"></use></svg>
-      </button>
-    </div>
-    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile" hidden>
-      <a href="#services">Services</a>
-      <a href="#how">How it works</a>
-      <a href="#about">About us</a>
-      <a href="#track">Track a delivery</a>
-      <a href="#contact" class="button primary">Get a quote</a>
-    </nav>
-  </header>
+  <a class="sr-only" href="#main">Skip to content</a>
 
-  <main id="top">
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="container hero-grid">
-        <div class="hero-photo">
-          <img src="trucksy-truck.jpg" width="750" height="681" alt="A dark Trucksy Renault truck with green lights driving on a highway under a stormy sky" fetchpriority="high">
-        </div>
-        <div class="hero-copy">
-          <h1 id="hero-title">FAST. RELIABLE. <span class="accent">EFFICIENT.</span></h1>
-          <p class="lead">A leading pan-Gulf logistics provider, offering efficient and dependable transportation solutions, proudly headquartered in Bahrain.</p>
-          <div class="hero-buttons">
-            <a href="#contact" class="button primary">REQUEST A QUOTE <svg><use href="#i-arrow"></use></svg></a>
-            <a href="#track" class="button outline">TRACK A DELIVERY</a>
+  <header class="nav" id="nav">
+    <div class="wrap">
+      <a href="#top" class="brand" aria-label="Trucksy home"><svg aria-hidden="true"><use href="#logo"/></svg><b>TRUCKSY</b></a>
+      <nav class="nav-links" aria-label="Main">
+        <a href="#services">Services</a>
+        <a href="#network">Routes</a>
+        <a href="#how">How it works</a>
+        <a href="#track">Track</a>
+        <a href="#contact" class="btn btn-green">Get a quote <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+      </nav>
+      <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu"><span></span></button>
+    </div>
+  </header>
+  <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile" hidden>
+    <a href="#services">Services</a>
+    <a href="#network">Routes</a>
+    <a href="#how">How it works</a>
+    <a href="#about">About us</a>
+    <a href="#track">Track a delivery</a>
+    <a href="#contact" class="btn btn-green">Get a quote <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+  </nav>
+
+  <main id="main">
+    <!-- ================= HERO ================= -->
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <canvas id="road" aria-hidden="true"></canvas>
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow enter">Road freight · Bahrain &amp; the GCC</p>
+          <h1 class="display" id="hero-title">
+            <span class="line"><span>Fast.</span></span>
+            <span class="line"><span>Reliable.</span></span>
+            <span class="line"><span class="glow">Efficient.</span></span>
+          </h1>
+          <p class="lede enter" style="--d:.05s">A pan-Gulf logistics provider, proudly headquartered in Bahrain. Full and partial loads, delivered on time, with live tracking on every trip.</p>
+          <div class="hero-cta enter" style="--d:.12s">
+            <a href="#contact" class="btn btn-green">Request a quote <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            <a href="#track" class="btn btn-ghost">Track a delivery</a>
           </div>
-          <p class="routes-line">Within Bahrain and to <b>KSA</b>, <b>UAE</b>, <b>Qatar</b>, <b>Kuwait</b> and <b>Oman</b>.</p>
+          <ul class="flags enter" style="--d:.2s" aria-label="Countries we serve">
+            <li class="home">BHR</li><li>KSA</li><li>UAE</li><li>QAT</li><li>KWT</li><li>OMN</li>
+          </ul>
+        </div>
+        <div class="truck truck-in" id="truck">
+          <img src="trucksy-truck.jpg" width="750" height="681" alt="A dark Trucksy truck with green underglow driving on a highway at dusk" fetchpriority="high">
+          <span class="underglow" aria-hidden="true"></span>
+          <div class="tag t1" aria-hidden="true">
+            <span class="live-dot"></span>
+            <div><b>On the road</b><small>King Fahd Causeway → Dammam</small></div>
+          </div>
+          <div class="tag t2" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><use href="#i-check"/></svg>
+            <div><b>Delivered</b><small>Proof of delivery recorded</small></div>
+          </div>
+        </div>
+      </div>
+      <span class="scroll-cue" aria-hidden="true"></span>
+    </section>
+
+    <!-- ================= MARQUEE ================= -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>Bahrain ⇄ Saudi Arabia</span><span class="o">Full &amp; partial loads</span><span>Bahrain ⇄ UAE</span><span class="o">Live GPS tracking</span>
+        <span>Bahrain ⇄ Qatar</span><span class="o">Proof of delivery</span><span>Bahrain ⇄ Kuwait</span><span class="o">24/7 operations</span><span>Bahrain ⇄ Oman</span><span class="o">Express windows</span>
+        <span>Bahrain ⇄ Saudi Arabia</span><span class="o">Full &amp; partial loads</span><span>Bahrain ⇄ UAE</span><span class="o">Live GPS tracking</span>
+        <span>Bahrain ⇄ Qatar</span><span class="o">Proof of delivery</span><span>Bahrain ⇄ Kuwait</span><span class="o">24/7 operations</span><span>Bahrain ⇄ Oman</span><span class="o">Express windows</span>
+      </div>
+    </div>
+
+    <!-- ================= STATS ================= -->
+    <section class="pad" style="padding-bottom:0" aria-label="Trucksy at a glance">
+      <div class="wrap">
+        <div class="stats rv">
+          <div class="stat"><div class="num"><span data-count="5">5</span></div><p>GCC countries reached from our Bahrain base</p></div>
+          <div class="stat"><div class="num"><span data-count="24">24</span><em>/7</em></div><p>Operations, every day of the year</p></div>
+          <div class="stat"><div class="num"><em>&lt;</em><span data-count="24">24</span><em>h</em></div><p>To reply to every quote request</p></div>
+          <div class="stat"><div class="num"><span data-count="100">100</span><em>%</em></div><p>Of loads get a live tracking link</p></div>
         </div>
       </div>
     </section>
 
-    <section id="services" aria-labelledby="services-title">
-      <div class="container">
-        <h2 class="section-title" id="services-title">Core services</h2>
-        <p class="section-sub">We manage your logistics so you can focus on your business.</p>
-        <div class="service-grid">
-          <article class="service-card">
-            <div class="icon-ring" aria-hidden="true"><div class="tyre"></div></div>
+    <!-- ================= SERVICES ================= -->
+    <section class="pad" id="services" aria-labelledby="services-title">
+      <div class="wrap">
+        <div class="head">
+          <div class="rv">
+            <p class="eyebrow">What we do</p>
+            <h2 class="h2 display" id="services-title">Core services</h2>
+          </div>
+          <p class="lede rv" style="--d:.1s">We manage your logistics so you can focus on your business, from a single pallet to a full truckload.</p>
+        </div>
+        <div class="services">
+          <article class="card rv">
+            <span class="idx">01</span>
+            <div class="ico">
+              <svg class="draw" viewBox="0 0 40 40" aria-hidden="true">
+                <path pathLength="1" d="M3 26V11a2 2 0 0 1 2-2h17a2 2 0 0 1 2 2v15"/>
+                <path pathLength="1" class="w" d="M24 15h6.5l5.5 6v5H24"/>
+                <path pathLength="1" d="M3 26h33"/>
+                <circle pathLength="1" class="w spin" cx="10" cy="29.5" r="3.3"/>
+                <circle pathLength="1" class="w spin" cx="29" cy="29.5" r="3.3"/>
+                <path pathLength="1" d="M27 18h3l2.5 3H27z"/>
+              </svg>
+            </div>
             <h3>Road Freight</h3>
-            <p>Full and partial load services across Bahrain and into the Pan-Gulf.</p>
+            <p>Full and partial loads across Bahrain and into the wider Gulf.</p>
           </article>
-          <article class="service-card">
-            <div class="icon-ring" aria-hidden="true"><span class="wave"></span><span class="wave late"></span><svg><use href="#i-doc"></use></svg></div>
+          <article class="card rv" style="--d:.08s">
+            <span class="idx">02</span>
+            <div class="ico">
+              <svg class="draw" viewBox="0 0 40 40" aria-hidden="true">
+                <circle pathLength="1" class="w" cx="23" cy="22" r="12"/>
+                <path pathLength="1" d="M23 15v7l4.5 3"/>
+                <path pathLength="1" class="w" d="M20 6h6M23 6v4"/>
+                <path pathLength="1" d="M2 17h6M4 23h5M2 29h7"/>
+              </svg>
+            </div>
             <h3>Express Delivery</h3>
             <p>Time-critical deliveries with guaranteed delivery windows.</p>
           </article>
-          <article class="service-card">
-            <div class="icon-ring shield" aria-hidden="true"><svg><use href="#i-shield"></use></svg></div>
+          <article class="card rv" style="--d:.16s">
+            <span class="idx">03</span>
+            <div class="ico">
+              <svg class="draw" viewBox="0 0 40 40" aria-hidden="true">
+                <path pathLength="1" class="w" d="M20 4 7 9v10c0 8 5.6 14.2 13 17 7.4-2.8 13-9 13-17V9z"/>
+                <path pathLength="1" d="m14 20 4.2 4.2L27 15.5"/>
+              </svg>
+            </div>
             <h3>Cargo Insurance</h3>
             <p>Comprehensive protection for valuable and sensitive shipments.</p>
           </article>
-          <article class="service-card" style="position:relative">
-            <span class="live-dot" aria-hidden="true"></span>
-            <div class="icon-ring" aria-hidden="true"><svg><use href="#i-pin"></use></svg></div>
+          <article class="card rv" style="--d:.24s">
+            <span class="idx">04</span>
+            <div class="ico">
+              <svg class="draw" viewBox="0 0 40 40" aria-hidden="true">
+                <path pathLength="1" d="M4 34c6-6 12 2 18-4s10-2 14-6" stroke-dasharray="1"/>
+                <path pathLength="1" class="w" d="M26 21s-7-6.3-7-11.5a7 7 0 0 1 14 0C33 14.7 26 21 26 21z"/>
+                <circle pathLength="1" cx="26" cy="9.5" r="2.5"/>
+              </svg>
+            </div>
             <h3>Live Tracking</h3>
-            <p>Follow your truck on the map, step by step, from pickup to the name of the person who signed for it.</p>
+            <p>Follow your truck on the map, from pickup to the name of the person who signed for it.</p>
           </article>
         </div>
       </div>
     </section>
 
-    <section id="how" class="how" aria-labelledby="how-title">
-      <div class="container">
-        <h2 class="section-title" id="how-title">How it works</h2>
-        <p class="section-sub">From your request to proof of delivery, you always know where your goods are.</p>
-        <ol class="steps">
-          <li><h3>Request a quote</h3><p>Tell us the weight, route and date. We reply within 24 hours.</p></li>
-          <li><h3>We assign a truck</h3><p>Once you confirm, a driver and the right truck are booked for your load.</p></li>
-          <li><h3>Track it live</h3><p>You get a tracking link on WhatsApp and can watch the truck on the map.</p></li>
-          <li><h3>Proof of delivery</h3><p>The driver records who received the goods and when. You see it instantly.</p></li>
+    <!-- ================= ROUTE NETWORK ================= -->
+    <section class="pad network" id="network" aria-labelledby="network-title">
+      <div class="wrap net-grid">
+        <div>
+          <p class="eyebrow rv">Our network</p>
+          <h2 class="h2 display rv" id="network-title">Bahrain to<br>the whole Gulf</h2>
+          <p class="lede rv" style="--d:.08s">Ports, industrial areas and warehouses inside Bahrain, and regular cross-border runs to all five GCC neighbours.</p>
+          <ul class="routes" id="routes">
+            <li class="rv" style="--d:.05s"><button type="button" data-r="ksa"><span class="code">KSA</span><span class="name">Saudi Arabia<small>via King Fahd Causeway</small></span><span class="arr">⇄</span></button></li>
+            <li class="rv" style="--d:.1s"><button type="button" data-r="uae"><span class="code">UAE</span><span class="name">United Arab Emirates<small>Dubai, Abu Dhabi, Sharjah</small></span><span class="arr">⇄</span></button></li>
+            <li class="rv" style="--d:.15s"><button type="button" data-r="qat"><span class="code">QAT</span><span class="name">Qatar<small>Doha and industrial areas</small></span><span class="arr">⇄</span></button></li>
+            <li class="rv" style="--d:.2s"><button type="button" data-r="kwt"><span class="code">KWT</span><span class="name">Kuwait<small>Kuwait City and Shuwaikh</small></span><span class="arr">⇄</span></button></li>
+            <li class="rv" style="--d:.25s"><button type="button" data-r="omn"><span class="code">OMN</span><span class="name">Oman<small>Muscat and Sohar</small></span><span class="arr">⇄</span></button></li>
+          </ul>
+        </div>
+        <div class="map rv" id="map" style="--d:.1s">
+          <svg viewBox="0 0 1020 600" role="img" aria-label="Map of Trucksy routes from Bahrain to Saudi Arabia, the UAE, Qatar, Kuwait and Oman">
+            <path class="land" d="M8 13h0M22 13h0M38 13h0M52 13h0M68 13h0M82 13h0M98 13h0M112 13h0M128 13h0M142 13h0M158 13h0M172 13h0M188 13h0M202 13h0M218 13h0M232 13h0M248 13h0M262 13h0M278 13h0M292 13h0M308 13h0M322 13h0M338 13h0M352 13h0M368 13h0M382 13h0M398 13h0M412 13h0M428 13h0M442 13h0M458 13h0M472 13h0M488 13h0M502 13h0M518 13h0M532 13h0M548 13h0M562 13h0M578 13h0M592 13h0M608 13h0M622 13h0M638 13h0M652 13h0M668 13h0M682 13h0M698 13h0M712 13h0M728 13h0M742 13h0M758 13h0M772 13h0M788 13h0M802 13h0M818 13h0M832 13h0M848 13h0M862 13h0M878 13h0M892 13h0M908 13h0M922 13h0M938 13h0M952 13h0M968 13h0M982 13h0M998 13h0M1012 13h0M15 26h0M30 26h0M45 26h0M60 26h0M75 26h0M90 26h0M105 26h0M120 26h0M135 26h0M150 26h0M165 26h0M180 26h0M195 26h0M210 26h0M225 26h0M240 26h0M255 26h0M270 26h0M285 26h0M300 26h0M315 26h0M330 26h0M345 26h0M360 26h0M375 26h0M390 26h0M405 26h0M420 26h0M435 26h0M450 26h0M465 26h0M480 26h0M495 26h0M510 26h0M525 26h0M540 26h0M555 26h0M570 26h0M585 26h0M600 26h0M615 26h0M630 26h0M645 26h0M660 26h0M675 26h0M690 26h0M705 26h0M720 26h0M735 26h0M750 26h0M765 26h0M780 26h0M795 26h0M810 26h0M825 26h0M840 26h0M855 26h0M870 26h0M885 26h0M900 26h0M915 26h0M930 26h0M945 26h0M960 26h0M975 26h0M990 26h0M1005 26h0M8 39h0M22 39h0M38 39h0M52 39h0M68 39h0M82 39h0M98 39h0M112 39h0M128 39h0M142 39h0M158 39h0M172 39h0M188 39h0M202 39h0M218 39h0M232 39h0M248 39h0M262 39h0M278 39h0M292 39h0M308 39h0M322 39h0M338 39h0M352 39h0M368 39h0M382 39h0M398 39h0M412 39h0M428 39h0M442 39h0M458 39h0M472 39h0M488 39h0M502 39h0M518 39h0M532 39h0M548 39h0M562 39h0M578 39h0M592 39h0M608 39h0M622 39h0M638 39h0M652 39h0M668 39h0M682 39h0M698 39h0M712 39h0M728 39h0M742 39h0M758 39h0M772 39h0M788 39h0M802 39h0M818 39h0M832 39h0M848 39h0M862 39h0M878 39h0M892 39h0M908 39h0M922 39h0M938 39h0M952 39h0M968 39h0M982 39h0M998 39h0M1012 39h0M15 52h0M30 52h0M45 52h0M60 52h0M75 52h0M90 52h0M105 52h0M120 52h0M135 52h0M150 52h0M165 52h0M180 52h0M195 52h0M210 52h0M225 52h0M240 52h0M255 52h0M270 52h0M285 52h0M330 52h0M345 52h0M375 52h0M390 52h0M405 52h0M420 52h0M435 52h0M450 52h0M465 52h0M480 52h0M495 52h0M510 52h0M525 52h0M540 52h0M555 52h0M570 52h0M585 52h0M600 52h0M615 52h0M630 52h0M645 52h0M660 52h0M675 52h0M690 52h0M705 52h0M720 52h0M735 52h0M750 52h0M765 52h0M780 52h0M795 52h0M810 52h0M825 52h0M840 52h0M855 52h0M870 52h0M885 52h0M900 52h0M915 52h0M930 52h0M945 52h0M960 52h0M975 52h0M990 52h0M1005 52h0M8 65h0M22 65h0M38 65h0M52 65h0M68 65h0M82 65h0M98 65h0M112 65h0M128 65h0M142 65h0M158 65h0M172 65h0M188 65h0M202 65h0M218 65h0M232 65h0M382 65h0M398 65h0M412 65h0M428 65h0M442 65h0M458 65h0M472 65h0M488 65h0M502 65h0M518 65h0M532 65h0M548 65h0M562 65h0M578 65h0M592 65h0M608 65h0M622 65h0M638 65h0M652 65h0M668 65h0M682 65h0M698 65h0M712 65h0M728 65h0M742 65h0M758 65h0M772 65h0M788 65h0M802 65h0M818 65h0M832 65h0M848 65h0M862 65h0M878 65h0M892 65h0M908 65h0M922 65h0M938 65h0M952 65h0M968 65h0M982 65h0M998 65h0M1012 65h0M15 78h0M30 78h0M45 78h0M60 78h0M75 78h0M90 78h0M105 78h0M120 78h0M135 78h0M150 78h0M165 78h0M180 78h0M195 78h0M210 78h0M225 78h0M240 78h0M255 78h0M390 78h0M405 78h0M420 78h0M435 78h0M450 78h0M465 78h0M480 78h0M495 78h0M510 78h0M525 78h0M540 78h0M555 78h0M570 78h0M585 78h0M600 78h0M615 78h0M630 78h0M645 78h0M660 78h0M675 78h0M690 78h0M705 78h0M720 78h0M735 78h0M750 78h0M765 78h0M780 78h0M795 78h0M810 78h0M825 78h0M840 78h0M855 78h0M870 78h0M885 78h0M900 78h0M915 78h0M930 78h0M945 78h0M960 78h0M975 78h0M990 78h0M1005 78h0M8 91h0M22 91h0M38 91h0M52 91h0M68 91h0M82 91h0M98 91h0M112 91h0M128 91h0M142 91h0M158 91h0M172 91h0M188 91h0M202 91h0M218 91h0M398 91h0M412 91h0M428 91h0M442 91h0M458 91h0M472 91h0M488 91h0M502 91h0M518 91h0M532 91h0M548 91h0M562 91h0M578 91h0M592 91h0M608 91h0M622 91h0M638 91h0M652 91h0M668 91h0M682 91h0M698 91h0M712 91h0M728 91h0M742 91h0M758 91h0M772 91h0M788 91h0M802 91h0M818 91h0M832 91h0M848 91h0M862 91h0M878 91h0M892 91h0M908 91h0M922 91h0M938 91h0M952 91h0M968 91h0M982 91h0M998 91h0M1012 91h0M15 104h0M30 104h0M45 104h0M60 104h0M75 104h0M90 104h0M105 104h0M120 104h0M135 104h0M150 104h0M165 104h0M180 104h0M195 104h0M210 104h0M225 104h0M240 104h0M405 104h0M420 104h0M435 104h0M450 104h0M465 104h0M480 104h0M495 104h0M510 104h0M525 104h0M540 104h0M555 104h0M570 104h0M585 104h0M600 104h0M615 104h0M630 104h0M645 104h0M660 104h0M675 104h0M690 104h0M705 104h0M720 104h0M735 104h0M750 104h0M765 104h0M780 104h0M795 104h0M810 104h0M825 104h0M840 104h0M855 104h0M870 104h0M885 104h0M900 104h0M915 104h0M930 104h0M945 104h0M960 104h0M975 104h0M990 104h0M1005 104h0M8 117h0M22 117h0M38 117h0M52 117h0M68 117h0M82 117h0M98 117h0M112 117h0M128 117h0M142 117h0M158 117h0M172 117h0M188 117h0M202 117h0M218 117h0M232 117h0M248 117h0M428 117h0M442 117h0M458 117h0M472 117h0M488 117h0M502 117h0M518 117h0M532 117h0M548 117h0M562 117h0M578 117h0M592 117h0M608 117h0M622 117h0M638 117h0M652 117h0M668 117h0M682 117h0M698 117h0M712 117h0M728 117h0M742 117h0M758 117h0M772 117h0M788 117h0M802 117h0M818 117h0M832 117h0M848 117h0M862 117h0M878 117h0M892 117h0M908 117h0M922 117h0M938 117h0M952 117h0M968 117h0M982 117h0M998 117h0M1012 117h0M15 130h0M30 130h0M45 130h0M60 130h0M75 130h0M90 130h0M105 130h0M120 130h0M135 130h0M150 130h0M165 130h0M180 130h0M195 130h0M210 130h0M225 130h0M240 130h0M255 130h0M420 130h0M435 130h0M450 130h0M465 130h0M480 130h0M495 130h0M510 130h0M525 130h0M540 130h0M555 130h0M570 130h0M585 130h0M600 130h0M615 130h0M630 130h0M645 130h0M660 130h0M675 130h0M690 130h0M705 130h0M720 130h0M735 130h0M750 130h0M765 130h0M780 130h0M795 130h0M810 130h0M825 130h0M840 130h0M855 130h0M870 130h0M885 130h0M900 130h0M915 130h0M930 130h0M945 130h0M960 130h0M975 130h0M990 130h0M1005 130h0M8 143h0M22 143h0M38 143h0M52 143h0M68 143h0M82 143h0M98 143h0M112 143h0M128 143h0M142 143h0M158 143h0M172 143h0M188 143h0M202 143h0M218 143h0M232 143h0M248 143h0M262 143h0M428 143h0M442 143h0M458 143h0M472 143h0M488 143h0M502 143h0M518 143h0M532 143h0M548 143h0M562 143h0M578 143h0M592 143h0M608 143h0M622 143h0M638 143h0M652 143h0M668 143h0M682 143h0M698 143h0M712 143h0M728 143h0M742 143h0M758 143h0M772 143h0M788 143h0M802 143h0M818 143h0M832 143h0M848 143h0M862 143h0M878 143h0M892 143h0M908 143h0M922 143h0M938 143h0M952 143h0M968 143h0M982 143h0M998 143h0M1012 143h0M15 156h0M30 156h0M45 156h0M60 156h0M75 156h0M90 156h0M105 156h0M120 156h0M135 156h0M150 156h0M165 156h0M180 156h0M195 156h0M210 156h0M225 156h0M240 156h0M255 156h0M270 156h0M435 156h0M450 156h0M465 156h0M480 156h0M495 156h0M510 156h0M525 156h0M540 156h0M555 156h0M570 156h0M585 156h0M600 156h0M615 156h0M630 156h0M645 156h0M660 156h0M675 156h0M690 156h0M705 156h0M720 156h0M735 156h0M750 156h0M765 156h0M780 156h0M795 156h0M810 156h0M825 156h0M840 156h0M855 156h0M870 156h0M885 156h0M900 156h0M915 156h0M930 156h0M945 156h0M960 156h0M975 156h0M990 156h0M1005 156h0M8 169h0M22 169h0M38 169h0M52 169h0M68 169h0M82 169h0M98 169h0M112 169h0M128 169h0M142 169h0M158 169h0M172 169h0M188 169h0M202 169h0M218 169h0M232 169h0M248 169h0M262 169h0M442 169h0M458 169h0M472 169h0M488 169h0M502 169h0M518 169h0M532 169h0M548 169h0M562 169h0M578 169h0M592 169h0M608 169h0M622 169h0M638 169h0M652 169h0M668 169h0M682 169h0M698 169h0M712 169h0M728 169h0M742 169h0M758 169h0M772 169h0M788 169h0M802 169h0M818 169h0M832 169h0M848 169h0M862 169h0M878 169h0M892 169h0M908 169h0M922 169h0M938 169h0M952 169h0M968 169h0M982 169h0M998 169h0M1012 169h0M15 182h0M30 182h0M45 182h0M60 182h0M75 182h0M90 182h0M105 182h0M120 182h0M135 182h0M150 182h0M165 182h0M180 182h0M195 182h0M210 182h0M225 182h0M240 182h0M255 182h0M270 182h0M285 182h0M450 182h0M465 182h0M480 182h0M495 182h0M510 182h0M525 182h0M540 182h0M555 182h0M570 182h0M585 182h0M600 182h0M615 182h0M630 182h0M645 182h0M660 182h0M675 182h0M690 182h0M705 182h0M720 182h0M735 182h0M750 182h0M765 182h0M780 182h0M795 182h0M810 182h0M825 182h0M840 182h0M855 182h0M870 182h0M885 182h0M900 182h0M915 182h0M930 182h0M945 182h0M960 182h0M975 182h0M990 182h0M1005 182h0M8 195h0M22 195h0M38 195h0M52 195h0M68 195h0M82 195h0M98 195h0M112 195h0M128 195h0M142 195h0M158 195h0M172 195h0M188 195h0M202 195h0M218 195h0M232 195h0M248 195h0M262 195h0M278 195h0M502 195h0M518 195h0M532 195h0M548 195h0M562 195h0M578 195h0M592 195h0M608 195h0M622 195h0M638 195h0M652 195h0M668 195h0M682 195h0M698 195h0M712 195h0M728 195h0M742 195h0M758 195h0M772 195h0M788 195h0M802 195h0M818 195h0M832 195h0M848 195h0M862 195h0M878 195h0M892 195h0M908 195h0M922 195h0M938 195h0M952 195h0M968 195h0M982 195h0M998 195h0M1012 195h0M15 208h0M30 208h0M45 208h0M60 208h0M75 208h0M90 208h0M105 208h0M120 208h0M135 208h0M150 208h0M165 208h0M180 208h0M195 208h0M210 208h0M225 208h0M240 208h0M255 208h0M270 208h0M285 208h0M300 208h0M525 208h0M540 208h0M555 208h0M570 208h0M585 208h0M600 208h0M615 208h0M630 208h0M645 208h0M660 208h0M675 208h0M690 208h0M705 208h0M720 208h0M735 208h0M750 208h0M765 208h0M780 208h0M795 208h0M810 208h0M825 208h0M840 208h0M855 208h0M870 208h0M885 208h0M900 208h0M915 208h0M930 208h0M945 208h0M960 208h0M975 208h0M990 208h0M1005 208h0M8 221h0M22 221h0M38 221h0M52 221h0M68 221h0M82 221h0M98 221h0M112 221h0M128 221h0M142 221h0M158 221h0M172 221h0M188 221h0M202 221h0M218 221h0M232 221h0M248 221h0M262 221h0M278 221h0M292 221h0M308 221h0M532 221h0M548 221h0M562 221h0M578 221h0M592 221h0M608 221h0M622 221h0M638 221h0M652 221h0M668 221h0M682 221h0M698 221h0M712 221h0M728 221h0M742 221h0M758 221h0M772 221h0M788 221h0M802 221h0M818 221h0M832 221h0M848 221h0M862 221h0M878 221h0M892 221h0M908 221h0M922 221h0M938 221h0M952 221h0M968 221h0M982 221h0M998 221h0M1012 221h0M15 234h0M30 234h0M45 234h0M60 234h0M75 234h0M90 234h0M105 234h0M120 234h0M135 234h0M150 234h0M165 234h0M180 234h0M195 234h0M210 234h0M225 234h0M240 234h0M255 234h0M270 234h0M285 234h0M300 234h0M315 234h0M330 234h0M555 234h0M570 234h0M585 234h0M600 234h0M615 234h0M630 234h0M645 234h0M660 234h0M675 234h0M690 234h0M705 234h0M720 234h0M780 234h0M795 234h0M810 234h0M825 234h0M840 234h0M855 234h0M870 234h0M885 234h0M900 234h0M915 234h0M930 234h0M945 234h0M960 234h0M975 234h0M990 234h0M1005 234h0M8 247h0M22 247h0M38 247h0M52 247h0M68 247h0M82 247h0M98 247h0M112 247h0M128 247h0M142 247h0M158 247h0M172 247h0M188 247h0M202 247h0M218 247h0M232 247h0M248 247h0M262 247h0M278 247h0M292 247h0M308 247h0M322 247h0M338 247h0M578 247h0M592 247h0M608 247h0M622 247h0M638 247h0M652 247h0M668 247h0M682 247h0M712 247h0M728 247h0M788 247h0M802 247h0M818 247h0M832 247h0M848 247h0M862 247h0M878 247h0M892 247h0M908 247h0M922 247h0M938 247h0M952 247h0M968 247h0M982 247h0M998 247h0M1012 247h0M15 260h0M30 260h0M45 260h0M60 260h0M75 260h0M90 260h0M105 260h0M120 260h0M135 260h0M150 260h0M165 260h0M180 260h0M195 260h0M210 260h0M225 260h0M240 260h0M255 260h0M270 260h0M285 260h0M300 260h0M315 260h0M330 260h0M345 260h0M360 260h0M630 260h0M645 260h0M660 260h0M690 260h0M795 260h0M810 260h0M825 260h0M840 260h0M855 260h0M870 260h0M885 260h0M900 260h0M915 260h0M930 260h0M945 260h0M960 260h0M975 260h0M990 260h0M1005 260h0M8 273h0M22 273h0M38 273h0M52 273h0M68 273h0M82 273h0M98 273h0M112 273h0M128 273h0M142 273h0M158 273h0M172 273h0M188 273h0M202 273h0M218 273h0M232 273h0M248 273h0M262 273h0M278 273h0M292 273h0M308 273h0M322 273h0M338 273h0M352 273h0M788 273h0M802 273h0M818 273h0M832 273h0M848 273h0M862 273h0M878 273h0M892 273h0M908 273h0M922 273h0M938 273h0M952 273h0M968 273h0M982 273h0M998 273h0M1012 273h0M15 286h0M30 286h0M45 286h0M60 286h0M75 286h0M90 286h0M105 286h0M120 286h0M135 286h0M150 286h0M165 286h0M180 286h0M195 286h0M210 286h0M225 286h0M240 286h0M255 286h0M270 286h0M285 286h0M300 286h0M315 286h0M330 286h0M345 286h0M360 286h0M795 286h0M810 286h0M825 286h0M840 286h0M855 286h0M870 286h0M885 286h0M900 286h0M915 286h0M930 286h0M945 286h0M960 286h0M975 286h0M990 286h0M1005 286h0M8 299h0M22 299h0M38 299h0M52 299h0M68 299h0M82 299h0M98 299h0M112 299h0M128 299h0M142 299h0M158 299h0M172 299h0M188 299h0M202 299h0M218 299h0M232 299h0M248 299h0M262 299h0M278 299h0M292 299h0M308 299h0M322 299h0M338 299h0M352 299h0M428 299h0M442 299h0M728 299h0M742 299h0M802 299h0M818 299h0M832 299h0M848 299h0M862 299h0M878 299h0M892 299h0M908 299h0M922 299h0M938 299h0M952 299h0M968 299h0M982 299h0M998 299h0M1012 299h0M15 312h0M30 312h0M45 312h0M60 312h0M75 312h0M90 312h0M105 312h0M120 312h0M135 312h0M150 312h0M165 312h0M180 312h0M195 312h0M210 312h0M225 312h0M240 312h0M255 312h0M270 312h0M285 312h0M300 312h0M315 312h0M330 312h0M345 312h0M360 312h0M420 312h0M435 312h0M450 312h0M720 312h0M735 312h0M810 312h0M825 312h0M840 312h0M855 312h0M870 312h0M885 312h0M900 312h0M915 312h0M930 312h0M945 312h0M960 312h0M975 312h0M990 312h0M1005 312h0M8 325h0M22 325h0M38 325h0M52 325h0M68 325h0M82 325h0M98 325h0M112 325h0M128 325h0M142 325h0M158 325h0M172 325h0M188 325h0M202 325h0M218 325h0M232 325h0M248 325h0M262 325h0M278 325h0M292 325h0M308 325h0M322 325h0M338 325h0M352 325h0M368 325h0M412 325h0M428 325h0M442 325h0M712 325h0M728 325h0M862 325h0M878 325h0M892 325h0M908 325h0M922 325h0M938 325h0M952 325h0M968 325h0M982 325h0M998 325h0M1012 325h0M15 338h0M30 338h0M45 338h0M60 338h0M75 338h0M90 338h0M105 338h0M120 338h0M135 338h0M150 338h0M165 338h0M180 338h0M195 338h0M210 338h0M225 338h0M240 338h0M255 338h0M270 338h0M285 338h0M300 338h0M315 338h0M330 338h0M345 338h0M360 338h0M375 338h0M420 338h0M435 338h0M450 338h0M690 338h0M705 338h0M720 338h0M735 338h0M975 338h0M1005 338h0M8 351h0M22 351h0M38 351h0M52 351h0M68 351h0M82 351h0M98 351h0M112 351h0M128 351h0M142 351h0M158 351h0M172 351h0M188 351h0M202 351h0M218 351h0M232 351h0M248 351h0M262 351h0M278 351h0M292 351h0M308 351h0M322 351h0M338 351h0M352 351h0M368 351h0M382 351h0M412 351h0M428 351h0M442 351h0M682 351h0M698 351h0M712 351h0M728 351h0M15 364h0M30 364h0M45 364h0M60 364h0M75 364h0M90 364h0M105 364h0M120 364h0M135 364h0M150 364h0M165 364h0M180 364h0M195 364h0M210 364h0M225 364h0M240 364h0M255 364h0M270 364h0M285 364h0M300 364h0M315 364h0M330 364h0M345 364h0M360 364h0M375 364h0M390 364h0M420 364h0M435 364h0M450 364h0M660 364h0M675 364h0M690 364h0M705 364h0M720 364h0M735 364h0M8 377h0M22 377h0M38 377h0M52 377h0M68 377h0M82 377h0M98 377h0M112 377h0M128 377h0M142 377h0M158 377h0M172 377h0M188 377h0M202 377h0M218 377h0M232 377h0M248 377h0M262 377h0M278 377h0M292 377h0M308 377h0M322 377h0M338 377h0M352 377h0M368 377h0M382 377h0M398 377h0M412 377h0M428 377h0M442 377h0M652 377h0M668 377h0M682 377h0M698 377h0M712 377h0M728 377h0M742 377h0M15 390h0M30 390h0M45 390h0M60 390h0M75 390h0M90 390h0M105 390h0M120 390h0M135 390h0M150 390h0M165 390h0M180 390h0M195 390h0M210 390h0M225 390h0M240 390h0M255 390h0M270 390h0M285 390h0M300 390h0M315 390h0M330 390h0M345 390h0M360 390h0M375 390h0M390 390h0M405 390h0M420 390h0M435 390h0M645 390h0M660 390h0M675 390h0M690 390h0M705 390h0M720 390h0M735 390h0M750 390h0M8 403h0M22 403h0M38 403h0M52 403h0M68 403h0M82 403h0M98 403h0M112 403h0M128 403h0M142 403h0M158 403h0M172 403h0M188 403h0M202 403h0M218 403h0M232 403h0M248 403h0M262 403h0M278 403h0M292 403h0M308 403h0M322 403h0M338 403h0M352 403h0M368 403h0M382 403h0M398 403h0M412 403h0M428 403h0M442 403h0M458 403h0M562 403h0M638 403h0M652 403h0M668 403h0M682 403h0M698 403h0M712 403h0M728 403h0M742 403h0M758 403h0M15 416h0M30 416h0M45 416h0M60 416h0M75 416h0M90 416h0M105 416h0M120 416h0M135 416h0M150 416h0M165 416h0M180 416h0M195 416h0M210 416h0M225 416h0M240 416h0M255 416h0M270 416h0M285 416h0M300 416h0M315 416h0M330 416h0M345 416h0M360 416h0M375 416h0M390 416h0M405 416h0M420 416h0M435 416h0M450 416h0M465 416h0M510 416h0M525 416h0M540 416h0M555 416h0M570 416h0M585 416h0M600 416h0M615 416h0M630 416h0M645 416h0M660 416h0M675 416h0M690 416h0M705 416h0M720 416h0M735 416h0M750 416h0M765 416h0M780 416h0M8 429h0M22 429h0M38 429h0M52 429h0M68 429h0M82 429h0M98 429h0M112 429h0M128 429h0M142 429h0M158 429h0M172 429h0M188 429h0M202 429h0M218 429h0M232 429h0M248 429h0M262 429h0M278 429h0M292 429h0M308 429h0M322 429h0M338 429h0M352 429h0M368 429h0M382 429h0M398 429h0M412 429h0M428 429h0M442 429h0M458 429h0M472 429h0M488 429h0M502 429h0M518 429h0M532 429h0M548 429h0M562 429h0M578 429h0M592 429h0M608 429h0M622 429h0M638 429h0M652 429h0M668 429h0M682 429h0M698 429h0M712 429h0M728 429h0M742 429h0M758 429h0M772 429h0M788 429h0M802 429h0M15 442h0M30 442h0M45 442h0M60 442h0M75 442h0M90 442h0M105 442h0M120 442h0M135 442h0M150 442h0M165 442h0M180 442h0M195 442h0M210 442h0M225 442h0M240 442h0M255 442h0M270 442h0M285 442h0M300 442h0M315 442h0M330 442h0M345 442h0M360 442h0M375 442h0M390 442h0M405 442h0M420 442h0M435 442h0M450 442h0M465 442h0M480 442h0M495 442h0M510 442h0M525 442h0M540 442h0M555 442h0M570 442h0M585 442h0M600 442h0M615 442h0M630 442h0M645 442h0M660 442h0M675 442h0M690 442h0M705 442h0M720 442h0M735 442h0M750 442h0M765 442h0M780 442h0M795 442h0M810 442h0M825 442h0M840 442h0M855 442h0M870 442h0M8 455h0M22 455h0M38 455h0M52 455h0M68 455h0M82 455h0M98 455h0M112 455h0M128 455h0M142 455h0M158 455h0M172 455h0M188 455h0M202 455h0M218 455h0M232 455h0M248 455h0M262 455h0M278 455h0M292 455h0M308 455h0M322 455h0M338 455h0M352 455h0M368 455h0M382 455h0M398 455h0M412 455h0M428 455h0M442 455h0M458 455h0M472 455h0M488 455h0M502 455h0M518 455h0M532 455h0M548 455h0M562 455h0M578 455h0M592 455h0M608 455h0M622 455h0M638 455h0M652 455h0M668 455h0M682 455h0M698 455h0M712 455h0M728 455h0M742 455h0M758 455h0M772 455h0M788 455h0M802 455h0M818 455h0M832 455h0M848 455h0M862 455h0M878 455h0M15 468h0M30 468h0M45 468h0M60 468h0M75 468h0M90 468h0M105 468h0M120 468h0M135 468h0M150 468h0M165 468h0M180 468h0M195 468h0M210 468h0M225 468h0M240 468h0M255 468h0M270 468h0M285 468h0M300 468h0M315 468h0M330 468h0M345 468h0M360 468h0M375 468h0M390 468h0M405 468h0M420 468h0M435 468h0M450 468h0M465 468h0M480 468h0M495 468h0M510 468h0M525 468h0M540 468h0M555 468h0M570 468h0M585 468h0M600 468h0M615 468h0M630 468h0M645 468h0M660 468h0M675 468h0M690 468h0M705 468h0M720 468h0M735 468h0M750 468h0M765 468h0M780 468h0M795 468h0M810 468h0M825 468h0M840 468h0M855 468h0M870 468h0M885 468h0M8 481h0M22 481h0M38 481h0M52 481h0M68 481h0M82 481h0M98 481h0M112 481h0M128 481h0M142 481h0M158 481h0M172 481h0M188 481h0M202 481h0M218 481h0M232 481h0M248 481h0M262 481h0M278 481h0M292 481h0M308 481h0M322 481h0M338 481h0M352 481h0M368 481h0M382 481h0M398 481h0M412 481h0M428 481h0M442 481h0M458 481h0M472 481h0M488 481h0M502 481h0M518 481h0M532 481h0M548 481h0M562 481h0M578 481h0M592 481h0M608 481h0M622 481h0M638 481h0M652 481h0M668 481h0M682 481h0M698 481h0M712 481h0M728 481h0M742 481h0M758 481h0M772 481h0M788 481h0M802 481h0M818 481h0M832 481h0M848 481h0M862 481h0M878 481h0M892 481h0M908 481h0M15 494h0M30 494h0M45 494h0M60 494h0M75 494h0M90 494h0M105 494h0M120 494h0M135 494h0M150 494h0M165 494h0M180 494h0M195 494h0M210 494h0M225 494h0M240 494h0M255 494h0M270 494h0M285 494h0M300 494h0M315 494h0M330 494h0M345 494h0M360 494h0M375 494h0M390 494h0M405 494h0M420 494h0M435 494h0M450 494h0M465 494h0M480 494h0M495 494h0M510 494h0M525 494h0M540 494h0M555 494h0M570 494h0M585 494h0M600 494h0M615 494h0M630 494h0M645 494h0M660 494h0M675 494h0M690 494h0M705 494h0M720 494h0M735 494h0M750 494h0M765 494h0M780 494h0M795 494h0M810 494h0M825 494h0M840 494h0M855 494h0M870 494h0M885 494h0M900 494h0M915 494h0M8 507h0M22 507h0M38 507h0M52 507h0M68 507h0M82 507h0M98 507h0M112 507h0M128 507h0M142 507h0M158 507h0M172 507h0M188 507h0M202 507h0M218 507h0M232 507h0M248 507h0M262 507h0M278 507h0M292 507h0M308 507h0M322 507h0M338 507h0M352 507h0M368 507h0M382 507h0M398 507h0M412 507h0M428 507h0M442 507h0M458 507h0M472 507h0M488 507h0M502 507h0M518 507h0M532 507h0M548 507h0M562 507h0M578 507h0M592 507h0M608 507h0M622 507h0M638 507h0M652 507h0M668 507h0M682 507h0M698 507h0M712 507h0M728 507h0M742 507h0M758 507h0M772 507h0M788 507h0M802 507h0M818 507h0M832 507h0M848 507h0M862 507h0M878 507h0M892 507h0M908 507h0M922 507h0M938 507h0M15 520h0M30 520h0M45 520h0M60 520h0M75 520h0M90 520h0M105 520h0M120 520h0M135 520h0M150 520h0M165 520h0M180 520h0M195 520h0M210 520h0M225 520h0M240 520h0M255 520h0M270 520h0M285 520h0M300 520h0M315 520h0M330 520h0M345 520h0M360 520h0M375 520h0M390 520h0M405 520h0M420 520h0M435 520h0M450 520h0M465 520h0M480 520h0M495 520h0M510 520h0M525 520h0M540 520h0M555 520h0M570 520h0M585 520h0M600 520h0M615 520h0M630 520h0M645 520h0M660 520h0M675 520h0M690 520h0M705 520h0M720 520h0M735 520h0M750 520h0M765 520h0M780 520h0M795 520h0M810 520h0M825 520h0M840 520h0M855 520h0M870 520h0M885 520h0M900 520h0M915 520h0M930 520h0M945 520h0M8 533h0M22 533h0M38 533h0M52 533h0M68 533h0M82 533h0M98 533h0M112 533h0M128 533h0M142 533h0M158 533h0M172 533h0M188 533h0M202 533h0M218 533h0M232 533h0M248 533h0M262 533h0M278 533h0M292 533h0M308 533h0M322 533h0M338 533h0M352 533h0M368 533h0M382 533h0M398 533h0M412 533h0M428 533h0M442 533h0M458 533h0M472 533h0M488 533h0M502 533h0M518 533h0M532 533h0M548 533h0M562 533h0M578 533h0M592 533h0M608 533h0M622 533h0M638 533h0M652 533h0M668 533h0M682 533h0M698 533h0M712 533h0M728 533h0M742 533h0M758 533h0M772 533h0M788 533h0M802 533h0M818 533h0M832 533h0M848 533h0M862 533h0M878 533h0M892 533h0M908 533h0M922 533h0M938 533h0M15 546h0M30 546h0M45 546h0M60 546h0M75 546h0M90 546h0M105 546h0M120 546h0M135 546h0M150 546h0M165 546h0M180 546h0M195 546h0M210 546h0M225 546h0M240 546h0M255 546h0M270 546h0M285 546h0M300 546h0M315 546h0M330 546h0M345 546h0M360 546h0M375 546h0M390 546h0M405 546h0M420 546h0M435 546h0M450 546h0M465 546h0M480 546h0M495 546h0M510 546h0M525 546h0M540 546h0M555 546h0M570 546h0M585 546h0M600 546h0M615 546h0M630 546h0M645 546h0M660 546h0M675 546h0M690 546h0M705 546h0M720 546h0M735 546h0M750 546h0M765 546h0M780 546h0M795 546h0M810 546h0M825 546h0M840 546h0M855 546h0M870 546h0M885 546h0M900 546h0M915 546h0M930 546h0M8 559h0M22 559h0M38 559h0M52 559h0M68 559h0M82 559h0M98 559h0M112 559h0M128 559h0M142 559h0M158 559h0M172 559h0M188 559h0M202 559h0M218 559h0M232 559h0M248 559h0M262 559h0M278 559h0M292 559h0M308 559h0M322 559h0M338 559h0M352 559h0M368 559h0M382 559h0M398 559h0M412 559h0M428 559h0M442 559h0M458 559h0M472 559h0M488 559h0M502 559h0M518 559h0M532 559h0M548 559h0M562 559h0M578 559h0M592 559h0M608 559h0M622 559h0M638 559h0M652 559h0M668 559h0M682 559h0M698 559h0M712 559h0M728 559h0M742 559h0M758 559h0M772 559h0M788 559h0M802 559h0M818 559h0M832 559h0M848 559h0M862 559h0M878 559h0M892 559h0M908 559h0M922 559h0M15 572h0M30 572h0M45 572h0M60 572h0M75 572h0M90 572h0M105 572h0M120 572h0M135 572h0M150 572h0M165 572h0M180 572h0M195 572h0M210 572h0M225 572h0M240 572h0M255 572h0M270 572h0M285 572h0M300 572h0M315 572h0M330 572h0M345 572h0M360 572h0M375 572h0M390 572h0M405 572h0M420 572h0M435 572h0M450 572h0M465 572h0M480 572h0M495 572h0M510 572h0M525 572h0M540 572h0M555 572h0M570 572h0M585 572h0M600 572h0M615 572h0M630 572h0M645 572h0M660 572h0M675 572h0M690 572h0M705 572h0M720 572h0M735 572h0M750 572h0M765 572h0M780 572h0M795 572h0M810 572h0M825 572h0M840 572h0M855 572h0M870 572h0M885 572h0M900 572h0M915 572h0M8 585h0M22 585h0M38 585h0M52 585h0M68 585h0M82 585h0M98 585h0M112 585h0M128 585h0M142 585h0M158 585h0M172 585h0M188 585h0M202 585h0M218 585h0M232 585h0M248 585h0M262 585h0M278 585h0M292 585h0M308 585h0M322 585h0M338 585h0M352 585h0M368 585h0M382 585h0M398 585h0M412 585h0M428 585h0M442 585h0M458 585h0M472 585h0M488 585h0M502 585h0M518 585h0M532 585h0M548 585h0M562 585h0M578 585h0M592 585h0M608 585h0M622 585h0M638 585h0M652 585h0M668 585h0M682 585h0M698 585h0M712 585h0M728 585h0M742 585h0M758 585h0M772 585h0M788 585h0M802 585h0M818 585h0M832 585h0M848 585h0M862 585h0M878 585h0M892 585h0M15 598h0M30 598h0M45 598h0M60 598h0M75 598h0M90 598h0M105 598h0M120 598h0M135 598h0M150 598h0M165 598h0M180 598h0M195 598h0M210 598h0M225 598h0M240 598h0M255 598h0M270 598h0M285 598h0M300 598h0M315 598h0M330 598h0M345 598h0M360 598h0M375 598h0M390 598h0M405 598h0M420 598h0M435 598h0M450 598h0M465 598h0M480 598h0M495 598h0M510 598h0M525 598h0M540 598h0M555 598h0M570 598h0M585 598h0M600 598h0M615 598h0M630 598h0M645 598h0M660 598h0M675 598h0M690 598h0M705 598h0M720 598h0M735 598h0M750 598h0M765 598h0M780 598h0M795 598h0M810 598h0M825 598h0M840 598h0M855 598h0M870 598h0M885 598h0"/>
+            <path class="bh" d="M391.2 286.2h0M391.2 290.4h0M391.2 294.6h0M395.4 294.6h0M391.2 298.8h0M395.4 298.8h0M391.2 303.0h0M395.4 303.0h0M391.2 307.2h0M395.4 307.2h0"/>
+            <text class="sea" x="520" y="205" transform="rotate(32 520 205)" text-anchor="middle">Arabian Gulf</text>
+            <g id="net-routes">
+              <g class="rtg" data-r="ksa"><path id="r-ksa" class="rt" d="M395 288 C 360 300, 250 330, 163 377"/><path class="flow" d="M395 288 C 360 300, 250 330, 163 377"/></g>
+              <g class="rtg" data-r="uae"><path id="r-uae" class="rt" d="M395 288 C 480 250, 600 280, 678 348"/><path class="flow" d="M395 288 C 480 250, 600 280, 678 348"/></g>
+              <g class="rtg" data-r="qat"><path id="r-qat" class="rt" d="M395 288 C 400 330, 430 350, 452 343"/><path class="flow" d="M395 288 C 400 330, 430 350, 452 343"/></g>
+              <g class="rtg" data-r="kwt"><path id="r-kwt" class="rt" d="M395 288 C 330 230, 270 160, 239 98"/><path class="flow" d="M395 288 C 330 230, 270 160, 239 98"/></g>
+              <g class="rtg" data-r="omn"><path id="r-omn" class="rt" d="M395 288 C 520 220, 760 260, 864 444"/><path class="flow" d="M395 288 C 520 220, 760 260, 864 444"/></g>
+            </g>
+            <g class="movers" aria-hidden="true">
+              <circle class="truckdot" r="5"><animateMotion dur="6s" repeatCount="indefinite"><mpath href="#r-ksa"/></animateMotion></circle>
+              <circle class="truckdot" r="5"><animateMotion dur="9s" begin="-3s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#r-uae"/></animateMotion></circle>
+              <circle class="truckdot" r="5"><animateMotion dur="4s" begin="-1s" repeatCount="indefinite"><mpath href="#r-qat"/></animateMotion></circle>
+              <circle class="truckdot" r="5"><animateMotion dur="7s" begin="-5s" repeatCount="indefinite" keyPoints="1;0" keyTimes="0;1" calcMode="linear"><mpath href="#r-kwt"/></animateMotion></circle>
+              <circle class="truckdot" r="5"><animateMotion dur="11s" begin="-2s" repeatCount="indefinite"><mpath href="#r-omn"/></animateMotion></circle>
+            </g>
+            <g class="city"><circle class="ring" cx="163" cy="377" r="9"/><circle class="dot" cx="163" cy="377" r="5"/><text x="150" y="410" text-anchor="middle">Riyadh</text><text class="c" x="150" y="428" text-anchor="middle">KSA</text></g>
+            <g class="city"><circle class="ring" cx="678" cy="348" r="9"/><circle class="dot" cx="678" cy="348" r="5"/><text x="690" y="385" text-anchor="middle">Dubai</text><text class="c" x="690" y="403" text-anchor="middle">UAE</text></g>
+            <g class="city"><circle class="ring" cx="452" cy="343" r="9"/><circle class="dot" cx="452" cy="343" r="5"/><text x="480" y="380" text-anchor="middle">Doha</text><text class="c" x="480" y="398" text-anchor="middle">Qatar</text></g>
+            <g class="city"><circle class="ring" cx="239" cy="98" r="9"/><circle class="dot" cx="239" cy="98" r="5"/><text x="239" y="68" text-anchor="middle">Kuwait</text></g>
+            <g class="city"><circle class="ring" cx="864" cy="444" r="9"/><circle class="dot" cx="864" cy="444" r="5"/><text x="880" y="482" text-anchor="middle">Muscat</text><text class="c" x="880" y="500" text-anchor="middle">Oman</text></g>
+            <g class="city hub"><circle class="ring" cx="395" cy="288" r="12"/><circle class="ring" cx="395" cy="288" r="12" style="animation-delay:-1.3s"/><circle class="dot" cx="395" cy="288" r="7"/><text x="410" y="252" text-anchor="middle">Bahrain</text><text class="c" x="410" y="234" text-anchor="middle">Head office</text></g>
+          </svg>
+          <span class="map-note">Schematic, not to scale for road distances.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= HOW IT WORKS ================= -->
+    <section class="pad" id="how" aria-labelledby="how-title">
+      <div class="wrap">
+        <div class="head">
+          <div class="rv">
+            <p class="eyebrow">How it works</p>
+            <h2 class="h2 display" id="how-title">Four steps.<br>Zero guesswork.</h2>
+          </div>
+          <p class="lede rv" style="--d:.1s">From your request to proof of delivery, you always know where your goods are.</p>
+        </div>
+        <ol class="steps rv" id="steps">
+          <li>
+            <div class="node"><svg class="draw" viewBox="0 0 30 30" aria-hidden="true"><path pathLength="1" class="w" d="M8 3h10l6 6v18H8z"/><path pathLength="1" d="M18 3v6h6M12 15h8M12 20h6"/></svg></div>
+            <h3>Request a quote</h3><p>Tell us the weight, route and date. We reply within 24 hours.</p>
+          </li>
+          <li>
+            <div class="node"><svg class="draw" viewBox="0 0 30 30" aria-hidden="true" style="--d:.4s"><path pathLength="1" class="w" d="M2 20V8h14v12M16 12h5l4 4v4H16"/><circle pathLength="1" cx="7" cy="22" r="2.5"/><circle pathLength="1" cx="21" cy="22" r="2.5"/></svg></div>
+            <h3>We assign a truck</h3><p>Once you confirm, a driver and the right truck are booked for your load.</p>
+          </li>
+          <li>
+            <div class="node"><svg class="draw" viewBox="0 0 30 30" aria-hidden="true" style="--d:.8s"><path pathLength="1" class="w" d="M3 7l7-3 10 3 7-3v19l-7 3-10-3-7 3z"/><path pathLength="1" d="M10 4v19M20 7v19"/></svg></div>
+            <h3>Track it live</h3><p>You get a tracking link on WhatsApp and watch the truck on the map.</p>
+          </li>
+          <li>
+            <div class="node"><svg class="draw" viewBox="0 0 30 30" aria-hidden="true" style="--d:1.2s"><path pathLength="1" class="w" d="M3 22c3-6 5-12 7-12s-1 10 2 10 3-6 5-6 1 5 3 5 3-2 4-3"/><path pathLength="1" d="M3 27h24"/></svg></div>
+            <h3>Proof of delivery</h3><p>The driver records who received the goods and when. You see it instantly.</p>
+          </li>
         </ol>
       </div>
     </section>
 
-    <section id="about" aria-labelledby="about-title">
-      <div class="container about-grid">
+    <!-- ================= ABOUT ================= -->
+    <section class="pad" id="about" aria-labelledby="about-title" style="padding-top:0">
+      <div class="wrap about-grid">
         <div>
-          <h2 id="about-title">Your partner in Bahrain's growing market</h2>
-          <p>We come to work each day for one reason: to make logistics work for you. Not merely on paper, not just conceptually, but practically on the ground in Bahrain. This is our promise.</p>
-          <p>The commitment of our people and the strength of our modern fleet stand behind that promise. With a deep understanding of Bahrain's logistics landscape, we deliver results that matter.</p>
-          <ul class="checks">
-            <li><svg><use href="#i-check"></use></svg>Modern fleet</li>
-            <li><svg><use href="#i-check"></use></svg>Experienced team</li>
-            <li><svg><use href="#i-check"></use></svg>Local expertise</li>
-            <li><svg><use href="#i-check"></use></svg>24/7 operations</li>
+          <p class="eyebrow rv">About Trucksy</p>
+          <h2 class="h2 display rv" id="about-title">Your partner in Bahrain's growing market</h2>
+          <p class="rv" style="--d:.06s">We come to work each day for one reason: to make logistics work for you. The commitment of our people and the strength of our modern fleet stand behind that promise. With a deep understanding of Bahrain's logistics landscape, we deliver results that matter.</p>
+          <ul class="checks rv" style="--d:.12s">
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg>Modern fleet</li>
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg>Experienced team</li>
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg>Local expertise</li>
+            <li><svg aria-hidden="true"><use href="#i-check"/></svg>24/7 operations</li>
           </ul>
-          <p style="margin-top:2rem"><a href="#contact" class="button primary">Talk to our team <svg><use href="#i-arrow"></use></svg></a></p>
+          <a href="#contact" class="btn btn-ghost rv" style="--d:.18s">Talk to our team <svg aria-hidden="true"><use href="#i-arrow"/></svg></a>
         </div>
-        <div class="board" aria-labelledby="routes-title">
-          <h3 id="routes-title">Routes we run</h3>
-          <table>
-            <tbody>
-              <tr><td>Bahrain ⇄ Saudi Arabia <div class="via">via King Fahd Causeway</div></td><td>KSA</td></tr>
-              <tr><td>Bahrain ⇄ United Arab Emirates</td><td>UAE</td></tr>
-              <tr><td>Bahrain ⇄ Qatar</td><td>QAT</td></tr>
-              <tr><td>Bahrain ⇄ Kuwait</td><td>KWT</td></tr>
-              <tr><td>Bahrain ⇄ Oman</td><td>OMN</td></tr>
-              <tr><td>Within Bahrain <div class="via">Ports, industrial areas, warehouses</div></td><td>BHR</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <figure class="promise rv" style="--d:.1s; margin:0">
+          <blockquote>Not merely on paper, not just conceptually, but <em>practically on the ground</em> in Bahrain. This is our promise.</blockquote>
+          <figcaption class="sig"><svg aria-hidden="true"><use href="#logo"/></svg>The Trucksy team · Kingdom of Bahrain</figcaption>
+        </figure>
       </div>
     </section>
 
-    <section id="track" aria-labelledby="track-title">
-      <div class="container">
-        <h2 class="section-title" id="track-title">Track a delivery</h2>
-        <p class="section-sub">Paste the tracking link or code we sent you on WhatsApp.</p>
-        <div class="track-box">
-          <form class="track-form" id="track-form" novalidate>
-            <label class="sr-only" for="track-code">Tracking link or code</label>
-            <input id="track-code" name="code" type="text" placeholder="e.g. Xk3pL9qA or the full link" autocomplete="off" spellcheck="false">
-            <button class="button primary" type="submit">TRACK <svg><use href="#i-arrow"></use></svg></button>
-          </form>
-          <p class="form-msg" id="track-msg" role="status" aria-live="polite"></p>
-          <p class="hint">You'll see the truck's live position and every step of your delivery. No login needed.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="contact" aria-labelledby="contact-title">
-      <div class="container">
-        <h2 class="section-title" id="contact-title">Get a quick quote</h2>
-        <p class="section-sub">We respond to all inquiries within 24 hours.</p>
-        <div class="contact-grid">
+    <!-- ================= TRACK ================= -->
+    <section class="pad" id="track" aria-labelledby="track-title" style="padding-top:0">
+      <div class="wrap">
+        <div class="track-panel rv">
+          <div style="position:relative">
+            <p class="eyebrow">Live tracking</p>
+            <h2 class="h2 display" id="track-title" style="font-size:clamp(1.8rem,4vw,2.8rem)">Track a delivery</h2>
+            <p class="lede">Paste the tracking link or code we sent you on WhatsApp.</p>
+          </div>
           <div>
+            <form class="track-form" id="track-form" novalidate>
+              <label class="sr-only" for="track-code">Tracking link or code</label>
+              <input id="track-code" name="code" type="text" placeholder="e.g. Xk3pL9qA or the full link" autocomplete="off" spellcheck="false">
+              <button class="btn btn-green" type="submit">Track <svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </form>
+            <p class="form-msg" id="track-msg" role="status" aria-live="polite"></p>
+            <p class="hint">See the truck's live position and every step of your delivery. No login needed.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= QUOTE ================= -->
+    <section class="pad" id="contact" aria-labelledby="contact-title" style="padding-top:0">
+      <div class="wrap">
+        <div class="head">
+          <div class="rv">
+            <p class="eyebrow">Get a quote</p>
+            <h2 class="h2 display" id="contact-title">Ready to move?</h2>
+          </div>
+          <p class="lede rv" style="--d:.1s">Tell us what you're shipping. We respond to every inquiry within 24 hours.</p>
+        </div>
+        <div class="quote-grid">
+          <div class="panel rv">
             <form class="quote-form" id="quote-form" name="quote" method="POST" action="/thanks.html" data-netlify="true" netlify-honeypot="company_website">
               <input type="hidden" name="form-name" value="quote">
               <p class="sr-only"><label>Leave this empty <input name="company_website" tabindex="-1" autocomplete="off"></label></p>
-              <div><label for="q-name">Full name <span class="req">*</span></label><input id="q-name" name="name" type="text" required autocomplete="name"></div>
-              <div><label for="q-company">Company <span class="req">*</span></label><input id="q-company" name="company" type="text" required autocomplete="organization"></div>
-              <div><label for="q-email">Email <span class="req">*</span></label><input id="q-email" name="email" type="email" required autocomplete="email"></div>
-              <div><label for="q-phone">Phone / WhatsApp</label><input id="q-phone" name="phone" type="tel" placeholder="+973" autocomplete="tel"></div>
-              <div>
+              <div class="field"><label for="q-name">Full name <span class="req">*</span></label><input id="q-name" name="name" type="text" required autocomplete="name"></div>
+              <div class="field"><label for="q-company">Company <span class="req">*</span></label><input id="q-company" name="company" type="text" required autocomplete="organization"></div>
+              <div class="field"><label for="q-email">Email <span class="req">*</span></label><input id="q-email" name="email" type="email" required autocomplete="email"></div>
+              <div class="field"><label for="q-phone">Phone / WhatsApp</label><input id="q-phone" name="phone" type="tel" placeholder="+973" autocomplete="tel"></div>
+              <div class="field">
                 <label for="q-weight">Approximate weight <span class="req">*</span></label>
                 <select id="q-weight" name="weight" required>
                   <option value="" disabled selected hidden>Choose weight</option>
@@ -374,7 +767,7 @@
                   <option value="5,000+ kg (full load)">5,000+ kg (full load)</option>
                 </select>
               </div>
-              <div>
+              <div class="field">
                 <label for="q-route">Route <span class="req">*</span></label>
                 <select id="q-route" name="route" required>
                   <option value="" disabled selected hidden>Choose route</option>
@@ -398,24 +791,27 @@
                   </optgroup>
                 </select>
               </div>
-              <div class="full"><label for="q-date">Preferred pickup date</label><input id="q-date" name="pickup_date" type="date"></div>
-              <div class="full"><label for="q-msg">Cargo details</label><textarea id="q-msg" name="message" placeholder="What are you shipping? Pickup and drop-off areas, number of pallets, any special handling."></textarea></div>
+              <div class="field full"><label for="q-date">Preferred pickup date</label><input id="q-date" name="pickup_date" type="date"></div>
+              <div class="field full"><label for="q-msg">Cargo details</label><textarea id="q-msg" name="message" placeholder="What are you shipping? Pickup and drop-off areas, number of pallets, any special handling."></textarea></div>
               <div class="full">
-                <button type="submit" class="button primary" style="width:100%">SEND QUOTE REQUEST <svg><use href="#i-arrow"></use></svg></button>
+                <button type="submit" class="btn btn-green">Send quote request <svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
                 <p class="form-msg" id="quote-msg" role="status" aria-live="polite"></p>
               </div>
             </form>
             <div class="success" id="quote-success" tabindex="-1">
-              <svg><use href="#i-check"></use></svg>
+              <svg class="draw in" viewBox="0 0 76 76" aria-hidden="true"><circle pathLength="1" cx="38" cy="38" r="34"/><path pathLength="1" class="w" d="m24 39 9 9 19-20" style="stroke-width:3"/></svg>
               <h3>Quote request sent</h3>
               <p>Thank you. Our team will reply within 24 hours.</p>
             </div>
           </div>
-          <aside class="contact-card" aria-label="Contact details">
-            <h3>Prefer to talk to us?</h3>
-            <div class="row"><svg><use href="#i-mail"></use></svg><div><b>Email</b><span><a href="mailto:info@trucksy.bh">info@trucksy.bh</a></span></div></div>
-            <div class="row"><svg><use href="#i-pin"></use></svg><div><b>Head office</b><span>Kingdom of Bahrain</span></div></div>
-            <div class="row"><svg><use href="#i-clock"></use></svg><div><b>Operations</b><span>24/7, every day of the year</span></div></div>
+          <aside class="panel contact rv" style="--d:.1s" aria-label="Contact details">
+            <div>
+              <h3>Prefer to talk?</h3>
+              <div class="crow"><span class="ci"><svg aria-hidden="true"><use href="#i-mail"/></svg></span><div><b>Email</b><a href="mailto:info@trucksy.bh">info@trucksy.bh</a></div></div>
+              <div class="crow"><span class="ci"><svg aria-hidden="true"><use href="#i-pin"/></svg></span><div><b>Head office</b><span>Kingdom of Bahrain</span></div></div>
+              <div class="crow"><span class="ci"><svg aria-hidden="true"><use href="#i-clock"/></svg></span><div><b>Operations</b><span>24/7, every day of the year</span></div></div>
+            </div>
+            <div class="reply-badge"><span class="live-dot"></span>Average reply: within 24 hours</div>
           </aside>
         </div>
       </div>
@@ -423,44 +819,247 @@
   </main>
 
   <footer>
-    <div class="container foot">
-      <a href="#top" class="logo" aria-label="Back to top"><span>T</span><span>R</span><span>U</span><span>C</span><span>K</span><span>S</span><span>Y</span></a>
-      <nav aria-label="Footer">
-        <a href="#services">Services</a>
-        <a href="#track">Track a delivery</a>
-        <a href="#contact">Contact</a>
-        <a href="#" id="staff-login" rel="nofollow">Staff login</a>
-      </nav>
-      <p>© <span id="year">2026</span> Trucksy. All rights reserved. · Kingdom of Bahrain · <a href="mailto:info@trucksy.bh">info@trucksy.bh</a></p>
+    <div class="wrap">
+      <div class="foot">
+        <div>
+          <a href="#top" class="brand" aria-label="Back to top"><svg aria-hidden="true"><use href="#logo"/></svg><b>TRUCKSY</b></a>
+          <p>Road freight and logistics across Bahrain and the GCC, with live tracking on every delivery.</p>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <nav aria-label="Footer">
+            <a href="#services">Services</a>
+            <a href="#network">Routes</a>
+            <a href="#how">How it works</a>
+            <a href="#about">About us</a>
+          </nav>
+        </div>
+        <div>
+          <h4>Customers</h4>
+          <nav aria-label="Customers">
+            <a href="#contact">Get a quote</a>
+            <a href="#track">Track a delivery</a>
+            <a href="mailto:info@trucksy.bh">info@trucksy.bh</a>
+            <a href="#" id="staff-login" rel="nofollow">Staff login</a>
+          </nav>
+        </div>
+      </div>
+      <div class="legal">
+        <span>© <span id="year">2026</span> Trucksy. All rights reserved.</span>
+        <span>Kingdom of Bahrain</span>
+      </div>
     </div>
+    <div class="wordmark" aria-hidden="true">TRUCKSY</div>
   </footer>
+
+  <a class="wa" id="wa" href="#" target="_blank" rel="noopener" aria-label="Chat with Trucksy on WhatsApp" hidden><svg aria-hidden="true"><use href="#i-wa"/></svg></a>
+  <div class="mbar" id="mbar">
+    <a href="#track" class="btn btn-ghost">Track</a>
+    <a href="#contact" class="btn btn-green">Get a quote</a>
+  </div>
 
   <script>
     // Where the Trucksy dispatch system runs (dashboard + customer tracking pages).
     // After deploying the backend on Render, put its address here.
     const TRUCKSY_APP_URL = "https://trucksy-api.onrender.com";
+    // Company WhatsApp number in international format without + or spaces, e.g. "9733xxxxxxx".
+    // Leave empty to hide the WhatsApp button.
+    const WHATSAPP_NUMBER = "";
 
-    document.getElementById("year").textContent = new Date().getFullYear();
-    document.getElementById("staff-login").href = TRUCKSY_APP_URL + "/login/";
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const $ = (s, r = document) => r.querySelector(s);
 
-    // Mobile menu
-    const menuBtn = document.getElementById("menu-btn");
-    const mobileNav = document.getElementById("mobile-nav");
+    $("#year").textContent = new Date().getFullYear();
+    $("#staff-login").href = TRUCKSY_APP_URL + "/login/";
+    if (WHATSAPP_NUMBER) {
+      const wa = $("#wa");
+      wa.href = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent("Hello Trucksy, I'd like a quote.");
+      wa.hidden = false;
+    }
+
+    // Hero entrance
+    requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.add("ready")));
+    setTimeout(() => document.documentElement.classList.add("settled"), reduce ? 0 : 1500);
+
+    // Nav: glass on scroll, mobile menu
+    const nav = $("#nav"), mbar = $("#mbar");
+    const onScroll = () => {
+      const y = scrollY;
+      nav.classList.toggle("scrolled", y > 20);
+      mbar.classList.toggle("show", y > innerHeight * .7 && y < document.body.scrollHeight - innerHeight * 1.6);
+    };
+    addEventListener("scroll", onScroll, { passive: true }); onScroll();
+    const menuBtn = $("#menu-btn"), mobileNav = $("#mobile-nav");
     function setMenu(open) {
       mobileNav.hidden = !open;
       menuBtn.setAttribute("aria-expanded", String(open));
       menuBtn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
-      menuBtn.querySelector("use").setAttribute("href", open ? "#i-close" : "#i-menu");
+      nav.classList.toggle("scrolled", open || scrollY > 20);
     }
     menuBtn.addEventListener("click", () => setMenu(mobileNav.hidden));
     mobileNav.addEventListener("click", (e) => { if (e.target.closest("a")) setMenu(false); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape") setMenu(false); });
 
+    // Scroll reveals (also triggers icon drawing and the steps progress line)
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    }, { threshold: .18, rootMargin: "0px 0px -6% 0px" });
+    document.querySelectorAll(".rv").forEach((el) => io.observe(el));
+
+    // Count-up stats
+    const cio = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (!e.isIntersecting) continue;
+        cio.unobserve(e.target);
+        const el = e.target, end = +el.dataset.count;
+        if (reduce) continue;
+        const t0 = performance.now(), dur = 1400;
+        const step = (t) => {
+          const p = Math.min(1, (t - t0) / dur);
+          el.textContent = Math.round(end * (1 - Math.pow(1 - p, 3)));
+          if (p < 1) requestAnimationFrame(step);
+        };
+        el.textContent = "0"; requestAnimationFrame(step);
+      }
+    }, { threshold: .6 });
+    document.querySelectorAll("[data-count]").forEach((el) => cio.observe(el));
+
+    // Card spotlight follows the cursor
+    document.querySelectorAll(".card").forEach((c) => c.addEventListener("pointermove", (e) => {
+      const r = c.getBoundingClientRect();
+      c.style.setProperty("--mx", (e.clientX - r.left) + "px");
+      c.style.setProperty("--my", (e.clientY - r.top) + "px");
+    }));
+
+    // Route list highlights its line on the map
+    const map = $("#map");
+    const routeBtns = document.querySelectorAll("#routes button");
+    const focusRoute = (r) => {
+      map.classList.toggle("focus", !!r);
+      map.querySelectorAll(".rtg").forEach((g) => g.classList.toggle("on", g.dataset.r === r));
+      routeBtns.forEach((b) => b.classList.toggle("on", b.dataset.r === r));
+    };
+    routeBtns.forEach((b) => {
+      b.addEventListener("mouseenter", () => focusRoute(b.dataset.r));
+      b.addEventListener("focus", () => focusRoute(b.dataset.r));
+      b.addEventListener("click", () => focusRoute(b.classList.contains("on") && matchMedia("(hover: none)").matches ? null : b.dataset.r));
+    });
+    $("#routes").addEventListener("mouseleave", () => focusRoute(null));
+    const mapSvg = map.querySelector("svg");
+    if (reduce) { mapSvg.pauseAnimations(); mapSvg.querySelector(".movers").style.display = "none"; }
+    else new IntersectionObserver(([e]) => e.isIntersecting ? mapSvg.unpauseAnimations() : mapSvg.pauseAnimations()).observe(mapSvg);
+
+    // Hero truck: gentle parallax + tilt
+    const truck = $("#truck");
+    if (!reduce) {
+      let tx = 0, ty = 0, sy = 0, raf = 0;
+      let armed = false; setTimeout(() => { armed = true; queue(); }, 1700);
+      const apply = () => { raf = 0; if (!armed) return; truck.style.transform = `translate3d(${tx}px, ${sy * .12 + ty}px, 0)`; };
+      const queue = () => { if (!raf) raf = requestAnimationFrame(apply); };
+      addEventListener("scroll", () => { sy = Math.min(scrollY, innerHeight); queue(); }, { passive: true });
+      if (matchMedia("(hover: hover)").matches) addEventListener("pointermove", (e) => {
+        tx = (e.clientX / innerWidth - .5) * -14; ty = (e.clientY / innerHeight - .5) * -10; queue();
+      }, { passive: true });
+    }
+
+    // Hero background: a night highway in perspective, lane dashes and green light streaks rushing past.
+    (() => {
+      const cv = $("#road"), ctx = cv.getContext("2d");
+      let W = 0, H = 0, DPR = 1, running = false, last = 0, travel = 0, mobHy = 0;
+      const streaks = [];
+      const rnd = (a, b) => a + Math.random() * (b - a);
+      function spawn(s, far) {
+        s.x = (Math.random() < .5 ? -1 : 1) * rnd(.2, 2.4);   // lateral position, in camera heights
+        s.y = rnd(.08, .55);                                  // height above the road
+        s.z = far ? rnd(30, 90) : rnd(2, 90);                 // depth
+        s.v = rnd(18, 42);                                    // speed
+        s.len = rnd(4, 11);
+        s.green = Math.random() < .72;
+        return s;
+      }
+      for (let i = 0; i < 70; i++) streaks.push(spawn({}, false));
+      function resize() {
+        DPR = Math.min(devicePixelRatio || 1, 2);
+        W = cv.clientWidth; H = cv.clientHeight;
+        cv.width = W * DPR; cv.height = H * DPR;
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        // On phones the truck sits under the copy: put the vanishing point behind it.
+        const t = document.getElementById("truck");
+        mobHy = Math.min(H * .85, t.offsetTop + t.offsetHeight * .45);
+      }
+      function frame(t) {
+        const dt = Math.min(.05, (t - last) / 1000 || 0); last = t;
+        travel += dt * 22;
+        const hy = W > 900 ? H * .5 : mobHy, vx = W * (W > 900 ? .62 : .5), k = H - hy;
+        const P = (x, y, z) => [vx + k * x / z, hy + k * (1 - y) / z];   // project world -> screen
+        // sky + ground
+        let g = ctx.createLinearGradient(0, 0, 0, H);
+        g.addColorStop(0, "#050606"); g.addColorStop(.48, "#0c1210"); g.addColorStop(.5, "#0a0c0c"); g.addColorStop(1, "#060707");
+        ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+        g = ctx.createRadialGradient(vx, hy, 0, vx, hy, W * .55);
+        g.addColorStop(0, "rgba(52,211,153,.20)"); g.addColorStop(.4, "rgba(52,211,153,.05)"); g.addColorStop(1, "rgba(52,211,153,0)");
+        ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+        // road surface
+        const half = 2.6, zn = .9, zf = 200;
+        let a = P(-half, 0, zf), b = P(half, 0, zf), c = P(half, 0, zn), d = P(-half, 0, zn);
+        g = ctx.createLinearGradient(0, hy, 0, H);
+        g.addColorStop(0, "#0d0f0f"); g.addColorStop(1, "#16191a");
+        ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.lineTo(...c); ctx.lineTo(...d); ctx.fill();
+        // road edges
+        ctx.lineWidth = 1.5;
+        for (const sx of [-half, half]) {
+          const p1 = P(sx, 0, zf), p2 = P(sx, 0, zn);
+          g = ctx.createLinearGradient(p1[0], p1[1], p2[0], p2[1]);
+          g.addColorStop(0, "rgba(255,255,255,0)"); g.addColorStop(1, "rgba(255,255,255,.35)");
+          ctx.strokeStyle = g; ctx.beginPath(); ctx.moveTo(...p1); ctx.lineTo(...p2); ctx.stroke();
+        }
+        // lane dashes
+        const period = 7, dash = 3;
+        for (const lx of [-.87, .87]) {
+          for (let z = period - (travel % period); z < 120; z += period) {
+            const z1 = Math.max(z, zn), z2 = z + dash;
+            if (z2 <= zn) continue;
+            const w = .045;
+            const q1 = P(lx - w, 0, z1), q2 = P(lx + w, 0, z1), q3 = P(lx + w, 0, z2), q4 = P(lx - w, 0, z2);
+            ctx.fillStyle = `rgba(255,255,255,${Math.max(0, .75 - z / 140)})`;
+            ctx.beginPath(); ctx.moveTo(...q1); ctx.lineTo(...q2); ctx.lineTo(...q3); ctx.lineTo(...q4); ctx.fill();
+          }
+        }
+        // light streaks
+        ctx.globalCompositeOperation = "lighter";
+        ctx.lineCap = "round";
+        for (const s of streaks) {
+          s.z -= s.v * dt;
+          if (s.z < 1.2) spawn(s, true);
+          const head = P(s.x, s.y, s.z), tail = P(s.x, s.y, s.z + s.len);
+          const near = Math.min(1, 6 / s.z);
+          const col = s.green ? "52,211,153" : "235,245,240";
+          g = ctx.createLinearGradient(tail[0], tail[1], head[0], head[1]);
+          g.addColorStop(0, `rgba(${col},0)`); g.addColorStop(1, `rgba(${col},${.35 + .65 * near})`);
+          ctx.strokeStyle = g; ctx.lineWidth = Math.max(.6, 3.2 * near);
+          ctx.beginPath(); ctx.moveTo(...tail); ctx.lineTo(...head); ctx.stroke();
+        }
+        ctx.globalCompositeOperation = "source-over";
+        // horizon haze
+        g = ctx.createLinearGradient(0, hy - 60, 0, hy + 40);
+        g.addColorStop(0, "rgba(11,12,12,0)"); g.addColorStop(.6, "rgba(20,30,26,.55)"); g.addColorStop(1, "rgba(11,12,12,0)");
+        ctx.fillStyle = g; ctx.fillRect(0, hy - 60, W, 100);
+        if (running) requestAnimationFrame(frame);
+      }
+      function start() { if (!running && !reduce) { running = true; last = performance.now(); requestAnimationFrame(frame); } }
+      function stop() { running = false; }
+      resize(); frame(performance.now());
+      addEventListener("resize", () => { resize(); if (!running) frame(performance.now()); });
+      let visible = true;
+      new IntersectionObserver(([e]) => { visible = e.isIntersecting; visible && !document.hidden ? start() : stop(); }).observe(cv);
+      document.addEventListener("visibilitychange", () => { visible && !document.hidden ? start() : stop(); });
+    })();
+
     // Track a delivery: accepts a full link (…/t/CODE/) or just the code.
-    document.getElementById("track-form").addEventListener("submit", (e) => {
+    $("#track-form").addEventListener("submit", (e) => {
       e.preventDefault();
-      const msg = document.getElementById("track-msg");
-      const raw = document.getElementById("track-code").value.trim();
+      const msg = $("#track-msg");
+      const raw = $("#track-code").value.trim();
       const m = raw.match(/\/t\/([A-Za-z0-9_-]+)/);
       const code = m ? m[1] : raw.replace(/[^A-Za-z0-9_-]/g, "");
       if (code.length < 6) {
@@ -474,10 +1073,10 @@
     });
 
     // Quote form: sent to Netlify Forms without leaving the page.
-    const quoteForm = document.getElementById("quote-form");
+    const quoteForm = $("#quote-form");
     quoteForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const msg = document.getElementById("quote-msg");
+      const msg = $("#quote-msg");
       if (!quoteForm.checkValidity()) { quoteForm.reportValidity(); return; }
       const btn = quoteForm.querySelector("button[type=submit]");
       btn.disabled = true;
@@ -491,7 +1090,7 @@
         });
         if (!res.ok) throw new Error(res.status);
         quoteForm.hidden = true;
-        const ok = document.getElementById("quote-success");
+        const ok = $("#quote-success");
         ok.style.display = "block";
         ok.focus();
       } catch (err) {
