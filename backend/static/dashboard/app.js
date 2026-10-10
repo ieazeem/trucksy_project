@@ -87,7 +87,7 @@
   let map, truckLayer, routeLayer;
   const BAHRAIN = [26.17, 50.56];
   function tiles() {
-    return L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+    return L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
       maxZoom: 19, subdomains: "abcd",
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
     });
@@ -120,7 +120,7 @@
       if (ld) {
         const dest = ld.status === "in_transit" || ld.status === "loaded" ? [ld.dropoff_lat, ld.dropoff_lng] : [ld.pickup_lat, ld.pickup_lng];
         if (dest[0] != null) {
-          L.polyline([[d.last_lat, d.last_lng], dest], { color: "#12459b", weight: 2, dashArray: "6 6", opacity: 0.7 }).addTo(routeLayer);
+          L.polyline([[d.last_lat, d.last_lng], dest], { color: "#34d399", weight: 2, dashArray: "6 6", opacity: 0.8 }).addTo(routeLayer);
           L.marker(dest, { icon: L.divIcon({ className: "pin-wrap", html: `<div class="place-pin ${ld.status === "in_transit" || ld.status === "loaded" ? "drop" : ""}"></div>`, iconSize: [14, 14] }) }).addTo(routeLayer);
         }
       }
@@ -293,8 +293,8 @@
     if (l.dropoff_lat != null) { L.marker([l.dropoff_lat, l.dropoff_lng], { icon: L.divIcon({ className: "pin-wrap", html: '<div class="place-pin drop"></div>', iconSize: [14, 14] }) }).addTo(drawerMap).bindTooltip("Drop-off"); b.push([l.dropoff_lat, l.dropoff_lng]); }
     if (route.length) {
       const line = route.map((p) => [p.lat, p.lng]);
-      L.polyline(line, { color: "#f2a900", weight: 5 }).addTo(drawerMap);
-      L.polyline(line, { color: "#2a3340", weight: 1.5, dashArray: "4 4" }).addTo(drawerMap);
+      L.polyline(line, { color: "#34d399", weight: 5, opacity: 0.9 }).addTo(drawerMap);
+      L.polyline(line, { color: "#0b0b0b", weight: 1.5, dashArray: "4 4" }).addTo(drawerMap);
       b.push(...line);
     }
     setTimeout(() => { drawerMap.invalidateSize(); if (b.length) drawerMap.fitBounds(b, { padding: [24, 24], maxZoom: 13 }); }, 260);
@@ -367,8 +367,8 @@
     tiles().addTo(drawerMap);
     const line = h.points.map((p) => [p.lat, p.lng]);
     if (line.length) {
-      L.polyline(line, { color: "#f2a900", weight: 5 }).addTo(drawerMap);
-      L.polyline(line, { color: "#2a3340", weight: 1.5, dashArray: "4 4" }).addTo(drawerMap);
+      L.polyline(line, { color: "#34d399", weight: 5, opacity: 0.9 }).addTo(drawerMap);
+      L.polyline(line, { color: "#0b0b0b", weight: 1.5, dashArray: "4 4" }).addTo(drawerMap);
       L.marker(line[0], { icon: L.divIcon({ className: "pin-wrap", html: '<div class="place-pin"></div>', iconSize: [14, 14] }) })
         .addTo(drawerMap).bindTooltip(`Start ${fmtTime(s.first)}`);
       L.marker(line[line.length - 1], { icon: L.divIcon({ className: "pin-wrap", html: `<span class="truck-pin">${esc(h.driver.truck || "End")}</span>`, iconSize: [0, 0] }) })

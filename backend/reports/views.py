@@ -17,7 +17,7 @@ from fleet.permissions import IsDispatcher
 from loads.models import Load
 from tracking.models import LocationPing
 
-from .excel import D, DT, KG, KM, MONEY, SIGN_BLUE, Sheet, local, parse_period, route_km, xlsx_response
+from .excel import D, DT, GREEN, KG, KM, MONEY, Sheet, local, parse_period, route_km, xlsx_response
 
 MAX_POINTS = 20000
 
@@ -120,7 +120,7 @@ class OperationsReportView(APIView):
         ws = wb.active
         ws.title = "Summary"
         ws["A1"] = "Trucksy operations report"
-        ws["A1"].font = Font(bold=True, size=16, color=SIGN_BLUE)
+        ws["A1"].font = Font(bold=True, size=16, color=GREEN)
         ws["A2"] = f"Period: {period}   ·   Generated {timezone.localtime():%d %b %Y %H:%M} (Bahrain)"
         rows = [
             ("Loads scheduled in period", len(loads), None),
@@ -251,7 +251,7 @@ class DriverRouteExportView(APIView):
         ws = wb.active
         ws.title = "Summary"
         ws["A1"] = f"Route history — {driver.full_name}"
-        ws["A1"].font = Font(bold=True, size=15, color=SIGN_BLUE)
+        ws["A1"].font = Font(bold=True, size=15, color=GREEN)
         ws["A2"] = f"{d_from:%d %b %Y} – {d_to:%d %b %Y}"
         for i, (label, value, fmt) in enumerate([
             ("Truck", driver.truck.plate_number if driver.truck else "—", None),
@@ -283,7 +283,7 @@ class DriverRouteExportView(APIView):
                      p.load.reference if p.load else "", "Open map"])
             cell = gps.ws.cell(row=gps.row, column=6)
             cell.hyperlink = f"https://www.google.com/maps?q={p.lat:.6f},{p.lng:.6f}"
-            cell.font = Font(color="12459B", underline="single")
+            cell.font = Font(color="059669", underline="single")
         gps.finish()
 
         safe = "".join(ch for ch in driver.full_name if ch.isalnum() or ch in " -").strip().replace(" ", "-")

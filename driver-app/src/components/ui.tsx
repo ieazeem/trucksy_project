@@ -44,11 +44,11 @@ export function Btn({
 }
 
 const kinds = {
-  primary: { bg: colors.amber, fg: colors.ink, border: colors.amber },
+  primary: { bg: colors.amber, fg: '#000000', border: colors.amber },
   secondary: { bg: colors.paper, fg: colors.ink, border: colors.line },
   danger: { bg: colors.paper, fg: colors.stop, border: colors.line },
   ghost: { bg: 'transparent', fg: colors.sign, border: 'transparent' },
-  onSign: { bg: 'rgba(255,255,255,0.12)', fg: '#fff', border: 'rgba(255,255,255,0.4)' },
+  onSign: { bg: 'rgba(255,255,255,0.06)', fg: '#fff', border: 'rgba(52,211,153,0.6)' },
 };
 
 export function Chip({ status, label }: { status: string; label: string }) {
@@ -118,20 +118,20 @@ const s = StyleSheet.create({
   chipDot: { width: 7, height: 7, borderRadius: 4 },
   chipText: { fontFamily: fonts.semibold, fontSize: 13 },
 
-  sign: { backgroundColor: colors.sign, borderRadius: 12, padding: 5 },
-  signInner: { borderWidth: 2, borderColor: '#fff', borderRadius: 8, padding: 16 },
+  sign: { backgroundColor: colors.sign, borderRadius: 14, padding: 5, borderWidth: 1, borderColor: '#000' },
+  signInner: { borderWidth: 1, borderColor: 'rgba(52,211,153,0.55)', borderRadius: 10, padding: 16 },
 
-  card: { backgroundColor: colors.paper, borderRadius: 8, borderWidth: 1, borderColor: colors.line, padding: 16 },
+  card: { backgroundColor: colors.paper, borderRadius: 10, borderWidth: 1, borderColor: '#1a1a1a', padding: 16 },
 
   road: { height: 26, borderRadius: 5, backgroundColor: colors.asphalt, justifyContent: 'center', marginTop: 6 },
-  roadDone: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(242,169,0,0.32)', borderTopLeftRadius: 5, borderBottomLeftRadius: 5 },
+  roadDone: { position: 'absolute', left: 0, top: 0, bottom: 0, backgroundColor: 'rgba(52,211,153,0.28)', borderTopLeftRadius: 5, borderBottomLeftRadius: 5 },
   lane: { position: 'absolute', left: 10, right: 10, height: 0, borderTopWidth: 2, borderStyle: 'dashed', borderColor: 'rgba(255,255,255,0.55)' },
   stop: { position: 'absolute', width: 8, height: 8, marginLeft: -4, borderRadius: 4, backgroundColor: '#fff' },
   truck: {
     position: 'absolute', transform: [{ translateX: -34 }], width: 68, alignItems: 'center',
     backgroundColor: colors.amber, borderRadius: 4, paddingVertical: 1, borderWidth: 2, borderColor: colors.asphalt,
   },
-  truckText: { fontFamily: fonts.display, fontSize: 14, color: colors.ink },
+  truckText: { fontFamily: fonts.display, fontSize: 14, color: '#000' },
   ends: { flexDirection: 'row', justifyContent: 'space-between', gap: 12, marginTop: 6 },
   endText: { flex: 1, color: colors.ink2, fontFamily: fonts.regular, fontSize: 13 },
 });

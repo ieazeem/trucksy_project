@@ -8,6 +8,7 @@ Trucking dispatch platform for Bahrain and the GCC, in three parts:
 | **API + database** | Everything talks to it | Django 5.2, Django REST Framework, Postgres (SQLite locally) | `backend/` |
 | **Trucksy Driver app** | Drivers (Android / iOS) | Expo SDK 54, React Native, Expo Router | `driver-app/` |
 | **Customer tracking page** | Your customers (no login) | `/t/<code>/`, shared by link or WhatsApp | `backend/templates/dashboard/track.html` |
+| **Public website** | Customers and prospects | Static HTML on Netlify, with a quote form (Netlify Forms) and tracking lookup | `website/` |
 
 ![Dispatch console](docs/screenshots/overview.png)
 
@@ -55,6 +56,19 @@ npx expo start
 Demo driver login: phone **34180130**, PIN **1234** (Yasir Ali).
 
 ---
+
+## Website (trucksy.netlify.app)
+
+The marketing site lives in `website/`. It's plain HTML and CSS with no build step.
+
+* **Quote form:** submissions arrive in Netlify under **Forms → quote**. Turn on email notifications under **Site configuration → Notifications → Form submission notifications**.
+* **Track a delivery:** the customer pastes their tracking code or link and is sent to `TRUCKSY_APP_URL/t/<code>/`.
+* **Staff login:** the footer link goes to `TRUCKSY_APP_URL/login/`.
+* After the backend is on Render, set `TRUCKSY_APP_URL` near the bottom of `website/index.html` to the Render address.
+
+**Deploy:** in Netlify go to **Site configuration → Build & deploy → Link repository**, choose `ieazeem/trucksy_project`, and set **Base directory** to `website`. Every push to `main` then updates the site. For a one-off deploy instead, drag the `website` folder onto **Deploys** in Netlify.
+
+The website, dashboard, tracking page and driver app share one theme: dark grey `#262626`, panels `#333333`, black buttons, and emerald green `#34D399`.
 
 ## How a job flows
 

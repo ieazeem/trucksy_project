@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRUCKSY – Road Freight &amp; Logistics in Bahrain and the GCC</title>
+  <meta name="description" content="Trucksy moves full and partial loads across Bahrain and the GCC: KSA, UAE, Qatar, Kuwait and Oman. Live tracking on every delivery. Get a quote within 24 hours.">
+  <meta name="theme-color" content="#1A1A1A">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="TRUCKSY – Fast. Reliable. Efficient.">
+  <meta property="og:description" content="Road freight across Bahrain and the GCC, with live tracking on every delivery.">
+  <meta property="og:image" content="https://trucksy.netlify.app/trucksy-truck.jpg">
+  <meta property="og:url" content="https://trucksy.netlify.app/">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    /* TRUCKSY website — dark grey / black / green, matching the truck's green underglow. */
+    :root {
+      --bg-dark: #262626;
+      --bg-medium: #333333;
+      --bg-light: #404040;
+      --border: #1A1A1A;
+      --black: #000000;
+      --near-black: #1A1A1A;
+      --green: #34D399;
+      --green-soft: rgba(52, 211, 153, 0.15);
+      --text: #FFFFFF;
+      --text-muted: #C9CDD2;
+      --glow: 0 0 10px #FFFFFF, 0 0 30px var(--green), 0 0 50px rgba(52, 211, 153, 0.8), 0 0 80px rgba(52, 211, 153, 0.4);
+      --font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font); margin: 0; line-height: 1.6;
+      color: var(--text); background: var(--bg-dark);
+      -webkit-font-smoothing: antialiased; overflow-x: hidden;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; }
+    :focus-visible { outline: 3px solid var(--green); outline-offset: 3px; border-radius: 4px; }
+    .container { max-width: 1200px; margin: 0 auto; padding-inline: 1.25rem; }
+    h1, h2, h3 { line-height: 1.1; font-weight: 800; margin: 0; text-wrap: balance; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    section { padding-block: 4rem; scroll-margin-top: 72px; }
+    @media (min-width: 768px) { section { padding-block: 5.5rem; } }
+    .section-title { font-size: clamp(1.75rem, 3.5vw, 2.4rem); text-transform: uppercase; letter-spacing: 0.02em; text-align: center; }
+    .section-sub { color: var(--text-muted); text-align: center; max-width: 60ch; margin: 0.75rem auto 3rem; }
+    .accent { color: var(--green); }
+
+    /* Buttons */
+    .button {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      height: 48px; padding: 0 1.6rem; border-radius: 0.4rem; font: inherit; font-weight: 700;
+      font-size: 0.95rem; letter-spacing: 0.04em; text-decoration: none; cursor: pointer; white-space: nowrap;
+      transition: box-shadow 0.25s, background-color 0.25s, transform 0.15s;
+    }
+    .button:active { transform: translateY(1px); }
+    .button.primary { background: linear-gradient(90deg, var(--near-black), var(--black)); color: #fff; border: 1px solid #000; box-shadow: 0 0 8px rgba(0,0,0,0.35); }
+    .button.primary:hover { box-shadow: 0 0 0 1px var(--green), 0 0 16px rgba(52, 211, 153, 0.45); }
+    .button.outline { background: transparent; color: var(--green); border: 1px solid var(--green); }
+    .button.outline:hover { background: rgba(52, 211, 153, 0.1); box-shadow: 0 0 12px rgba(52, 211, 153, 0.5); }
+    .button.small { height: 40px; padding: 0 1.1rem; font-size: 0.85rem; }
+    .button svg { width: 16px; height: 16px; }
+
+    /* Header */
+    header.site {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(30, 30, 30, 0.92); backdrop-filter: blur(6px);
+      border-bottom: 1px solid var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    }
+    .header-row { display: flex; align-items: center; justify-content: space-between; height: 68px; gap: 1rem; }
+    .logo { font-size: 1.9rem; font-weight: 800; letter-spacing: 0.04em; text-decoration: none; white-space: nowrap; line-height: 1; }
+    .logo span { display: inline-block; color: #fff; animation: sweep 4s infinite; }
+    .logo span:nth-child(2) { animation-delay: 0.12s; } .logo span:nth-child(3) { animation-delay: 0.24s; }
+    .logo span:nth-child(4) { animation-delay: 0.36s; } .logo span:nth-child(5) { animation-delay: 0.48s; }
+    .logo span:nth-child(6) { animation-delay: 0.6s; } .logo span:nth-child(7) { animation-delay: 0.72s; }
+    @keyframes sweep { 0%, 20%, 100% { color: #fff; text-shadow: none; } 8% { color: var(--green); text-shadow: var(--glow); } }
+    nav.main { display: none; align-items: center; gap: 1.75rem; }
+    nav.main a { text-decoration: none; font-weight: 500; color: var(--text); transition: color 0.2s; }
+    nav.main a:hover { color: var(--green); }
+    nav.main a.button { color: #fff; }
+    .menu-btn { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 0.4rem; border: 1px solid var(--bg-light); background: transparent; color: #fff; cursor: pointer; }
+    .menu-btn svg { width: 22px; height: 22px; }
+    @media (min-width: 960px) { nav.main { display: flex; } .menu-btn { display: none; } }
+    .mobile-nav { display: grid; gap: 0.25rem; padding: 0.5rem 1.25rem 1.25rem; border-top: 1px solid var(--border); background: #1e1e1e; }
+    .mobile-nav a { padding: 0.8rem 0.25rem; text-decoration: none; font-weight: 600; border-bottom: 1px solid #2c2c2c; }
+    .mobile-nav a:last-child { border-bottom: 0; margin-top: 0.5rem; }
+    @media (min-width: 960px) { .mobile-nav { display: none !important; } }
+
+    /* Hero */
+    .hero { padding-block: 2.5rem 4rem; border-bottom: 1px solid var(--border); }
+    .hero-grid { display: grid; gap: 2.25rem; align-items: center; }
+    .hero-photo { position: relative; border-radius: 0.9rem; overflow: hidden; box-shadow: 0 0 0 1px #000, 0 20px 50px rgba(0,0,0,0.5), 0 0 40px rgba(52, 211, 153, 0.12); }
+    .hero-photo img { width: 100%; height: auto; aspect-ratio: 750 / 681; object-fit: cover; }
+    .hero-copy { text-align: center; }
+    .hero h1 { font-size: clamp(2.4rem, 6vw, 4.2rem); letter-spacing: 0.01em; }
+    .hero p.lead { font-size: clamp(1.05rem, 1.6vw, 1.25rem); color: var(--text); margin: 1.25rem auto 2rem; max-width: 46ch; }
+    .hero-buttons { display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap; }
+    .routes-line { margin-top: 1.75rem; color: var(--text-muted); font-size: 0.95rem; }
+    .routes-line b { color: var(--green); font-weight: 600; }
+    @media (max-width: 520px) { .hero-buttons .button { width: 100%; } }
+    @media (min-width: 960px) {
+      .hero { padding-block: 4.5rem 5.5rem; }
+      .hero-grid { grid-template-columns: 1.05fr 1fr; gap: 3.5rem; }
+      .hero-copy { text-align: left; order: -1; }
+      .hero p.lead { margin-inline: 0; }
+      .hero-buttons { justify-content: flex-start; }
+    }
+
+    /* Services */
+    .service-grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .service-card { background: var(--bg-medium); border: 1px solid var(--border); border-radius: 0.75rem; padding: 2rem 1.5rem; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.3s, box-shadow 0.3s; }
+    .service-card:hover { transform: translateY(-4px); box-shadow: 0 0 20px rgba(52, 211, 153, 0.45); }
+    .service-card h3 { font-size: 1.25rem; margin: 0.25rem 0 0.5rem; }
+    .service-card p { margin: 0; color: var(--text-muted); font-size: 0.97rem; }
+    .icon-ring { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; margin: 0 auto 1rem; position: relative; border: 1px solid var(--green); background: var(--green-soft); }
+    .icon-ring svg { width: 30px; height: 30px; color: var(--green); position: relative; z-index: 1; }
+    .tyre { width: 46px; height: 46px; border-radius: 50%; position: relative; background: radial-gradient(circle, #404040 0 32%, #2a2a2a 33% 100%); border: 2px solid var(--green); box-shadow: 0 0 10px rgba(52,211,153,0.3), inset 0 0 12px rgba(0,0,0,0.8); animation: spin 3s linear infinite; }
+    .tyre::before, .tyre::after { content: ""; position: absolute; inset: 45% 8%; background: var(--green); border-radius: 2px; opacity: 0.75; }
+    .tyre::after { transform: rotate(90deg); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .wave { position: absolute; top: 50%; left: 50%; width: 0; height: 0; border-radius: 50%; background: var(--green); transform: translate(-50%, -50%); animation: pulse 1.6s ease-out infinite; }
+    .wave.late { animation-delay: 0.6s; }
+    @keyframes pulse { 0% { width: 0; height: 0; opacity: 0.4; } 100% { width: 100px; height: 100px; opacity: 0; } }
+    .shield { animation: shieldglow 3s ease-in-out infinite; }
+    @keyframes shieldglow { 0%, 100% { box-shadow: 0 0 5px rgba(52,211,153,0.5); } 50% { box-shadow: 0 0 16px rgba(52,211,153,1); } }
+    .live-dot { position: absolute; top: 12px; right: 12px; width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 0 rgba(52,211,153,0.7); animation: ping 1.8s infinite; }
+    @keyframes ping { 70% { box-shadow: 0 0 0 10px rgba(52,211,153,0); } 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); } }
+
+    /* How it works */
+    .how { background: #1f1f1f; border-block: 1px solid var(--border); }
+    .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); counter-reset: step; }
+    .steps li { counter-increment: step; position: relative; padding: 1.5rem 1.4rem 1.5rem 1.4rem; background: var(--bg-medium); border: 1px solid var(--border); border-radius: 0.75rem; }
+    .steps li::before { content: counter(step); display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--green); color: var(--green); font-weight: 800; margin-bottom: 0.9rem; }
+    .steps h3 { font-size: 1.1rem; margin-bottom: 0.4rem; }
+    .steps p { margin: 0; color: var(--text-muted); font-size: 0.95rem; }
+
+    /* About */
+    .about-grid { display: grid; gap: 2.5rem; align-items: start; }
+    @media (min-width: 960px) { .about-grid { grid-template-columns: 1.1fr 1fr; gap: 4rem; } }
+    .about-grid h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); text-transform: uppercase; }
+    .about-grid p { color: var(--text-muted); margin: 1rem 0 0; }
+    .checks { list-style: none; padding: 0; margin: 1.75rem 0 0; display: grid; gap: 0.9rem; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+    .checks li { display: flex; align-items: center; gap: 0.6rem; font-weight: 600; }
+    .checks svg { width: 20px; height: 20px; color: var(--green); flex: none; }
+    .board { background: #121212; border: 1px solid #000; border-radius: 0.9rem; padding: 1.5rem; box-shadow: inset 0 0 0 1px #2a2a2a, 0 10px 30px rgba(0,0,0,0.4); }
+    .board h3 { font-size: 0.95rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem; font-weight: 700; }
+    .board table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    .board td { padding: 0.75rem 0.25rem; border-top: 1px solid #262626; font-weight: 600; }
+    .board td:last-child { text-align: right; color: var(--green); font-weight: 700; letter-spacing: 0.04em; font-size: 0.85rem; }
+    .board tr:first-child td { border-top: 0; }
+    .board .via { color: var(--text-muted); font-weight: 500; font-size: 0.9rem; }
+
+    /* Track */
+    .track-box { max-width: 680px; margin: 0 auto; background: var(--bg-medium); border: 1px solid var(--border); border-radius: 0.9rem; padding: 1.75rem; box-shadow: 0 0 30px rgba(52, 211, 153, 0.08); }
+    .track-form { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .track-form input { flex: 1 1 260px; min-width: 0; }
+    .hint { color: var(--text-muted); font-size: 0.9rem; margin: 0.9rem 0 0; }
+    .form-msg { margin: 0.75rem 0 0; font-size: 0.95rem; min-height: 1.4em; }
+    .form-msg.err { color: #FCA5A5; }
+
+    /* Forms */
+    label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem; }
+    input, select, textarea {
+      width: 100%; height: 48px; padding: 0 1rem; border-radius: 0.4rem; font: inherit; font-size: 1rem;
+      border: 1px solid var(--border); background: var(--bg-light); color: var(--text);
+    }
+    textarea { height: auto; min-height: 110px; padding: 0.75rem 1rem; resize: vertical; }
+    input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.55); }
+    input:focus, select:focus, textarea:focus { outline: 2px solid var(--green); outline-offset: 0; border-color: transparent; }
+    select:invalid { color: rgba(255,255,255,0.55); }
+    option { color: #fff; background: #333; }
+
+    /* Contact */
+    #contact { background: var(--bg-medium); }
+    .contact-grid { display: grid; gap: 2.5rem; }
+    @media (min-width: 960px) { .contact-grid { grid-template-columns: 1.4fr 1fr; gap: 3.5rem; } }
+    .quote-form { display: grid; gap: 1rem; grid-template-columns: 1fr 1fr; }
+    .quote-form .full { grid-column: 1 / -1; }
+    @media (max-width: 640px) { .quote-form { grid-template-columns: 1fr; } }
+    .quote-form .req { color: var(--green); }
+    .contact-card { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 0.9rem; padding: 1.5rem; display: grid; gap: 1.25rem; align-content: start; }
+    .contact-card h3 { font-size: 1.15rem; }
+    .contact-card .row { display: flex; gap: 0.8rem; align-items: flex-start; }
+    .contact-card .row svg { width: 22px; height: 22px; color: var(--green); flex: none; margin-top: 2px; }
+    .contact-card .row div { min-width: 0; }
+    .contact-card .row b { display: block; }
+    .contact-card .row span { color: var(--text-muted); overflow-wrap: anywhere; }
+    .contact-card a { color: var(--green); }
+    .success { display: none; text-align: center; padding: 2.5rem 1rem; border: 1px solid var(--green); border-radius: 0.9rem; background: rgba(52, 211, 153, 0.06); }
+    .success svg { width: 48px; height: 48px; color: var(--green); margin: 0 auto 1rem; }
+    .success h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .success p { color: var(--text-muted); margin: 0; }
+
+    /* Footer */
+    footer { background: #1e1e1e; border-top: 1px solid var(--border); padding-block: 2.5rem; }
+    .foot { display: grid; gap: 1.25rem; justify-items: center; text-align: center; }
+    .foot nav { display: flex; gap: 1.25rem; flex-wrap: wrap; justify-content: center; }
+    .foot nav a { text-decoration: none; color: var(--text-muted); }
+    .foot nav a:hover { color: var(--green); }
+    .foot p { margin: 0; color: var(--text-muted); font-size: 0.9rem; }
+    .foot .logo { font-size: 1.5rem; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <svg style="display:none" aria-hidden="true">
+    <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 2v7h7"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  </svg>
+
+  <header class="site">
+    <div class="container header-row">
+      <a href="#top" class="logo" aria-label="Trucksy home"><span>T</span><span>R</span><span>U</span><span>C</span><span>K</span><span>S</span><span>Y</span></a>
+      <nav class="main" aria-label="Main">
+        <a href="#services">Services</a>
+        <a href="#how">How it works</a>
+        <a href="#about">About us</a>
+        <a href="#track">Track a delivery</a>
+        <a href="#contact" class="button primary small">Get a quote</a>
+      </nav>
+      <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="mobile-nav" aria-label="Open menu">
+        <svg><use href="#i-menu"></use></svg>
+      </button>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile" hidden>
+      <a href="#services">Services</a>
+      <a href="#how">How it works</a>
+      <a href="#about">About us</a>
+      <a href="#track">Track a delivery</a>
+      <a href="#contact" class="button primary">Get a quote</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div class="hero-photo">
+          <img src="trucksy-truck.jpg" width="750" height="681" alt="A dark Trucksy Renault truck with green lights driving on a highway under a stormy sky" fetchpriority="high">
+        </div>
+        <div class="hero-copy">
+          <h1 id="hero-title">FAST. RELIABLE. <span class="accent">EFFICIENT.</span></h1>
+          <p class="lead">A leading pan-Gulf logistics provider, offering efficient and dependable transportation solutions, proudly headquartered in Bahrain.</p>
+          <div class="hero-buttons">
+            <a href="#contact" class="button primary">REQUEST A QUOTE <svg><use href="#i-arrow"></use></svg></a>
+            <a href="#track" class="button outline">TRACK A DELIVERY</a>
+          </div>
+          <p class="routes-line">Within Bahrain and to <b>KSA</b>, <b>UAE</b>, <b>Qatar</b>, <b>Kuwait</b> and <b>Oman</b>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="services" aria-labelledby="services-title">
+      <div class="container">
+        <h2 class="section-title" id="services-title">Core services</h2>
+        <p class="section-sub">We manage your logistics so you can focus on your business.</p>
+        <div class="service-grid">
+          <article class="service-card">
+            <div class="icon-ring" aria-hidden="true"><div class="tyre"></div></div>
+            <h3>Road Freight</h3>
+            <p>Full and partial load services across Bahrain and into the Pan-Gulf.</p>
+          </article>
+          <article class="service-card">
+            <div class="icon-ring" aria-hidden="true"><span class="wave"></span><span class="wave late"></span><svg><use href="#i-doc"></use></svg></div>
+            <h3>Express Delivery</h3>
+            <p>Time-critical deliveries with guaranteed delivery windows.</p>
+          </article>
+          <article class="service-card">
+            <div class="icon-ring shield" aria-hidden="true"><svg><use href="#i-shield"></use></svg></div>
+            <h3>Cargo Insurance</h3>
+            <p>Comprehensive protection for valuable and sensitive shipments.</p>
+          </article>
+          <article class="service-card" style="position:relative">
+            <span class="live-dot" aria-hidden="true"></span>
+            <div class="icon-ring" aria-hidden="true"><svg><use href="#i-pin"></use></svg></div>
+            <h3>Live Tracking</h3>
+            <p>Follow your truck on the map, step by step, from pickup to the name of the person who signed for it.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="how" aria-labelledby="how-title">
+      <div class="container">
+        <h2 class="section-title" id="how-title">How it works</h2>
+        <p class="section-sub">From your request to proof of delivery, you always know where your goods are.</p>
+        <ol class="steps">
+          <li><h3>Request a quote</h3><p>Tell us the weight, route and date. We reply within 24 hours.</p></li>
+          <li><h3>We assign a truck</h3><p>Once you confirm, a driver and the right truck are booked for your load.</p></li>
+          <li><h3>Track it live</h3><p>You get a tracking link on WhatsApp and can watch the truck on the map.</p></li>
+          <li><h3>Proof of delivery</h3><p>The driver records who received the goods and when. You see it instantly.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="about" aria-labelledby="about-title">
+      <div class="container about-grid">
+        <div>
+          <h2 id="about-title">Your partner in Bahrain's growing market</h2>
+          <p>We come to work each day for one reason: to make logistics work for you. Not merely on paper, not just conceptually, but practically on the ground in Bahrain. This is our promise.</p>
+          <p>The commitment of our people and the strength of our modern fleet stand behind that promise. With a deep understanding of Bahrain's logistics landscape, we deliver results that matter.</p>
+          <ul class="checks">
+            <li><svg><use href="#i-check"></use></svg>Modern fleet</li>
+            <li><svg><use href="#i-check"></use></svg>Experienced team</li>
+            <li><svg><use href="#i-check"></use></svg>Local expertise</li>
+            <li><svg><use href="#i-check"></use></svg>24/7 operations</li>
+          </ul>
+          <p style="margin-top:2rem"><a href="#contact" class="button primary">Talk to our team <svg><use href="#i-arrow"></use></svg></a></p>
+        </div>
+        <div class="board" aria-labelledby="routes-title">
+          <h3 id="routes-title">Routes we run</h3>
+          <table>
+            <tbody>
+              <tr><td>Bahrain ⇄ Saudi Arabia <div class="via">via King Fahd Causeway</div></td><td>KSA</td></tr>
+              <tr><td>Bahrain ⇄ United Arab Emirates</td><td>UAE</td></tr>
+              <tr><td>Bahrain ⇄ Qatar</td><td>QAT</td></tr>
+              <tr><td>Bahrain ⇄ Kuwait</td><td>KWT</td></tr>
+              <tr><td>Bahrain ⇄ Oman</td><td>OMN</td></tr>
+              <tr><td>Within Bahrain <div class="via">Ports, industrial areas, warehouses</div></td><td>BHR</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="track" aria-labelledby="track-title">
+      <div class="container">
+        <h2 class="section-title" id="track-title">Track a delivery</h2>
+        <p class="section-sub">Paste the tracking link or code we sent you on WhatsApp.</p>
+        <div class="track-box">
+          <form class="track-form" id="track-form" novalidate>
+            <label class="sr-only" for="track-code">Tracking link or code</label>
+            <input id="track-code" name="code" type="text" placeholder="e.g. Xk3pL9qA or the full link" autocomplete="off" spellcheck="false">
+            <button class="button primary" type="submit">TRACK <svg><use href="#i-arrow"></use></svg></button>
+          </form>
+          <p class="form-msg" id="track-msg" role="status" aria-live="polite"></p>
+          <p class="hint">You'll see the truck's live position and every step of your delivery. No login needed.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" aria-labelledby="contact-title">
+      <div class="container">
+        <h2 class="section-title" id="contact-title">Get a quick quote</h2>
+        <p class="section-sub">We respond to all inquiries within 24 hours.</p>
+        <div class="contact-grid">
+          <div>
+            <form class="quote-form" id="quote-form" name="quote" method="POST" action="/thanks.html" data-netlify="true" netlify-honeypot="company_website">
+              <input type="hidden" name="form-name" value="quote">
+              <p class="sr-only"><label>Leave this empty <input name="company_website" tabindex="-1" autocomplete="off"></label></p>
+              <div><label for="q-name">Full name <span class="req">*</span></label><input id="q-name" name="name" type="text" required autocomplete="name"></div>
+              <div><label for="q-company">Company <span class="req">*</span></label><input id="q-company" name="company" type="text" required autocomplete="organization"></div>
+              <div><label for="q-email">Email <span class="req">*</span></label><input id="q-email" name="email" type="email" required autocomplete="email"></div>
+              <div><label for="q-phone">Phone / WhatsApp</label><input id="q-phone" name="phone" type="tel" placeholder="+973" autocomplete="tel"></div>
+              <div>
+                <label for="q-weight">Approximate weight <span class="req">*</span></label>
+                <select id="q-weight" name="weight" required>
+                  <option value="" disabled selected hidden>Choose weight</option>
+                  <option value="100-500 kg">100 – 500 kg</option>
+                  <option value="500-1,000 kg">500 – 1,000 kg</option>
+                  <option value="1,000-5,000 kg">1,000 – 5,000 kg</option>
+                  <option value="5,000+ kg (full load)">5,000+ kg (full load)</option>
+                </select>
+              </div>
+              <div>
+                <label for="q-route">Route <span class="req">*</span></label>
+                <select id="q-route" name="route" required>
+                  <option value="" disabled selected hidden>Choose route</option>
+                  <optgroup label="From Bahrain">
+                    <option>Bahrain to Saudi Arabia (KSA)</option>
+                    <option>Bahrain to United Arab Emirates (UAE)</option>
+                    <option>Bahrain to Qatar</option>
+                    <option>Bahrain to Kuwait</option>
+                    <option>Bahrain to Oman</option>
+                  </optgroup>
+                  <optgroup label="To Bahrain">
+                    <option>Saudi Arabia (KSA) to Bahrain</option>
+                    <option>United Arab Emirates (UAE) to Bahrain</option>
+                    <option>Qatar to Bahrain</option>
+                    <option>Kuwait to Bahrain</option>
+                    <option>Oman to Bahrain</option>
+                  </optgroup>
+                  <optgroup label="Other">
+                    <option>Within Bahrain</option>
+                    <option>Other Gulf route</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="full"><label for="q-date">Preferred pickup date</label><input id="q-date" name="pickup_date" type="date"></div>
+              <div class="full"><label for="q-msg">Cargo details</label><textarea id="q-msg" name="message" placeholder="What are you shipping? Pickup and drop-off areas, number of pallets, any special handling."></textarea></div>
+              <div class="full">
+                <button type="submit" class="button primary" style="width:100%">SEND QUOTE REQUEST <svg><use href="#i-arrow"></use></svg></button>
+                <p class="form-msg" id="quote-msg" role="status" aria-live="polite"></p>
+              </div>
+            </form>
+            <div class="success" id="quote-success" tabindex="-1">
+              <svg><use href="#i-check"></use></svg>
+              <h3>Quote request sent</h3>
+              <p>Thank you. Our team will reply within 24 hours.</p>
+            </div>
+          </div>
+          <aside class="contact-card" aria-label="Contact details">
+            <h3>Prefer to talk to us?</h3>
+            <div class="row"><svg><use href="#i-mail"></use></svg><div><b>Email</b><span><a href="mailto:info@trucksy.bh">info@trucksy.bh</a></span></div></div>
+            <div class="row"><svg><use href="#i-pin"></use></svg><div><b>Head office</b><span>Kingdom of Bahrain</span></div></div>
+            <div class="row"><svg><use href="#i-clock"></use></svg><div><b>Operations</b><span>24/7, every day of the year</span></div></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container foot">
+      <a href="#top" class="logo" aria-label="Back to top"><span>T</span><span>R</span><span>U</span><span>C</span><span>K</span><span>S</span><span>Y</span></a>
+      <nav aria-label="Footer">
+        <a href="#services">Services</a>
+        <a href="#track">Track a delivery</a>
+        <a href="#contact">Contact</a>
+        <a href="#" id="staff-login" rel="nofollow">Staff login</a>
+      </nav>
+      <p>© <span id="year">2026</span> Trucksy. All rights reserved. · Kingdom of Bahrain · <a href="mailto:info@trucksy.bh">info@trucksy.bh</a></p>
+    </div>
+  </footer>
+
+  <script>
+    // Where the Trucksy dispatch system runs (dashboard + customer tracking pages).
+    // After deploying the backend on Render, put its address here.
+    const TRUCKSY_APP_URL = "https://trucksy-api.onrender.com";
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+    document.getElementById("staff-login").href = TRUCKSY_APP_URL + "/login/";
+
+    // Mobile menu
+    const menuBtn = document.getElementById("menu-btn");
+    const mobileNav = document.getElementById("mobile-nav");
+    function setMenu(open) {
+      mobileNav.hidden = !open;
+      menuBtn.setAttribute("aria-expanded", String(open));
+      menuBtn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      menuBtn.querySelector("use").setAttribute("href", open ? "#i-close" : "#i-menu");
+    }
+    menuBtn.addEventListener("click", () => setMenu(mobileNav.hidden));
+    mobileNav.addEventListener("click", (e) => { if (e.target.closest("a")) setMenu(false); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") setMenu(false); });
+
+    // Track a delivery: accepts a full link (…/t/CODE/) or just the code.
+    document.getElementById("track-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("track-msg");
+      const raw = document.getElementById("track-code").value.trim();
+      const m = raw.match(/\/t\/([A-Za-z0-9_-]+)/);
+      const code = m ? m[1] : raw.replace(/[^A-Za-z0-9_-]/g, "");
+      if (code.length < 6) {
+        msg.className = "form-msg err";
+        msg.textContent = "Enter the tracking code or paste the full link from your WhatsApp message.";
+        return;
+      }
+      msg.className = "form-msg";
+      msg.textContent = "Opening your delivery…";
+      window.open(TRUCKSY_APP_URL + "/t/" + encodeURIComponent(code) + "/", "_blank", "noopener");
+    });
+
+    // Quote form: sent to Netlify Forms without leaving the page.
+    const quoteForm = document.getElementById("quote-form");
+    quoteForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("quote-msg");
+      if (!quoteForm.checkValidity()) { quoteForm.reportValidity(); return; }
+      const btn = quoteForm.querySelector("button[type=submit]");
+      btn.disabled = true;
+      msg.className = "form-msg";
+      msg.textContent = "Sending…";
+      try {
+        const res = await fetch("/", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams(new FormData(quoteForm)).toString(),
+        });
+        if (!res.ok) throw new Error(res.status);
+        quoteForm.hidden = true;
+        const ok = document.getElementById("quote-success");
+        ok.style.display = "block";
+        ok.focus();
+      } catch (err) {
+        msg.className = "form-msg err";
+        msg.innerHTML = 'We couldn\'t send your request. Please try again, or email <a href="mailto:info@trucksy.bh">info@trucksy.bh</a>.';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

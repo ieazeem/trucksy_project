@@ -90,7 +90,7 @@ export async function startTracking(): Promise<{ mode: TrackingMode; message?: s
           foregroundService: {
             notificationTitle: 'Trucksy is tracking your trip',
             notificationBody: 'Your dispatcher can see your truck on the map.',
-            notificationColor: '#12459b',
+            notificationColor: '#34d399',
           },
         });
       }

@@ -7,3 +7,4 @@ ios/
 *.apk
 *.aab
 .env
+node_modules

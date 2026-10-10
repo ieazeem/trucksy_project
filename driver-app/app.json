@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "trucksydriver",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
@@ -23,7 +23,7 @@
       "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#12459B"
+        "backgroundColor": "#1A1A1A"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -57,7 +57,7 @@
           "image": "./assets/splash-icon.png",
           "imageWidth": 160,
           "resizeMode": "contain",
-          "backgroundColor": "#12459B"
+          "backgroundColor": "#1A1A1A"
         }
       ],
       [
@@ -79,6 +79,7 @@
       "eas": {
         "projectId": "a210624d-909d-4643-9304-d85cc4567196"
       }
-    }
+    },
+    "backgroundColor": "#262626"
   }
 }

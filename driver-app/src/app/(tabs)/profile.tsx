@@ -77,7 +77,7 @@ const st = StyleSheet.create({
   h1: { fontFamily: fonts.display, fontSize: 38, lineHeight: 42, marginBottom: 14 },
   name: { fontFamily: fonts.display, fontSize: 30, lineHeight: 34, color: '#fff' },
   truckRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12 },
-  plate: { borderWidth: 2, borderColor: colors.ink, borderRadius: 5, paddingHorizontal: 8, backgroundColor: '#fff' },
-  plateText: { fontFamily: fonts.display, fontSize: 18 },
-  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.line },
+  plate: { borderWidth: 1, borderColor: colors.amber, borderRadius: 5, paddingHorizontal: 8, backgroundColor: '#000' },
+  plateText: { fontFamily: fonts.display, fontSize: 18, color: colors.amber },
+  row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.line, gap: 12 },
 });

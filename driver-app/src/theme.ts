@@ -1,23 +1,29 @@
 // Same road-sign language as the dispatch console: sign blue + highway amber.
 export const colors = {
-  ink: '#18212e',
-  ink2: '#566172',
-  ink3: '#8a93a0',
-  concrete: '#eceeea',
-  paper: '#ffffff',
-  line: '#d9ddd5',
-  sign: '#12459b',
-  signDeep: '#0c326f',
-  signTint: '#e3ebf8',
-  signText: '#d5e1f6',
-  amber: '#f2a900',
-  amberTint: '#fdf3d6',
-  amberInk: '#7a5300',
-  go: '#1d8a57',
-  goTint: '#dff1e7',
-  stop: '#c2382e',
-  stopTint: '#f8e2df',
-  asphalt: '#2a3340',
+  // Same palette as the Trucksy website and dispatch console:
+  // dark grey / black / emerald green (the trucks' underglow).
+  ink: '#ffffff',
+  ink2: '#c9cdd2',
+  ink3: '#8f969e',
+  concrete: '#262626',
+  paper: '#333333',
+  field: '#404040',
+  line: '#3d3d3d',
+  sign: '#1a1a1a',
+  signDeep: '#000000',
+  signTint: 'rgba(125,211,252,0.14)',
+  signText: '#c9cdd2',
+  sky: '#7dd3fc',
+  amber: '#34d399',
+  amberTint: 'rgba(52,211,153,0.14)',
+  amberInk: '#34d399',
+  go: '#e5e7eb',
+  goTint: 'rgba(255,255,255,0.09)',
+  wait: '#fbbf24',
+  waitTint: 'rgba(251,191,36,0.14)',
+  stop: '#f87171',
+  stopTint: 'rgba(248,113,113,0.14)',
+  asphalt: '#111111',
 };
 
 export const fonts = {
@@ -33,17 +39,17 @@ export type LoadStatus =
   | 'pending' | 'assigned' | 'to_pickup' | 'loaded' | 'in_transit' | 'delivered' | 'cancelled';
 
 export const statusStyle: Record<string, { bg: string; fg: string }> = {
-  pending: { bg: '#eef0ec', fg: colors.ink2 },
-  assigned: { bg: colors.signTint, fg: colors.sign },
-  to_pickup: { bg: colors.signTint, fg: colors.sign },
-  available: { bg: colors.goTint, fg: colors.go },
+  pending: { bg: colors.waitTint, fg: colors.wait },
+  assigned: { bg: colors.signTint, fg: colors.sky },
+  to_pickup: { bg: colors.signTint, fg: colors.sky },
+  available: { bg: colors.signTint, fg: colors.sky },
   loaded: { bg: colors.amberTint, fg: colors.amberInk },
   in_transit: { bg: colors.amberTint, fg: colors.amberInk },
   on_job: { bg: colors.amberTint, fg: colors.amberInk },
   delivered: { bg: colors.goTint, fg: colors.go },
   cancelled: { bg: colors.stopTint, fg: colors.stop },
-  offline: { bg: '#eef0ec', fg: colors.ink3 },
-  break: { bg: '#f1ecf8', fg: '#6a4aa0' },
+  offline: { bg: 'rgba(255,255,255,0.06)', fg: colors.ink3 },
+  break: { bg: 'rgba(196,181,253,0.14)', fg: '#c4b5fd' },
 };
 
 /** What the big button says for the next step of a job. */

@@ -37,4 +37,4 @@ export function Icon({ name, color, size = 24 }: Props) {
   );
 }
 
-const st = StyleSheet.create({ wheel: { position: 'absolute', backgroundColor: '#fff' } });
+const st = StyleSheet.create({ wheel: { position: 'absolute', backgroundColor: 'transparent' } });

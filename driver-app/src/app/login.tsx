@@ -41,8 +41,8 @@ export default function Login() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={st.wrap} keyboardShouldPersistTaps="handled">
           <View style={st.brand}>
-            <View style={st.mark}><Icon name="truck" color={colors.ink} size={26} /></View>
-            <T style={st.brandName}>Trucksy</T>
+            <View style={st.mark}><Icon name="truck" color={colors.amber} size={26} /></View>
+            <T style={st.brandName}>TRUCKSY</T>
           </View>
 
           <SignBoard>
@@ -89,13 +89,13 @@ export default function Login() {
 const st = StyleSheet.create({
   wrap: { padding: 20, paddingTop: 36, flexGrow: 1 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 22 },
-  mark: { width: 44, height: 44, borderRadius: 9, backgroundColor: colors.amber, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: colors.ink },
-  brandName: { fontFamily: fonts.display, fontSize: 30, lineHeight: 34, color: colors.sign },
+  mark: { width: 44, height: 44, borderRadius: 9, backgroundColor: '#000', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.amber },
+  brandName: { fontFamily: fonts.display, fontSize: 30, lineHeight: 34, color: '#fff', letterSpacing: 2 },
   h1: { fontFamily: fonts.display, fontSize: 36, lineHeight: 40, color: '#fff' },
   lead: { color: colors.signText, marginTop: 2, marginBottom: 14 },
   label: { color: '#fff', fontFamily: fonts.semibold, fontSize: 14, marginTop: 10, marginBottom: 5 },
-  input: { backgroundColor: '#fff', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 12, fontSize: 18, fontFamily: fonts.medium, color: colors.ink },
-  error: { color: '#ffd2cc', marginTop: 12, fontFamily: fonts.medium },
+  input: { backgroundColor: colors.field, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 12, fontSize: 18, fontFamily: fonts.medium, color: colors.ink },
+  error: { color: colors.stop, marginTop: 12, fontFamily: fonts.medium },
   serverToggle: { alignSelf: 'center', padding: 12, marginTop: 10 },
-  serverBox: { backgroundColor: colors.paper, borderRadius: 8, padding: 12, borderWidth: 1, borderColor: colors.line },
+  serverBox: { backgroundColor: colors.paper, borderRadius: 8, padding: 12, borderWidth: 1, borderColor: '#1a1a1a' },
 });

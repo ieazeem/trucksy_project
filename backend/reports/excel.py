@@ -10,12 +10,12 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
-SIGN_BLUE = "12459B"
-AMBER = "F2A900"
+HEADER_BLACK = "1A1A1A"  # header fill (Trucksy black)
+GREEN = "059669"  # Trucksy green, darkened for readability on white
 HEADER_FONT = Font(bold=True, color="FFFFFF")
-HEADER_FILL = PatternFill("solid", fgColor=SIGN_BLUE)
+HEADER_FILL = PatternFill("solid", fgColor=HEADER_BLACK)
 TOTAL_FONT = Font(bold=True)
-TOTAL_FILL = PatternFill("solid", fgColor="FDF3D6")
+TOTAL_FILL = PatternFill("solid", fgColor="D1FAE5")
 THIN = Side(style="thin", color="D9DDD5")
 
 MONEY = '#,##0.000 "BHD"'
@@ -78,7 +78,7 @@ class Sheet:
         self.columns = columns
         self.start_row = 1
         if title_row:
-            self.ws.cell(row=1, column=1, value=title_row).font = Font(bold=True, size=13, color=SIGN_BLUE)
+            self.ws.cell(row=1, column=1, value=title_row).font = Font(bold=True, size=13, color=GREEN)
             self.start_row = 3
         for i, col in enumerate(columns, start=1):
             c = self.ws.cell(row=self.start_row, column=i, value=col[0])
