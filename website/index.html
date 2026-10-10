@@ -79,10 +79,18 @@
     .btn-ghost:hover { border-color: var(--green); color: var(--green); transform: translateY(-2px); }
     .btn:disabled { opacity: .6; cursor: progress; transform: none; }
 
-    /* ---------- logo ---------- */
-    .brand { display: inline-flex; align-items: center; gap: .7rem; text-decoration: none; }
-    .brand svg { width: 38px; height: 38px; flex: none; }
-    .brand b { font-family: var(--display); font-stretch: 125%; font-weight: 800; font-size: 1.12rem; letter-spacing: .2em; }
+    /* ---------- logo: the official TRUCKSY wordmark with its green sweep ---------- */
+    .logo {
+      --glow: 0 0 10px #FFFFFF, 0 0 30px var(--green), 0 0 50px rgba(52, 211, 153, 0.8), 0 0 80px rgba(52, 211, 153, 0.4);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      font-size: 1.9rem; font-weight: 800; letter-spacing: 0.04em; text-decoration: none; white-space: nowrap; line-height: 1; color: #fff;
+    }
+    .logo span { display: inline-block; color: #fff; animation: sweep 4s infinite; }
+    .logo span:nth-child(2) { animation-delay: 0.12s; } .logo span:nth-child(3) { animation-delay: 0.24s; }
+    .logo span:nth-child(4) { animation-delay: 0.36s; } .logo span:nth-child(5) { animation-delay: 0.48s; }
+    .logo span:nth-child(6) { animation-delay: 0.6s; } .logo span:nth-child(7) { animation-delay: 0.72s; }
+    @keyframes sweep { 0%, 20%, 100% { color: #fff; text-shadow: none; } 8% { color: var(--green); text-shadow: var(--glow); } }
+    .foot .logo { font-size: 1.5rem; }
 
     /* ---------- nav ---------- */
     .nav { position: fixed; inset: 0 0 auto; z-index: 50; transition: background .4s, border-color .4s, backdrop-filter .4s; border-bottom: 1px solid transparent; }
@@ -297,8 +305,7 @@
     .promise blockquote { margin: 0; font-family: var(--display); font-stretch: 112%; font-weight: 700; font-size: clamp(1.3rem, 2.4vw, 1.75rem); line-height: 1.3; position: relative; z-index: 1; }
     .promise blockquote em { font-style: normal; color: var(--green); }
     .promise .sig { margin-top: 1.6rem; display: flex; align-items: center; gap: .8rem; color: var(--muted); font-size: .9rem; position: relative; z-index: 1; }
-    .promise .sig svg { width: 34px; height: 34px; }
-
+    
     /* ---------- track ---------- */
     .track-panel {
       position: relative; display: grid; grid-template-columns: 1fr 1.1fr; gap: 2rem; align-items: center; padding: clamp(1.8rem, 4vw, 3.2rem);
@@ -440,6 +447,7 @@
       html { scroll-behavior: auto; }
       *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; transition-delay: 0s !important; }
       .map .flow { animation: none; }
+      .logo span { animation: none !important; }
     }
   </style>
 </head>
@@ -452,27 +460,13 @@
     <symbol id="i-pin" viewBox="0 0 24 24"><g fill="none" stroke="#34D399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.6"/></g></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="#34D399" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
     <symbol id="i-wa" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></symbol>
-    <symbol id="logo" viewBox="0 0 48 48">
-      <defs>
-        <filter id="lg-g" x="-50%" y="-200%" width="200%" height="500%"><feGaussianBlur stdDeviation="1.6"/></filter>
-        <linearGradient id="lg-road" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d9dde1"/></linearGradient>
-      </defs>
-      <rect x="1" y="1" width="46" height="46" rx="12" fill="#0b0c0c" stroke="#34D399" stroke-opacity=".55"/>
-      <rect x="10" y="10" width="28" height="7" rx="2" fill="url(#lg-road)"/>
-      <path d="M20.5 17h7l4.5 20h-16z" fill="url(#lg-road)"/>
-      <rect x="23.3" y="20" width="1.4" height="3" rx=".7" fill="#34D399"/>
-      <rect x="23.15" y="25.5" width="1.7" height="3.8" rx=".85" fill="#34D399"/>
-      <rect x="23" y="31.8" width="2" height="4.6" rx="1" fill="#34D399"/>
-      <rect x="12" y="39.6" width="24" height="2.2" rx="1.1" fill="#34D399" filter="url(#lg-g)"/>
-      <rect x="14" y="40" width="20" height="1.4" rx=".7" fill="#34D399"/>
-    </symbol>
   </svg>
 
   <a class="sr-only" href="#main">Skip to content</a>
 
   <header class="nav" id="nav">
     <div class="wrap">
-      <a href="#top" class="brand" aria-label="Trucksy home"><svg aria-hidden="true"><use href="#logo"/></svg><b>TRUCKSY</b></a>
+      <a href="#top" class="logo" aria-label="Trucksy home"><span>T</span><span>R</span><span>U</span><span>C</span><span>K</span><span>S</span><span>Y</span></a>
       <nav class="nav-links" aria-label="Main">
         <a href="#services">Services</a>
         <a href="#network">Routes</a>
@@ -711,7 +705,7 @@
         </div>
         <figure class="promise rv" style="--d:.1s; margin:0">
           <blockquote>Not merely on paper, not just conceptually, but <em>practically on the ground</em> in Bahrain. This is our promise.</blockquote>
-          <figcaption class="sig"><svg aria-hidden="true"><use href="#logo"/></svg>The Trucksy team · Kingdom of Bahrain</figcaption>
+          <figcaption class="sig"><span class="logo" aria-hidden="true" style="font-size:1.1rem"><span>T</span><span>R</span><span>U</span><span>C</span><span>K</span><span>S</span><span>Y</span></span>The Trucksy team · Kingdom of Bahrain</figcaption>
         </figure>
       </div>
     </section>
@@ -822,7 +816,7 @@
     <div class="wrap">
       <div class="foot">
         <div>
-          <a href="#top" class="brand" aria-label="Back to top"><svg aria-hidden="true"><use href="#logo"/></svg><b>TRUCKSY</b></a>
+          <a href="#top" class="logo" aria-label="Back to top"><span>T</span><span>R</span><span>U</span><span>C</span><span>K</span><span>S</span><span>Y</span></a>
           <p>Road freight and logistics across Bahrain and the GCC, with live tracking on every delivery.</p>
         </div>
         <div>

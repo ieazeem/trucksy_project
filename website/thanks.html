@@ -13,7 +13,14 @@
       background: radial-gradient(60% 50% at 50% 40%, rgba(52,211,153,.12), transparent 70%), #0b0c0c;
       font-family: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
     .box { max-width: 480px; border: 1px solid rgba(52,211,153,.35); border-radius: 28px; padding: 2.8rem 1.6rem; background: linear-gradient(180deg, #131615, #0d0e0e); }
-    .logo { width: 56px; height: 56px; margin: 0 auto 1.4rem; }
+    .logo { --glow: 0 0 10px #FFFFFF, 0 0 30px #34D399, 0 0 50px rgba(52,211,153,.8), 0 0 80px rgba(52,211,153,.4);
+      display: block; margin: 0 0 1.6rem; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 1.9rem; font-weight: 800; letter-spacing: .04em; line-height: 1; }
+    .logo span { display: inline-block; color: #fff; animation: sweep 4s infinite; }
+    .logo span:nth-child(2) { animation-delay: .12s; } .logo span:nth-child(3) { animation-delay: .24s; }
+    .logo span:nth-child(4) { animation-delay: .36s; } .logo span:nth-child(5) { animation-delay: .48s; }
+    .logo span:nth-child(6) { animation-delay: .6s; } .logo span:nth-child(7) { animation-delay: .72s; }
+    @keyframes sweep { 0%, 20%, 100% { color: #fff; text-shadow: none; } 8% { color: #34D399; text-shadow: var(--glow); } }
     h1 { margin: 0 0 .6rem; font-size: 1.7rem; font-stretch: 125%; font-weight: 800; text-transform: uppercase; }
     p { color: #b9bec4; margin: 0 0 1.8rem; }
     a { display: inline-flex; height: 52px; align-items: center; padding: 0 1.6rem; border-radius: 999px; background: #34D399; color: #04130d;
@@ -23,7 +30,7 @@
 </head>
 <body>
   <div class="box">
-    <img class="logo" src="logo.svg" alt="Trucksy">
+    <div class="logo" role="img" aria-label="Trucksy"><span>T</span><span>R</span><span>U</span><span>C</span><span>K</span><span>S</span><span>Y</span></div>
     <h1>Quote request sent</h1>
     <p>Thank you. Our team will reply within 24 hours.</p>
     <a href="/">Back to Trucksy</a>
