@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { PoweredBy } from '../../components/PoweredBy';
 import { Btn, Card, SignBoard, T } from '../../components/ui';
 import { api, getApiUrl } from '../../lib/api';
 import { useAuth } from '../../lib/auth';
@@ -64,6 +65,7 @@ export default function Profile() {
         <T variant="small" style={{ textAlign: 'center', marginTop: 16 }}>
           Trucksy Driver {Constants.expoConfig?.version} · {server.replace(/^https?:\/\//, '')}
         </T>
+        <PoweredBy />
       </ScrollView>
     </SafeAreaView>
   );

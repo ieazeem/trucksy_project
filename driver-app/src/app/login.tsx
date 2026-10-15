@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Btn, SignBoard, T } from '../components/ui';
 import { Wordmark } from '../components/Wordmark';
+import { PoweredBy } from '../components/PoweredBy';
 import { DEFAULT_API_URL, getApiUrl, setApiUrl } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { colors, fonts } from '../theme';
@@ -79,6 +80,7 @@ export default function Login() {
             </View>
           )}
           <T variant="small" style={{ textAlign: 'center', marginTop: 12 }}>Forgot your PIN? Ask your dispatcher to reset it.</T>
+          <PoweredBy />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
